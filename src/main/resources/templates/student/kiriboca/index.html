@@ -16,7 +16,7 @@
     <script th:src="@{/js/dark-mode.js}" defer></script>
     <script th:src="@{/js/change-cards.js}" defer></script>
     <script th:src="@{/js/admin.js}" defer></script>
-    
+
     <!-- 중복 로드 방지 스크립트 -->
     <script>
         // 중복 선언 방지
@@ -223,7 +223,7 @@
         // API 연결 상태 확인
         async checkApiConnection() {
             console.log('🔍 API 연결 상태 확인');
-            
+
             try {
                 const response = await fetch('/api/sidebar/levels');
                 if (!response.ok) {
@@ -247,14 +247,14 @@
 
             setTimeout(() => {
                 this.setupNavigationEvents();
-                
+
                 // 향상된 통합 학습 관리자가 있으면 학습 이벤트는 설정하지 않음
                 if (!window.enhancedIntegratedLearningManager) {
                 this.setupLearningPageEvents();
                 } else {
                     console.log('🔄 향상된 통합 학습 관리자가 있으므로 기본 학습 이벤트 스킵');
                 }
-                
+
                 this.setupAdminEvents();
                 this.setupProfileEvents();
                 this.updateDisplay();
@@ -673,5 +673,9 @@
         initAdmin: () => window.initAdminDashboard() // 수동 관리자 초기화
     };
 </script>
+<!-- JavaScript 파일들 (캐시 버스팅) -->
+    <script th:src="@{/js/main-content.js?v=1.0.1}"></script>
+    <script th:src="@{/js/change-cards.js?v=1.0.1}"></script>
+    <script th:src="@{/js/dark-mode.js?v=1.0.1}"></script>
 </body>
 </html>

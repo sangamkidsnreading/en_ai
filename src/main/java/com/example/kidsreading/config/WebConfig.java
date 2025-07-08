@@ -13,28 +13,28 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // JavaScript 파일들을 위한 핸들러
+        // JavaScript 파일들을 위한 핸들러 (캐시 무효화)
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("classpath:/static/js/")
-                .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                .setCacheControl(CacheControl.noCache().mustRevalidate())
                 .resourceChain(true);
 
-        // 키리보카 JavaScript 파일들을 위한 핸들러
+        // 키리보카 JavaScript 파일들을 위한 핸들러 (캐시 무효화)
         registry.addResourceHandler("/student/kiriboca/js/**")
                 .addResourceLocations("classpath:/static/student/kiriboca/js/")
-                .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                .setCacheControl(CacheControl.noCache().mustRevalidate())
                 .resourceChain(true);
 
-        // CSS 파일들을 위한 핸들러
+        // CSS 파일들을 위한 핸들러 (캐시 무효화)
         registry.addResourceHandler("/student/kiriboca/css/**")
                 .addResourceLocations("classpath:/static/student/kiriboca/css/")
-                .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                .setCacheControl(CacheControl.noCache().mustRevalidate())
                 .resourceChain(true);
 
-        // 일반 CSS 파일들
+        // 일반 CSS 파일들 (캐시 무효화)
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/")
-                .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                .setCacheControl(CacheControl.noCache().mustRevalidate())
                 .resourceChain(true);
 
         // 이미지 파일들
