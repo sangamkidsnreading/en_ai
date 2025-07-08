@@ -1,99 +1,14 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="sidebar" class="sidebar">
-    <!-- Header -->
+<div th:fragment="sidebar" class="sidebar-container">
     <div class="sidebar-header">
-        <div class="logo">
-            <div class="logo-icon">키</div>
-            <div>
-                <div class="logo-text">키리보카</div>
-                <div class="logo-subtitle">관리자</div>
-            </div>
-        </div>
-
-        <!-- Theme Toggle -->
-        <button class="theme-toggle" id="dark-mode-toggle">
-            <span class="theme-icon" id="theme-icon">🌙</span>
-            <span id="theme-text">다크모드</span>
-        </button>
+        <h2>🎯 학습 필터</h2>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="sidebar-filters">
-        <div class="filter-group">
-            <input type="text" class="search-input" placeholder="🔍 Search words...">
-        </div>
-
-        <div class="filter-group">
-            <label class="filter-label">레벨 선택</label>
-            <select class="filter-select" id="level-select" data-current-level="1">
-                <option value="1">Level 1</option>
-                <option value="2">Level 2</option>
-                <option value="3">Level 3</option>
-                <option value="4">Level 4</option>
-                <option value="5">Level 5</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label class="filter-label">Day</label>
-            <select class="filter-select" id="day-select" data-current-day="1">
-                <!--# th:each="d : ${#numbers.sequence(1,50)}"-->
-                <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Navigation Menu -->
-    <nav class="sidebar-nav">
-        <div class="nav-item active" data-page="learning">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-text">학습하기</span>
-            <span class="nav-badge">1</span>
-        </div>
-        <div class="nav-item" data-page="dashboard">
-            <span class="nav-icon">📊</span>
-            <span class="nav-text">대시보드</span>
-            <span class="nav-badge">2</span>
-        </div>
-        <div class="nav-item" data-page="profile">
-            <span class="nav-icon">👤</span>
-            <span class="nav-text">프로필</span>
-            <span class="nav-badge">3</span>
-        </div>
-        <div class="nav-item" data-page="admin">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-text">관리자</span>
-            <span class="nav-badge">4</span>
-        </div>
-        <div class="nav-item" data-page="logout">
-            <span class="nav-icon">🚪</span>
-            <span class="nav-text">로그아웃</span>
-            <span class="nav-badge">5</span>
-        </div>
-    </nav>
-
-    <!-- Footer -->
-    <div class="sidebar-footer">
-        <div class="user-info">
-            <div class="user-avatar">U</div>
-            <div class="user-details">
-                <div class="user-name">관리자</div>
-                <div class="user-status">온라인</div>
-            </div>
-        </div>
-    </div>
-</div>
-</html>
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<div th:fragment="sidebar" class="sidebar">
     <div class="filter-section">
-        <h3>학습 필터</h3>
-
         <div class="filter-group">
             <label class="filter-label">레벨 선택</label>
-            <select class="filter-select" id="level-select" data-current-level="1">
+            <select class="filter-select" id="level-select">
                 <option value="1">Level 1</option>
                 <option value="2">Level 2</option>
                 <option value="3">Level 3</option>
@@ -104,136 +19,85 @@
 
         <div class="filter-group">
             <label class="filter-label">Day 선택</label>
-            <select class="filter-select" id="day-select" data-current-day="1">
-                <!-- Day 1~50 -->
-                <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
+            <select class="filter-select" id="day-select">
+                <option value="1">Day 1</option>
+                <option value="2">Day 2</option>
+                <option value="3">Day 3</option>
+                <option value="4">Day 4</option>
+                <option value="5">Day 5</option>
+                <option value="6">Day 6</option>
+                <option value="7">Day 7</option>
+                <option value="8">Day 8</option>
+                <option value="9">Day 9</option>
+                <option value="10">Day 10</option>
+                <option value="11">Day 11</option>
+                <option value="12">Day 12</option>
+                <option value="13">Day 13</option>
+                <option value="14">Day 14</option>
+                <option value="15">Day 15</option>
+                <option value="16">Day 16</option>
+                <option value="17">Day 17</option>
+                <option value="18">Day 18</option>
+                <option value="19">Day 19</option>
+                <option value="20">Day 20</option>
+                <option value="21">Day 21</option>
+                <option value="22">Day 22</option>
+                <option value="23">Day 23</option>
+                <option value="24">Day 24</option>
+                <option value="25">Day 25</option>
+                <option value="26">Day 26</option>
+                <option value="27">Day 27</option>
+                <option value="28">Day 28</option>
+                <option value="29">Day 29</option>
+                <option value="30">Day 30</option>
+                <option value="31">Day 31</option>
+                <option value="32">Day 32</option>
+                <option value="33">Day 33</option>
+                <option value="34">Day 34</option>
+                <option value="35">Day 35</option>
+                <option value="36">Day 36</option>
+                <option value="37">Day 37</option>
+                <option value="38">Day 38</option>
+                <option value="39">Day 39</option>
+                <option value="40">Day 40</option>
+                <option value="41">Day 41</option>
+                <option value="42">Day 42</option>
+                <option value="43">Day 43</option>
+                <option value="44">Day 44</option>
+                <option value="45">Day 45</option>
+                <option value="46">Day 46</option>
+                <option value="47">Day 47</option>
+                <option value="48">Day 48</option>
+                <option value="49">Day 49</option>
+                <option value="50">Day 50</option>
             </select>
         </div>
-    </div>
 
-    <div class="search-section">
-        <h3>검색</h3>
-        <div class="search-group">
-            <input type="text" id="search-input" class="search-input" placeholder="단어나 문장 검색...">
-            <button id="search-button" class="search-button">🔍</button>
+        <div class="filter-group">
+            <label class="filter-label">검색</label>
+            <div class="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="단어나 문장을 검색하세요">
+                <button id="search-button" class="search-button">🔍</button>
+            </div>
         </div>
     </div>
 
     <div class="stats-section">
-        <h3>오늘의 학습</h3>
-        <div class="stats-item">
-            <span class="stats-label">완료한 단어:</span>
-            <span class="stats-value" id="completed-words">0</span>
+        <h3>📊 오늘의 학습 현황</h3>
+        <div class="stat-item">
+            <span class="stat-label">완료한 단어:</span>
+            <span class="stat-value" id="completed-words">0</span>
         </div>
-        <div class="stats-item">
-            <span class="stats-label">완료한 문장:</span>
-            <span class="stats-value" id="completed-sentences">0</span>
+        <div class="stat-item">
+            <span class="stat-label">완료한 문장:</span>
+            <span class="stat-value" id="completed-sentences">0</span>
         </div>
     </div>
+
+    <div class="coin-display">
+        <div class="coin-icon">🪙</div>
+        <div class="coin-number">0</div>
+    </div>
 </div>
-
-<style>
-.sidebar {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.filter-section h3,
-.search-section h3,
-.stats-section h3 {
-    color: #333;
-    font-size: 16px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 8px;
-}
-
-.filter-group {
-    margin-bottom: 15px;
-}
-
-.filter-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #555;
-    font-size: 14px;
-}
-
-.filter-select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 2px solid #e9ecef;
-    border-radius: 6px;
-    background: white;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-}
-
-.filter-select:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.search-group {
-    display: flex;
-    gap: 8px;
-}
-
-.search-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 2px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-.search-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.search-button {
-    padding: 8px 12px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-.search-button:hover {
-    background: #0056b3;
-}
-
-.stats-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.stats-item:last-child {
-    border-bottom: none;
-}
-
-.stats-label {
-    font-size: 14px;
-    color: #666;
-}
-
-.stats-value {
-    font-weight: bold;
-    color: #007bff;
-    font-size: 16px;
-}
-</style>
 
 </html>

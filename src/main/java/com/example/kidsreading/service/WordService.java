@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -64,11 +65,25 @@ public class WordService {
     }
 
     public List<Integer> getAvailableLevels() {
-        return wordRepository.findDistinctLevelsByIsActiveTrueOrderByLevel();
+        List<Integer> levels = wordRepository.findDistinctLevelsByIsActiveTrueOrderByLevel();
+        if (levels.isEmpty()) {
+            return List.of(1, 2, 3, 4, 5);
+        }
+        // 레벨 1-5로 제한
+        return levels.stream()
+                .filter(level -> level >= 1 && level <= 5)
+                .collect(Collectors.toList());
     }
 
     public List<Integer> getAvailableDaysByLevel(Integer level) {
-        return wordRepository.findDistinctDaysByLevelAndIsActiveTrueOrderByDay(level);
+        List<Integer> days = wordRepository.findDistinctDaysByLevelAndIsActiveTrueOrderByDay(level);
+        if (days.isEmpty()) {
+            return IntStream.rangeClosed(1, 50).boxed().toList();
+        }
+        // Day 1-50으로 제한
+        return days.stream()
+                .filter(day -> day >= 1 && day <= 50)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -107,14 +122,28 @@ public class WordService {
      * 사용 가능한 레벨 목록 조회
      */
     public List<Integer> getAvailableLevels() {
-        return wordRepository.findDistinctLevels();
+        List<Integer> levels = wordRepository.findDistinctLevels();
+        if (levels.isEmpty()) {
+            return List.of(1, 2, 3, 4, 5);
+        }
+        // 레벨 1-5로 제한
+        return levels.stream()
+                .filter(level -> level >= 1 && level <= 5)
+                .collect(Collectors.toList());
     }
 
     /**
      * 특정 레벨의 사용 가능한 Day 목록 조회
      */
     public List<Integer> getAvailableDaysByLevel(Integer level) {
-        return wordRepository.findDistinctDaysByLevel(level);
+        List<Integer> days = wordRepository.findDistinctDaysByLevel(level);
+        if (days.isEmpty()) {
+            return IntStream.rangeClosed(1, 50).boxed().toList();
+        }
+        // Day 1-50으로 제한
+        return days.stream()
+                .filter(day -> day >= 1 && day <= 50)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -178,11 +207,25 @@ public class WordService {
 
     // 사이드바용 - 사용 가능한 레벨 목록
     public List<Integer> getAvailableLevels() {
-        return wordRepository.findAvailableLevels();
+        List<Integer> levels = wordRepository.findAvailableLevels();
+        if (levels.isEmpty()) {
+            return List.of(1, 2, 3, 4, 5);
+        }
+        // 레벨 1-5로 제한
+        return levels.stream()
+                .filter(level -> level >= 1 && level <= 5)
+                .collect(Collectors.toList());
     }
 
     // 사이드바용 - 특정 레벨의 사용 가능한 Day 목록
     public List<Integer> getAvailableDaysByLevel(Integer level) {
-        return wordRepository.findAvailableDaysByLevel(level);
+        List<Integer> days = wordRepository.findAvailableDaysByLevel(level);
+        if (days.isEmpty()) {
+            return IntStream.rangeClosed(1, 50).boxed().toList();
+        }
+        // Day 1-50으로 제한
+        return days.stream()
+                .filter(day -> day >= 1 && day <= 50)
+                .collect(Collectors.toList());
     }
 }

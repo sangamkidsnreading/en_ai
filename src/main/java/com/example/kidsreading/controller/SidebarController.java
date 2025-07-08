@@ -53,8 +53,8 @@ public class SidebarController {
             Authentication authentication) {
 
         try {
-            if (level == null || level <= 0 || level > 10) level = 1;
-            if (day == null || day <= 0 || day > 5) day = 1;
+            if (level == null || level <= 0 || level > 5) level = 1;
+            if (day == null || day <= 0 || day > 50) day = 1;
 
             System.out.println("🔍 카드 필터링 요청 - Level: " + level + ", Day: " + day);
 
