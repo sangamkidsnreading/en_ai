@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,8 +47,8 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
-        return "redirect:/login";
+    public RedirectView home() {
+        return new RedirectView("/login");
     }
 
     @GetMapping("/dashboard")
