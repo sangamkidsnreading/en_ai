@@ -5,10 +5,6 @@ modules = ["java-graalvm22.3", "maven"]
 localPort = 8080
 externalPort = 80
 
-[[ports]]
-localPort = 35729
-externalPort = 3000
-
 [deployment]
 run = ["sh", "-c", "java -jar target/kidsreading-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=5000"]
 
