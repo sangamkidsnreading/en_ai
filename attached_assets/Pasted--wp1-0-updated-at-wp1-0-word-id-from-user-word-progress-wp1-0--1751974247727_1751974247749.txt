@@ -1,0 +1,57 @@
+        wp1_0.updated_at,
+        wp1_0.word_id 
+    from
+        user_word_progress wp1_0 
+    where
+        wp1_0.user_id=?
+2025-07-08 11:30:00 - 
+    update
+        users 
+    set
+        birth_date=?,
+        created_at=?,
+        email=?,
+        email_verified=?,
+        group_name=?,
+        is_active=?,
+        last_login=?,
+        name=?,
+        parent_name=?,
+        password=?,
+        phone_number=?,
+        role=?,
+        updated_at=?,
+        username=?,
+        verification_code=?,
+        verification_code_expires_at=? 
+    where
+        id=?
+Hibernate: 
+    update
+        users 
+    set
+        birth_date=?,
+        created_at=?,
+        email=?,
+        email_verified=?,
+        group_name=?,
+        is_active=?,
+        last_login=?,
+        name=?,
+        parent_name=?,
+        password=?,
+        phone_number=?,
+        role=?,
+        updated_at=?,
+        username=?,
+        verification_code=?,
+        verification_code_expires_at=? 
+    where
+        id=?
+2025-07-08 11:30:00 - 마지막 로그인 시간 업데이트: admin@kidsreading.com (ID: 1)
+2025-07-08 11:30:00 - Authenticated user
+2025-07-08 11:30:00 - Changed session id from 8D21FE315C6DF118F625255FD894764D
+2025-07-08 11:30:00 - Registering session ED2CDF24ABAC219785120A33527ADB7D, for principal com.example.kidsreading.service.CustomUserDetailsService$CustomUserPrincipal@34294dfe
+2025-07-08 11:30:00 - Stored SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.example.kidsreading.service.CustomUserDetailsService$CustomUserPrincipal@34294dfe, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=172.31.128.20, SessionId=8D21FE315C6DF118F625255FD894764D], Granted Authorities=[ROLE_ADMIN]]] to HttpSession [org.apache.catalina.session.StandardSessionFacade@28bcedd3]
+2025-07-08 11:30:00 - Set SecurityContextHolder to UsernamePasswordAuthenticationToken [Principal=com.example.kidsreading.service.CustomUserDetailsService$CustomUserPrincipal@34294dfe, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=172.31.128.20, SessionId=8D21FE315C6DF118F625255FD894764D], Granted Authorities=[ROLE_ADMIN]]
+2025-07-08 11:30:00 - Redirecting to /student/kiriboca/index
