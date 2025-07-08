@@ -1091,6 +1091,9 @@ class EnhancedIntegratedLearningManager {
         this.updateElement('.section-card:last-child .section-subtitle',
             `오늘의 문장 ${this.sentences.length}개를 학습해보세요! (${this.completedSentences.size}/${this.sentences.length})`);
 
+        // 사이드바 통계 업데이트
+        this.updateStatsDisplay();
+
         // 진행률 계산
         const wordProgress = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
         const sentenceProgress = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
@@ -1175,20 +1178,74 @@ class EnhancedIntegratedLearningManager {
         
         const levelSelect = document.getElementById('level-select');
         const daySelect = document.getElementById('day-select');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        
         if (levelSelect) {
-            levelSelect.addEventListener('change', (e) => {
-                this.currentLevel = Number(e.target.value);
-                this.loadLearningData();
-                this.updateHeader();
-                // 레벨이 변경되면 해당 레벨의 데이 옵션도 업데이트
-                this.loadDayOptions(this.currentLevel);
+            levelSelect.addEventListener('change', async (e) => {
+                const newLevel = Number(e.target.value);
+                if (newLevel !== this.currentLevel) {
+                    this.currentLevel = newLevel;
+                    this.currentDay = 1; // 레벨 변경 시 Day 1로 초기화
+                    
+                    // Day 옵션 업데이트
+                    await this.loadDayOptions(this.currentLevel);
+                    
+                    // Day 선택값도 1로 초기화
+                    if (daySelect) {
+                        daySelect.value = 1;
+                    }
+                    
+                    // 데이터 새로 로드
+                    await this.loadLearningData();
+                    this.updateHeader();
+                    this.updateStatsDisplay();
+                }
             });
         }
+        
         if (daySelect) {
-            daySelect.addEventListener('change', (e) => {
-                this.currentDay = Number(e.target.value);
-                this.loadLearningData();
-                this.updateHeader();
+            daySelect.addEventListener('change', async (e) => {
+                const newDay = Number(e.target.value);
+                if (newDay !== this.currentDay) {
+                    this.currentDay = newDay;
+                    await this.loadLearningData();
+                    this.updateHeader();
+                    this.updateStatsDisplay();
+                }
+            });
+        }
+        
+        // 검색 기능
+        if (searchInput && searchButton) {
+            const performSearch = async () => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    await this.performSearch(query);
+                } else {
+                    await this.loadLearningData(); // 검색어가 없으면 전체 데이터 로드
+                }
+            };
+            
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 검색어 실시간 변경 (디바운스 적용)
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(async () => {
+                    const query = searchInput.value.trim();
+                    if (query.length >= 2) {
+                        await this.performSearch(query);
+                    } else if (query.length === 0) {
+                        await this.loadLearningData();
+                    }
+                }, 300);
             });
         }
     }
@@ -1259,6 +1316,45 @@ class EnhancedIntegratedLearningManager {
         const headerTitle = document.querySelector('.header-left h1');
         if (headerTitle) {
             headerTitle.textContent = `Level ${this.currentLevel} - Day ${this.currentDay}`;
+        }
+    }
+
+    // 검색 기능
+    async performSearch(query) {
+        try {
+            const response = await fetch(`/api/sidebar/search?query=${encodeURIComponent(query)}&level=${this.currentLevel}&day=${this.currentDay}`);
+            if (!response.ok) throw new Error('검색 실패');
+            
+            const searchResult = await response.json();
+            
+            // 검색 결과로 카드 업데이트
+            this.words = searchResult.words || [];
+            this.sentences = searchResult.sentences || [];
+            
+            this.renderWordsToHTML();
+            this.renderSentencesToHTML();
+            
+            // 검색 결과 메시지 표시
+            const totalResults = this.words.length + this.sentences.length;
+            this.showMessage(`"${query}" 검색 결과: ${totalResults}개 발견`);
+            
+        } catch (error) {
+            console.error('검색 실패:', error);
+            this.showError('검색 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 사이드바 통계 업데이트
+    updateStatsDisplay() {
+        const completedWordsEl = document.getElementById('completed-words');
+        const completedSentencesEl = document.getElementById('completed-sentences');
+        
+        if (completedWordsEl) {
+            completedWordsEl.textContent = this.completedWords.size;
+        }
+        
+        if (completedSentencesEl) {
+            completedSentencesEl.textContent = this.completedSentences.size;
         }
     }
 }

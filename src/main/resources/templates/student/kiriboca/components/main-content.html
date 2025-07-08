@@ -2,6 +2,9 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="main-content" class="main-content">
+    <!-- 사이드바 포함 -->
+    <div th:replace="~{student/kiriboca/components/sidebar :: sidebar}"></div>
+    
     <div class="main-container">
         <!-- Header - 이미지와 정확히 동일 -->
         <div class="header">

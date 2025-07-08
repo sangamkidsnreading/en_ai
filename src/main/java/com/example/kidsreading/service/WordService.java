@@ -71,10 +71,32 @@ public class WordService {
     }
 
     /**
-     * 완료된 단어 수 조회
+     * 사용자의 단어 완료 개수 조회
      */
     public int getCompletedWordsCount(Long userId, Integer level, Integer day) {
-        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
+        if (level == 0 && day == 0) {
+            return (int) userWordProgressRepository.countByUserIdAndIsCompletedTrue(userId);
+        } else if (level == 0) {
+            return userWordProgressRepository.countCompletedWordsByUserAndDay(userId, day);
+        } else if (day == 0) {
+            return userWordProgressRepository.countCompletedWordsByUserAndLevel(userId, level);
+        } else {
+            return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
+        }
+    }
+
+    /**
+     * 사용 가능한 레벨 목록 조회
+     */
+    public List<Integer> getAvailableLevels() {
+        return wordRepository.findDistinctLevels();
+    }
+
+    /**
+     * 특정 레벨의 사용 가능한 Day 목록 조회
+     */
+    public List<Integer> getAvailableDaysByLevel(Integer level) {
+        return wordRepository.findDistinctDaysByLevel(level);
     }
 
     /**

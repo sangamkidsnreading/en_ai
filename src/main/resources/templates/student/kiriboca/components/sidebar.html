@@ -139,3 +139,156 @@
     </div>
 </div>
 </html>
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="sidebar" class="sidebar">
+    <div class="filter-section">
+        <h3>학습 필터</h3>
+        
+        <div class="filter-group">
+            <label class="filter-label">레벨 선택</label>
+            <select class="filter-select" id="level-select" data-current-level="1">
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label">Day 선택</label>
+            <select class="filter-select" id="day-select" data-current-day="1">
+                <!-- Day 1~50 -->
+                <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <h3>검색</h3>
+        <div class="search-group">
+            <input type="text" id="search-input" class="search-input" placeholder="단어나 문장 검색...">
+            <button id="search-button" class="search-button">🔍</button>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h3>오늘의 학습</h3>
+        <div class="stats-item">
+            <span class="stats-label">완료한 단어:</span>
+            <span class="stats-value" id="completed-words">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">완료한 문장:</span>
+            <span class="stats-value" id="completed-sentences">0</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-section h3,
+.search-section h3,
+.stats-section h3 {
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 8px;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.search-group {
+    display: flex;
+    gap: 8px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.search-button {
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background: #0056b3;
+}
+
+.stats-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.stats-item:last-child {
+    border-bottom: none;
+}
+
+.stats-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.stats-value {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 16px;
+}
+</style>
+
+</html>

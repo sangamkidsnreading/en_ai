@@ -13,9 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -111,15 +112,54 @@ public class SidebarController {
     }
 
     /**
-     * 검색 기능
+     * 사용 가능한 레벨 목록 조회
+     */
+    @GetMapping("/levels")
+    public ResponseEntity<List<Integer>> getAvailableLevels() {
+        try {
+            List<Integer> levels = wordService.getAvailableLevels();
+            if (levels.isEmpty()) {
+                // 기본 레벨 1-5 반환
+                levels = List.of(1, 2, 3, 4, 5);
+            }
+            return ResponseEntity.ok(levels);
+        } catch (Exception e) {
+            log.error("레벨 목록 조회 실패", e);
+            return ResponseEntity.ok(List.of(1, 2, 3, 4, 5));
+        }
+    }
+
+    /**
+     * 특정 레벨의 사용 가능한 Day 목록 조회
+     */
+    @GetMapping("/days")
+    public ResponseEntity<List<Integer>> getAvailableDays(@RequestParam Integer level) {
+        try {
+            List<Integer> days = wordService.getAvailableDaysByLevel(level);
+            if (days.isEmpty()) {
+                // 기본 Day 1-50 반환
+                days = IntStream.rangeClosed(1, 50).boxed().toList();
+            }
+            return ResponseEntity.ok(days);
+        } catch (Exception e) {
+            log.error("Day 목록 조회 실패 - Level: {}", level, e);
+            return ResponseEntity.ok(IntStream.rangeClosed(1, 50).boxed().toList());
+        }
+    }
+
+    /**
+     * 단어/문장 검색 API
      */
     @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchCards(
+    public ResponseEntity<Map<String, Object>> searchContent(
             @RequestParam String query,
-            @RequestParam(defaultValue = "1") Integer level,
-            @RequestParam(defaultValue = "1") Integer day) {
+            @RequestParam(defaultValue = "0") Integer level,
+            @RequestParam(defaultValue = "0") Integer day) {
 
-        log.info("🔍 카드 검색 요청 - Query: '{}', Level: {}, Day: {}", query, level, day);
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "검색어를 입력해주세요."));
+        }
 
         try {
             // 단어 검색 (영어, 한국어 모두)
@@ -154,34 +194,6 @@ public class SidebarController {
 
         } catch (Exception e) {
             log.error("❌ 카드 검색 실패: {}", e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    /**
-     * 사용 가능한 레벨 목록 조회
-     */
-    @GetMapping("/levels")
-    public ResponseEntity<List<Integer>> getAvailableLevels() {
-        try {
-            List<Integer> levels = wordService.getAvailableLevels();
-            return ResponseEntity.ok(levels);
-        } catch (Exception e) {
-            log.error("❌ 레벨 목록 조회 실패: {}", e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    /**
-     * 특정 레벨의 사용 가능한 Day 목록 조회
-     */
-    @GetMapping("/days")
-    public ResponseEntity<List<Integer>> getAvailableDays(@RequestParam Integer level) {
-        try {
-            List<Integer> days = wordService.getAvailableDaysByLevel(level);
-            return ResponseEntity.ok(days);
-        } catch (Exception e) {
-            log.error("❌ Day 목록 조회 실패: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
