@@ -60,7 +60,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authz -> authz
                         // 공개 접근 허용
-                        .requestMatchers("/", "/login", "/register").permitAll()
+                        .requestMatchers("/", "/login**", "/register", "/verify-email", "/h2-console/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/student/kiriboca/js/**").permitAll() // 키리보카 JS 파일 허용
                         .requestMatchers("/student/kiriboca/css/**").permitAll() // 키리보카 CSS 파일 허용
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**",
+                        .requestMatchers("/", "/login**", "/register", "/css/**", "/js/**",
                                       "/img/**", "/images/**", "/static/**", "/webjars/**",
                                       "/student/kiriboca/css/**", "/student/kiriboca/js/**",
                                       "/uploads/**", "/audio/**", "/h2-console/**", "/api/coins/**").permitAll()
