@@ -1,4 +1,4 @@
-modules = ["java-graalvm19", "maven"]
+modules = ["java-graalvm19"]
 
 [[ports]]
 localPort = 8080
