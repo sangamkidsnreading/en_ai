@@ -45,6 +45,24 @@ public class WordService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Word 엔티티를 DTO로 변환
+     */
+    private WordDto convertToDto(Word word) {
+        return WordDto.builder()
+                .id(word.getId())
+                .text(word.getText())
+                .meaning(word.getMeaning())
+                .pronunciation(word.getPronunciation())
+                .level(word.getLevel())
+                .day(word.getDay())
+                .audioUrl(word.getAudioUrl())
+                .isActive(word.getIsActive())
+                .createdAt(word.getCreatedAt())
+                .updatedAt(word.getUpdatedAt())
+                .build();
+    }
+
     public List<Integer> getAvailableLevels() {
         return wordRepository.findDistinctLevelsByIsActiveTrueOrderByLevel();
     }
