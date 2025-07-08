@@ -1,44 +1,8 @@
-modules = ["java-graalvm22.3", "nodejs-20", "web"]
-
-[nix]
-channel = "stable-24_05"
-
-[workflows]
-runButton = "Run Spring Boot App"
-
-[[workflows.workflow]]
-name = "Run Spring Boot App"
-author = 44520774
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mvn spring-boot:run"
-
-[[workflows.workflow]]
-name = "Maven Compile and Run"
-author = 44520774
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mvn clean compile"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mvn exec:java -Dexec.mainClass=\"com.example.kidsreading.KidsreadingApplication\""
-
-[[ports]]
-localPort = 5000
-externalPort = 5000
+modules = ["java-graalvm19"]
 
 [[ports]]
 localPort = 8080
 externalPort = 80
-
-[[ports]]
-localPort = 35729
-externalPort = 3000
 
 [deployment]
 run = ["sh", "-c", "java -jar target/kidsreading-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=5000"]
