@@ -1,4 +1,10 @@
 
+// 중복 선언 방지
+if (typeof window.DarkModeManager !== 'undefined') {
+    console.log('🔄 기존 DarkModeManager 제거');
+    delete window.DarkModeManager;
+}
+
 // 다크모드 관리자
 class DarkModeManager {
     constructor() {

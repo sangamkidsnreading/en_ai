@@ -12,11 +12,6 @@
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/profile.css}">
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin.css}">
 
-    <!-- JavaScript 파일들 - 로드 순서 조정 -->
-    <script th:src="@{/js/dark-mode.js}" defer></script>
-    <script th:src="@{/js/change-cards.js}" defer></script>
-    <script th:src="@{/js/admin.js}" defer></script>
-
     <!-- 중복 로드 방지 스크립트 -->
     <script>
         // 중복 선언 방지
@@ -25,6 +20,12 @@
         }
         if (typeof window.enhancedIntegratedLearningManager !== 'undefined') {
             delete window.enhancedIntegratedLearningManager;
+        }
+        if (typeof window.DarkModeManager !== 'undefined') {
+            delete window.DarkModeManager;
+        }
+        if (typeof window.CardChangeManager !== 'undefined') {
+            delete window.CardChangeManager;
         }
     </script>
 
@@ -673,9 +674,10 @@
         initAdmin: () => window.initAdminDashboard() // 수동 관리자 초기화
     };
 </script>
-<!-- JavaScript 파일들 (캐시 버스팅) -->
-    <script th:src="@{/js/main-content.js?v=1.0.1}"></script>
-    <script th:src="@{/js/change-cards.js?v=1.0.1}"></script>
-    <script th:src="@{/js/dark-mode.js?v=1.0.1}"></script>
+<!-- JavaScript 파일들 (캐시 버스팅) - 한 번만 로드 -->
+    <script th:src="@{/js/main-content.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/change-cards.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/dark-mode.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/admin.js?v=1.0.2}" defer></script>
 </body>
 </html>

@@ -1,3 +1,9 @@
+// 중복 선언 방지
+if (typeof window.CardChangeManager !== 'undefined') {
+    console.log('🔄 기존 CardChangeManager 제거');
+    delete window.CardChangeManager;
+}
+
 // 카드 변경 관리자 (EnhancedIntegratedLearningManager 중복 제거)
 class CardChangeManager {
     constructor() {
