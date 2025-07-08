@@ -46,6 +46,7 @@ public class SecurityConfig {
         handler.setDefaultTargetUrl("/student/kiriboca/index");
         handler.setAlwaysUseDefaultTargetUrl(true);
         handler.setUseReferer(false);
+        handler.setRedirectStrategy(new org.springframework.security.web.DefaultRedirectStrategy());
         return handler;
     }
 

@@ -47,9 +47,8 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public String home() {
-        //return new RedirectView("/login");
-        return "login";
+    public RedirectView home() {
+        return new RedirectView("/login");
     }
 
     @GetMapping("/dashboard")
