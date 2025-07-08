@@ -32,7 +32,7 @@ class CardChangeManager {
         if (levelSelect) {
             levelSelect.addEventListener('change', async (e) => {
                 const newLevel = parseInt(e.target.value);
-                if (newLevel !== this.currentLevel && !isNaN(newLevel)) {
+                if (newLevel !== this.currentLevel && !isNaN(newLevel) && newLevel >= 1 && newLevel <= 5) {
                     this.currentLevel = newLevel;
                     this.currentDay = 1; // 레벨 변경 시 Day 1로 리셋
 
@@ -42,8 +42,8 @@ class CardChangeManager {
                         daySelect.value = 1;
                     }
 
-                    await this.updateDayOptions();
                     await this.loadCards();
+                    console.log(`🔄 레벨 변경: Level ${this.currentLevel}, Day ${this.currentDay}`);
                 }
             });
         }
@@ -53,9 +53,10 @@ class CardChangeManager {
         if (daySelect) {
             daySelect.addEventListener('change', async (e) => {
                 const newDay = parseInt(e.target.value);
-                if (newDay !== this.currentDay && !isNaN(newDay)) {
+                if (newDay !== this.currentDay && !isNaN(newDay) && newDay >= 1 && newDay <= 50) {
                     this.currentDay = newDay;
                     await this.loadCards();
+                    console.log(`🔄 Day 변경: Level ${this.currentLevel}, Day ${this.currentDay}`);
                 }
             });
         }
@@ -63,35 +64,7 @@ class CardChangeManager {
         console.log('🔗 카드 변경 이벤트 리스너 설정 완료');
     }
 
-    async updateDayOptions() {
-        try {
-            const response = await fetch(`/api/sidebar/days?level=${this.currentLevel}`);
-            if (!response.ok) throw new Error('Day 옵션 로드 실패');
-
-            const availableDays = await response.json();
-            const daySelect = document.getElementById('day-select');
-
-            if (daySelect && availableDays.length > 0) {
-                // 기존 옵션 제거 (첫 번째 "모든 Day" 옵션 제외)
-                while (daySelect.children.length > 1) {
-                    daySelect.removeChild(daySelect.lastChild);
-                }
-
-                // 새로운 Day 옵션 추가
-                availableDays.forEach(day => {
-                    const option = document.createElement('option');
-                    option.value = day;
-                    option.textContent = `Day ${day}`;
-                    if (day === this.currentDay) {
-                        option.selected = true;
-                    }
-                    daySelect.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Day 옵션 업데이트 실패:', error);
-        }
-    }
+    
 
     async loadCards() {
         if (this.isLoading) return;
@@ -101,10 +74,25 @@ class CardChangeManager {
         try {
             console.log(`🔄 카드 로드 중 - Level: ${this.currentLevel}, Day: ${this.currentDay}`);
 
-            const response = await fetch(`/api/sidebar/filter?level=${this.currentLevel}&day=${this.currentDay}`);
-            if (!response.ok) throw new Error('카드 로드 실패');
+            // 단어와 문장 데이터를 별도로 로드
+            const [wordsResponse, sentencesResponse] = await Promise.all([
+                fetch(`/learning/api/words?level=${this.currentLevel}&day=${this.currentDay}`),
+                fetch(`/learning/api/sentences?level=${this.currentLevel}&day=${this.currentDay}`)
+            ]);
 
-            const data = await response.json();
+            if (!wordsResponse.ok || !sentencesResponse.ok) {
+                throw new Error('카드 로드 실패');
+            }
+
+            const words = await wordsResponse.json();
+            const sentences = await sentencesResponse.json();
+
+            const data = {
+                words: words,
+                sentences: sentences,
+                totalWords: words.length,
+                totalSentences: sentences.length
+            };
 
             // 헤더 정보 업데이트
             this.updateHeader(data);
