@@ -1,3 +1,9 @@
+// 중복 선언 방지
+if (typeof window.EnhancedIntegratedLearningManager !== 'undefined') {
+    console.log('🔄 기존 EnhancedIntegratedLearningManager 제거');
+    delete window.EnhancedIntegratedLearningManager;
+}
+
 // 향상된 통합 학습 관리자 - 코인 시스템 완전 통합
 class EnhancedIntegratedLearningManager {
     constructor() {
@@ -1275,13 +1281,15 @@ function initEnhancedIntegratedLearningManager() {
         window.enhancedIntegratedLearningManager = null;
     }
 
-    // 새로운 인스턴스 생성
-    try {
-    window.enhancedIntegratedLearningManager = new EnhancedIntegratedLearningManager();
-        console.log('✅ 향상된 통합 학습 관리자 초기화 완료');
-    } catch (error) {
-        console.error('❌ 향상된 통합 학습 관리자 초기화 실패:', error);
-    }
+    // 잠시 대기 후 새로운 인스턴스 생성
+    setTimeout(() => {
+        try {
+            window.enhancedIntegratedLearningManager = new EnhancedIntegratedLearningManager();
+            console.log('✅ 향상된 통합 학습 관리자 초기화 완료');
+        } catch (error) {
+            console.error('❌ 향상된 통합 학습 관리자 초기화 실패:', error);
+        }
+    }, 100);
 }
 
 // 전역 로딩 스피너 표시 함수 추가
@@ -1309,15 +1317,15 @@ function hideLoadingSpinner() {
     const spinner = document.getElementById('loading-spinner');
     if (spinner) spinner.style.display = 'none';
 }
-// DOMContentLoaded에서 바로 실행
+// DOMContentLoaded에서 안전하게 실행
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         showLoadingSpinner();
-        window.enhancedIntegratedLearningManager = new EnhancedIntegratedLearningManager();
+        initEnhancedIntegratedLearningManager();
     });
 } else {
     showLoadingSpinner();
-    window.enhancedIntegratedLearningManager = new EnhancedIntegratedLearningManager();
+    initEnhancedIntegratedLearningManager();
 }
 // EnhancedIntegratedLearningManager 내에서 데이터 렌더링 후 hideLoadingSpinner() 호출
 // renderWordsToHTML, renderSentencesToHTML 마지막에 hideLoadingSpinner() 추가

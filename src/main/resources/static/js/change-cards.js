@@ -1,4 +1,4 @@
-// 카드 변경 관리자
+// 카드 변경 관리자 (EnhancedIntegratedLearningManager 중복 제거)
 class CardChangeManager {
     constructor() {
         this.currentLevel = 1;
