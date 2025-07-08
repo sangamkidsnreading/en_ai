@@ -92,7 +92,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/student/**").hasRole("STUDENT")
 
                         // 사용자 API (로그인한 모든 사용자)
-                        .requestMatchers("/api/user/**", "/api/learning/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/learning/**").permitAll()
                         .requestMatchers("/learning/api/**").permitAll()
                         .requestMatchers("/api/sidebar/**").permitAll()
                         .requestMatchers("/api/coins/**").permitAll()
@@ -119,11 +119,17 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .maximumSessions(1)
+                        .maximumSessions(3)
                         .maxSessionsPreventsLogin(false)
+                        .sessionRegistry(sessionRegistry())
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.security.core.session.SessionRegistry sessionRegistry() {
+        return new org.springframework.security.core.session.SessionRegistryImpl();
     }
 
     @Bean

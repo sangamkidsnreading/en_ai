@@ -16,6 +16,17 @@
     <script th:src="@{/js/dark-mode.js}" defer></script>
     <script th:src="@{/js/change-cards.js}" defer></script>
     <script th:src="@{/js/admin.js}" defer></script>
+    
+    <!-- 중복 로드 방지 스크립트 -->
+    <script>
+        // 중복 선언 방지
+        if (typeof window.EnhancedIntegratedLearningManager !== 'undefined') {
+            delete window.EnhancedIntegratedLearningManager;
+        }
+        if (typeof window.enhancedIntegratedLearningManager !== 'undefined') {
+            delete window.enhancedIntegratedLearningManager;
+        }
+    </script>
 
     <style>
         * {
@@ -196,6 +207,9 @@
                 // 이벤트 리스너 설정
                 this.setupEventListeners();
 
+                // API 연결 상태 확인 및 재시도
+                await this.checkApiConnection();
+
                 // 로딩 완료
                 this.hideLoading();
 
@@ -203,6 +217,27 @@
             } catch (error) {
                 console.error('❌ 앱 로드 중 오류:', error);
                 this.showToast('오류', '앱을 로드하는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // API 연결 상태 확인
+        async checkApiConnection() {
+            console.log('🔍 API 연결 상태 확인');
+            
+            try {
+                const response = await fetch('/api/sidebar/levels');
+                if (!response.ok) {
+                    console.log('⚠️ API 연결 실패, 재시도 중...');
+                    // 3초 후 재시도
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    console.log('✅ API 연결 성공');
+                }
+            } catch (error) {
+                console.error('❌ API 연결 확인 실패:', error);
+                this.showToast('연결 오류', 'API 서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             }
         }
 
