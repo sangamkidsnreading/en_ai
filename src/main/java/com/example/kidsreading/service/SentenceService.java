@@ -53,23 +53,6 @@ public class SentenceService {
     }
 
     /**
-     * Sentence 엔티티를 DTO로 변환
-     */
-    private SentenceDto convertToDto(Sentence sentence) {
-        return SentenceDto.builder()
-                .id(sentence.getId())
-                .text(sentence.getText())
-                .translation(sentence.getTranslation())
-                .difficultyLevel(sentence.getDifficultyLevel())
-                .dayNumber(sentence.getDayNumber())
-                .audioUrl(sentence.getAudioUrl())
-                .isActive(sentence.getIsActive())
-                .createdAt(sentence.getCreatedAt())
-                .updatedAt(sentence.getUpdatedAt())
-                .build();
-    }
-
-    /**
      * 문장 학습 진행상황 업데이트
      */
     @Transactional

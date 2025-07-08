@@ -1,10 +1,13 @@
 package com.example.kidsreading.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,15 +22,6 @@ public class WordDto {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
-    // Alias methods for compatibility
-    public String getEnglish() {
-        return text;
-    }
-    
-    public String getKorean() {
-        return meaning;
-    }
     private Integer dayNumber;
     private String phonetic;
     private String translation;

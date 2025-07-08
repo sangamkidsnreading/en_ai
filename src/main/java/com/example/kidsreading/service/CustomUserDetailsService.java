@@ -1,3 +1,4 @@
+// ========== CustomUserDetailsService.java ==========
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.entity.User;
@@ -10,19 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 

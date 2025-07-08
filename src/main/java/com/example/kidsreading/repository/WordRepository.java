@@ -52,14 +52,5 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
     List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(@Param("level") Integer level);
 
-    // 레벨과 Day별 단어 수 조회
     int countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
-
-    // 사이드바용 - 사용 가능한 레벨 목록
-    @Query("SELECT DISTINCT w.level FROM Word w WHERE w.isActive = true ORDER BY w.level")
-    List<Integer> findAvailableLevels();
-
-    // 사이드바용 - 특정 레벨의 사용 가능한 Day 목록
-    @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
-    List<Integer> findAvailableDaysByLevel(@Param("level") Integer level);
 }

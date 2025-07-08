@@ -1,14 +1,33 @@
+
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="sidebar" class="sidebar-container">
+<div th:fragment="sidebar" class="sidebar">
+    <!-- Header -->
     <div class="sidebar-header">
-        <h2>🎯 학습 필터</h2>
+        <div class="logo">
+            <div class="logo-icon">키</div>
+            <div>
+                <div class="logo-text">키리보카</div>
+                <div class="logo-subtitle">관리자</div>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="dark-mode-toggle">
+            <span class="theme-icon" id="theme-icon">🌙</span>
+            <span id="theme-text">다크모드</span>
+        </button>
     </div>
 
-    <div class="filter-section">
+    <!-- Search and Filter -->
+    <div class="sidebar-filters">
+        <div class="filter-group">
+            <input type="text" class="search-input" placeholder="🔍 Search words...">
+        </div>
+
         <div class="filter-group">
             <label class="filter-label">레벨 선택</label>
-            <select class="filter-select" id="level-select">
+            <select class="filter-select" id="level-select" data-current-level="1">
                 <option value="1">Level 1</option>
                 <option value="2">Level 2</option>
                 <option value="3">Level 3</option>
@@ -19,7 +38,12 @@
 
         <div class="filter-group">
             <label class="filter-label">Day 선택</label>
-            <select class="filter-select" id="day-select">
+            <select class="filter-select" id="day-select" data-current-day="1">
+                <!-- Day 1~50 -->
+                <!--# th:each="d : ${#numbers.sequence(1,50)}"-->
+                <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
+                <!--/-->
+                <!-- 아래는 하드코딩 -->
                 <option value="1">Day 1</option>
                 <option value="2">Day 2</option>
                 <option value="3">Day 3</option>
@@ -72,32 +96,46 @@
                 <option value="50">Day 50</option>
             </select>
         </div>
+    </div>
 
-        <div class="filter-group">
-            <label class="filter-label">검색</label>
-            <div class="search-container">
-                <input type="text" id="search-input" class="search-input" placeholder="단어나 문장을 검색하세요">
-                <button id="search-button" class="search-button">🔍</button>
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+        <div class="nav-item active" data-page="learning">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">학습하기</span>
+            <span class="nav-badge">1</span>
+        </div>
+        <div class="nav-item" data-page="dashboard">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">대시보드</span>
+            <span class="nav-badge">2</span>
+        </div>
+        <div class="nav-item" data-page="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">프로필</span>
+            <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-item" data-page="admin">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text">관리자</span>
+            <span class="nav-badge">4</span>
+        </div>
+        <div class="nav-item" data-page="logout">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-text">로그아웃</span>
+            <span class="nav-badge">5</span>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">U</div>
+            <div class="user-details">
+                <div class="user-name">관리자</div>
+                <div class="user-status">온라인</div>
             </div>
         </div>
     </div>
-
-    <div class="stats-section">
-        <h3>📊 오늘의 학습 현황</h3>
-        <div class="stat-item">
-            <span class="stat-label">완료한 단어:</span>
-            <span class="stat-value" id="completed-words">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">완료한 문장:</span>
-            <span class="stat-value" id="completed-sentences">0</span>
-        </div>
-    </div>
-
-    <div class="coin-display">
-        <div class="coin-icon">🪙</div>
-        <div class="coin-number">0</div>
-    </div>
 </div>
-
 </html>

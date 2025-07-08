@@ -1,11 +1,13 @@
+// ========== Word.java (기존 엔티티 업데이트) ==========
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
+
 
 @Entity
 @Table(name = "words")
@@ -19,99 +21,43 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text", nullable = false)
-    private String text;
+    @Column(nullable = false)
+    private String text;  // 영단어 텍스트
 
-    @Column(name = "meaning")
-    private String meaning;
+    @Column(nullable = false)
+    private String meaning;  // 단어의 의미
 
-    @Column(name = "pronunciation")
-    private String pronunciation;
+    private String pronunciation;  // 발음 표기
 
-    @Column(name = "phonetic")
-    private String phonetic;
+    @Column(nullable = false)
+    private Integer level;  // 레벨
 
-    @Column(name = "level")
-    private Integer level;
-
-    @Column(name = "day")
-    private Integer day;
-
-    @Column(name = "difficulty_level")
-    private Integer difficultyLevel;
-
-    @Column(name = "day_number")
-    private Integer dayNumber;
+    @Column(nullable = false)
+    private Integer day;  // 일차
 
     @Column(name = "audio_url")
-    private String audioUrl;
+    private String audioUrl;  // 오디오 파일 URL
 
-    @Column(name = "audio_file")
-    private String audioFile;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @Column(name = "category")
-    private String category;
-
-    @Column(name = "part_of_speech")
-    private String partOfSpeech;
-
-    @Column(name = "example_sentence")
-    private String exampleSentence;
-
-    @Column(name = "example_translation")
-    private String exampleTranslation;
-
-    @Column(name = "synonyms")
-    private String synonyms;
-
-    @Column(name = "antonyms")
-    private String antonyms;
-
-    @Column(name = "frequency_rank")
-    private Integer frequencyRank;
-
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserWordProgress> userProgresses = new ArrayList<>();
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL)
+    private List<UserWordProgress> userProgresses;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (isActive == null) {
-            isActive = true;
-        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public String getAudioUrl() {
-        return audioUrl != null ? audioUrl : audioFile;
-    }
-
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
-    }
-
-    public String getAudioFile() {
-        return audioFile != null ? audioFile : audioUrl;
-    }
-
-    public void setAudioFile(String audioFile) {
-        this.audioFile = audioFile;
     }
 }
