@@ -29,20 +29,16 @@ task = "shell.exec"
 args = "mvn exec:java -Dexec.mainClass=\"com.example.kidsreading.KidsreadingApplication\""
 
 [[ports]]
-localPort = 80
-externalPort = 3001
+localPort = 8080
+externalPort = 8080
 
 [[ports]]
 localPort = 5000
 externalPort = 5000
 
 [[ports]]
-localPort = 8080
-externalPort = 80
-
-[[ports]]
 localPort = 35729
-externalPort = 3000
+externalPort = 35729
 
 [deployment]
 run = ["sh", "-c", "java -jar target/kidsreading-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=5000"]
