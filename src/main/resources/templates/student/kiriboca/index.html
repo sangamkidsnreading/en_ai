@@ -13,10 +13,9 @@
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin.css}">
 
     <!-- JavaScript 파일들 - 로드 순서 조정 -->
-    <script th:src="@{/js/dark-mode.js}"></script>
-    <script th:src="@{/js/change-cards.js}"></script>
-    <script th:src="@{/js/main-content.js}"></script>
-    <script th:src="@{/js/admin.js}"></script>
+    <script th:src="@{/js/dark-mode.js}" defer></script>
+    <script th:src="@{/js/change-cards.js}" defer></script>
+    <script th:src="@{/js/admin.js}" defer></script>
 
     <style>
         * {
@@ -639,6 +638,5 @@
         initAdmin: () => window.initAdminDashboard() // 수동 관리자 초기화
     };
 </script>
-<script src="/static/js/main-content.js"></script>
 </body>
 </html>

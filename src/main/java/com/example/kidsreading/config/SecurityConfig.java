@@ -44,7 +44,8 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler successHandler() {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
         handler.setDefaultTargetUrl("/student/kiriboca/index");
-        handler.setAlwaysUseDefaultTargetUrl(true); // 무조건 해당 URL로 이동
+        handler.setAlwaysUseDefaultTargetUrl(true);
+        handler.setTargetUrlParameter("redirectTo");
         return handler;
     }
 
@@ -92,9 +93,9 @@ public class SecurityConfig {
 
                         // 사용자 API (로그인한 모든 사용자)
                         .requestMatchers("/api/user/**", "/api/learning/**").authenticated()
-                        .requestMatchers("/learning/api/**").authenticated()
-                        .requestMatchers("/api/sidebar/**").authenticated()
-                        .requestMatchers("/api/coins/**").authenticated()
+                        .requestMatchers("/learning/api/**").permitAll()
+                        .requestMatchers("/api/sidebar/**").permitAll()
+                        .requestMatchers("/api/coins/**").permitAll()
                         .requestMatchers("/dashboard").authenticated()
 
                         // 나머지는 인증 필요
