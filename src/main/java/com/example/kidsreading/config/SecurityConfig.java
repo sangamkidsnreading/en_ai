@@ -45,7 +45,7 @@ public class SecurityConfig {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
         handler.setDefaultTargetUrl("/student/kiriboca/index");
         handler.setAlwaysUseDefaultTargetUrl(true);
-        handler.setTargetUrlParameter("redirectTo");
+        handler.setUseReferer(false);
         return handler;
     }
 

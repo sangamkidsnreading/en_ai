@@ -44,7 +44,7 @@ public class AuthController {
 
     @GetMapping("/")
     public String home(Model model) {
-        return "student/kiriboca/index";
+        return "redirect:/login";
     }
 
     @GetMapping("/dashboard")
