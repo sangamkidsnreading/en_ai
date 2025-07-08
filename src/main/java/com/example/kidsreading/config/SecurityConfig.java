@@ -45,7 +45,7 @@ public class SecurityConfig {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
         handler.setDefaultTargetUrl("/student/kiriboca/index");
         handler.setAlwaysUseDefaultTargetUrl(true); // 무조건 해당 URL로 이동
-        return handler;
+        return handler;n handler;
     }
 
     @Bean
@@ -92,6 +92,9 @@ public class SecurityConfig {
 
                         // 사용자 API (로그인한 모든 사용자)
                         .requestMatchers("/api/user/**", "/api/learning/**").authenticated()
+                        .requestMatchers("/learning/api/**").authenticated()
+                        .requestMatchers("/api/sidebar/**").authenticated()
+                        .requestMatchers("/api/coins/**").authenticated()
                         .requestMatchers("/dashboard").authenticated()
 
                         // 나머지는 인증 필요
