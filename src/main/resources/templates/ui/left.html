@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키리보카 사이드바</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #52C41A;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .mode-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f8f9fa;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .level-selector {
+            margin-bottom: 15px;
+        }
+
+        .selector {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .day-selector {
+            margin-bottom: 30px;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #666;
+        }
+
+        .nav-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .nav-item.active {
+            background-color: #52C41A;
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .nav-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .nav-count {
+            background-color: #e9ecef;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .nav-item.active .nav-count {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .study-icon {
+            background-color: #52C41A;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .dashboard-icon {
+            background-color: #1890ff;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .profile-icon {
+            background-color: #722ed1;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .admin-icon {
+            background-color: #fa8c16;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .logout-icon {
+            background-color: #ff4d4f;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">
+        <div class="logo-icon">키</div>
+        <div>
+            <div class="logo-text">키리보카</div>
+            <div class="logo-subtitle">관리자</div>
+        </div>
+    </div>
+
+    <div class="mode-toggle">
+        <div class="mode-icon">🌙</div>
+        <span>다크모드</span>
+    </div>
+
+    <div class="search-box">
+        <input type="text" class="search-input" placeholder="🔍 Search words...">
+    </div>
+
+    <div class="level-selector">
+        <select class="selector">
+            <option>Level 1</option>
+            <option>Level 2</option>
+            <option>Level 3</option>
+        </select>
+    </div>
+
+    <div class="day-selector">
+        <select class="selector">
+            <option>Day 1</option>
+            <option>Day 2</option>
+            <option>Day 3</option>
+        </select>
+    </div>
+
+    <div class="nav-menu">
+        <div class="nav-item active" data-page="learning">
+            <div class="study-icon">🏠</div>
+            <span class="nav-text">학습하기</span>
+            <span class="nav-count">1</span>
+        </div>
+        <div class="nav-item" data-page="dashboard">
+            <div class="dashboard-icon">📊</div>
+            <span class="nav-text">대시보드</span>
+            <span class="nav-count">2</span>
+        </div>
+        <div class="nav-item" data-page="profile">
+            <div class="profile-icon">👤</div>
+            <span class="nav-text">프로필</span>
+            <span class="nav-count">3</span>
+        </div>
+        <div class="nav-item" data-page="admin">
+            <div class="admin-icon">⚙️</div>
+            <span class="nav-text">관리자</span>
+            <span class="nav-count">4</span>
+        </div>
+        <div class="nav-item" data-page="logout">
+            <div class="logout-icon">🚪</div>
+            <span class="nav-text">로그아웃</span>
+            <span class="nav-count">5</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

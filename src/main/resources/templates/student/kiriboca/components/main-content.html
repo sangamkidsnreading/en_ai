@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="main-content" class="main-content">
+    <div class="main-container">
+        <!-- Header - 이미지와 정확히 동일 -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-left">
+                    <h1>Level 1 - Day 1</h1>
+                    <p>오늘 학습: 단어 0개, 문장 0개</p>
+                </div>
+                <div class="header-right">
+                    <div class="coins">
+                        <div class="coins-label">오늘 획득한 코인</div>
+                        <div class="coin-display">
+                            <span class="coin-icon">🪙</span>
+                            <span class="coin-number">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Message - 헤더 박스 안에 포함 -->
+            <div class="welcome-message">
+                오늘 첫날 시작이 반!! 화이팅 김학습자 💪
+            </div>
+        </div>
+
+        <!-- Section Headers - 이미지와 정확히 동일 -->
+        <div class="learning-sections">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon words-icon">W</div>
+                    <div class="section-title">Words</div>
+                </div>
+                <div class="section-subtitle">오늘의 단어 10개를 학습해보세요!</div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon sentences-icon">S</div>
+                    <div class="section-title">Sentences</div>
+                </div>
+                <div class="section-subtitle">오늘의 문장 3개를 학습해보세요!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Words Section -->
+    <div class="study-area">
+        <div class="study-header">
+            <div class="words-title">
+                <div class="section-icon words-icon">W</div>
+                <div class="section-title">Words</div>
+            </div>
+            <button class="start-button">
+                <span class="rocket-icon">🚀</span>
+                Start
+            </button>
+        </div>
+
+        <div class="words-grid">
+            <!-- 단어 카드들이 동적으로 로드됩니다 -->
+        </div>
+    </div>
+
+    <!-- Sentences Section -->
+    <div class="study-area sentences-area">
+        <div class="study-header">
+            <div class="sentences-title">
+                <div class="section-icon sentences-icon">S</div>
+                <div class="section-title">Sentences</div>
+            </div>
+            <button class="start-button">
+                <span class="rocket-icon">🚀</span>
+                Start
+            </button>
+        </div>
+
+        <div class="sentences-grid">
+            <!-- 문장 카드들이 동적으로 로드됩니다 -->
+        </div>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="profile-content" class="profile-container">
+    <!-- 헤더 -->
+    <div class="profile-header">
+        <h1>프로필 관리</h1>
+        <p>내 정보를 확인하고 설정을 변경하세요</p>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="profile-content">
+        <!-- 좌측 섹션 -->
+        <div class="left-section">
+            <!-- 기본 정보 -->
+            <div class="info-card">
+                <h2>기본 정보</h2>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">프로필 사진</div>
+                        <div class="profile-avatar-row">
+                            <div class="profile-avatar">관</div>
+                            <div class="avatar-change-text">사진 변경</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">이름</div>
+                        <div class="info-value">관리자</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">이메일</div>
+                        <div class="info-value">admin@kiriboka.com</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label">역할</div>
+                        <div class="info-value">관리자</div>
+                    </div>
+                </div>
+
+                <button class="update-btn">정보 업데이트</button>
+            </div>
+
+            <!-- 비밀번호 변경 -->
+            <div class="password-card">
+                <h2>비밀번호 변경</h2>
+
+                <div class="form-group">
+                    <label>현재 비밀번호</label>
+                    <input type="password" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>새 비밀번호</label>
+                    <input type="password" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>새 비밀번호 확인</label>
+                    <input type="password" class="form-input">
+                </div>
+
+                <button class="update-btn">비밀번호 변경</button>
+            </div>
+
+            <!-- 학습 설정 -->
+            <div class="settings-card">
+                <h2>학습 설정</h2>
+
+                <div class="setting-row">
+                    <label>음성 재생 속도</label>
+                    <select class="form-select">
+                        <option value="0.8" selected>0.8x</option>
+                        <option value="1.0">1.0x</option>
+                        <option value="1.2">1.2x</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <label>단어 반복 횟수</label>
+                    <select class="form-select">
+                        <option value="1">1회</option>
+                        <option value="2">2회</option>
+                        <option value="3" selected>3회</option>
+                    </select>
+                </div>
+
+                <div class="setting-row toggle-row">
+                    <label>자동 설정</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="auto-setting" checked>
+                        <label for="auto-setting" class="toggle-slider"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측 섹션 -->
+        <div class="right-section">
+            <!-- 사용자 프로필 카드 -->
+            <div class="user-profile-card">
+                <div class="user-avatar">관</div>
+                <h3>관리자</h3>
+                <p>Level 1 학습자</p>
+                <button class="avatar-btn">아바타 변경</button>
+            </div>
+
+            <!-- 학습 통계 -->
+            <div class="stats-card">
+                <h3>학습 통계</h3>
+
+                <div class="stat-item">
+                    <span class="stat-label">총 학습 일수</span>
+                    <span class="stat-value">1일</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">연속 학습</span>
+                    <span class="stat-value">1일</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">총 단어</span>
+                    <span class="stat-value orange">0개</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">총 문장</span>
+                    <span class="stat-value orange">0개</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">총 코인</span>
+                    <span class="stat-value orange">0개</span>
+                </div>
+            </div>
+
+            <!-- 최근 획득 뱃지 -->
+            <div class="badges-card">
+                <h3>최근 획득 뱃지</h3>
+
+                <div class="badge-item">
+                    <div class="badge-icon first">🎯</div>
+                    <div class="badge-info">
+                        <div class="badge-name">첫 걸음</div>
+                        <div class="badge-desc">첫 번째 단어 학습</div>
+                    </div>
+                </div>
+
+                <div class="badge-item">
+                    <div class="badge-icon passionate">🔥</div>
+                    <div class="badge-info">
+                        <div class="badge-name">열정 학습자</div>
+                        <div class="badge-desc">3일 연속 학습</div>
+                    </div>
+                </div>
+
+                <div class="badge-item">
+                    <div class="badge-icon master">📚</div>
+                    <div class="badge-info">
+                        <div class="badge-name">단어 마스터</div>
+                        <div class="badge-desc">100개 단어 학습</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

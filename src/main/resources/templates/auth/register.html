@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학부모 회원가입</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F2F3F6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .register-container {
+            width: 384px;
+            background: #F2F3F6;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .header {
+            padding: 0 16px;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            color: #3A3A3A;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 28px;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 12px 16px;
+            margin: 0 16px 16px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #34D399;
+        }
+
+        .alert-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #F87171;
+        }
+
+        /* Form Section */
+        .form-section {
+            padding: 0 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            color: #A5A5A5;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 48px;
+            background: white;
+            border: 1px solid #EAEAEA;
+            border-radius: 8px;
+            padding: 15px 16px;
+            font-size: 16px;
+            font-family: 'Pretendard';
+            font-weight: 500;
+            color: #454545;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #34E5C2;
+        }
+
+        .input-field::placeholder {
+            color: #A5A5A5;
+        }
+
+        .input-field.error {
+            border-color: #FF6868;
+        }
+
+        .input-field.short {
+            width: 224px;
+        }
+
+        .error-message {
+            color: #FF6868;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .btn-secondary {
+            width: 96px;
+            height: 48px;
+            background: white;
+            border: 1px solid #34E5C2;
+            border-radius: 8px;
+            color: #34E5C2;
+            font-size: 16px;
+            font-family: 'Pretendard';
+            font-weight: 700;
+            line-height: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #F0FDFA;
+        }
+
+        .btn-secondary:disabled {
+            background: #F5F5F5;
+            color: #A5A5A5;
+            border-color: #D1D5DB;
+            cursor: not-allowed;
+        }
+
+        .password-hint {
+            color: #2563EB;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 20px;
+            margin-top: 4px;
+        }
+
+        .select-field {
+            width: 100%;
+            height: 48px;
+            background: white;
+            border: 1px solid #EAEAEA;
+            border-radius: 8px;
+            padding: 15px 16px;
+            font-size: 16px;
+            font-family: 'Pretendard';
+            font-weight: 500;
+            color: #454545;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23A5A5A5' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 16px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+        }
+
+        .select-field:focus {
+            border-color: #34E5C2;
+        }
+
+        .date-input {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3e%3cpath stroke='%23A5A5A5' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
+            background-position: right 16px center;
+            background-repeat: no-repeat;
+            background-size: 20px;
+        }
+
+        /* Agreement Section */
+        .agreement-section {
+            padding: 0 16px;
+            margin-top: 32px;
+        }
+
+        .agreement-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox.checked {
+            background: #34E5C2;
+            border-color: #34E5C2;
+        }
+
+        .checkbox.checked::after {
+            content: '';
+            width: 12px;
+            height: 6px;
+            border: 2px solid white;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg);
+        }
+
+        .agreement-text {
+            color: #A5A5A5;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .agreement-text.bold {
+            font-weight: 700;
+        }
+
+        .agreement-text.underline {
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .submit-button {
+            width: 100%;
+            height: 48px;
+            background: #34E5C2;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-family: 'Pretendard';
+            font-weight: 700;
+            line-height: 20px;
+            cursor: pointer;
+            margin-top: 32px;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover:not(:disabled) {
+            background: #2BC7A7;
+        }
+
+        .submit-button:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-height: 1100px) {
+            .register-container {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <!-- Header -->
+    <div class="header">
+        <h1>학부모 회원가입</h1>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- Registration Form -->
+    <form class="form-section" th:action="@{/register}" method="post" th:object="${registerRequest}" id="registerForm">
+        <!-- 아이디(이메일) -->
+        <div class="form-group">
+            <label class="form-label">아이디(이메일)</label>
+            <input type="email"
+                   th:field="*{email}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('email')} ? 'error' : ''"
+                   placeholder="아이디를 입력해 주세요."
+                   required>
+            <span th:if="${#fields.hasErrors('email')}"
+                  th:errors="*{email}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="form-group">
+            <label class="form-label">비밀번호</label>
+            <input type="password"
+                   th:field="*{password}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('password')} ? 'error' : ''"
+                   placeholder="비밀번호를 입력해 주세요."
+                   required>
+            <div class="password-hint">*영문 대, 소문자, 숫자, 특수문자 3개 이상 조합하여 8~16자리로 설정</div>
+            <span th:if="${#fields.hasErrors('password')}"
+                  th:errors="*{password}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 비밀번호 재입력 -->
+        <div class="form-group">
+            <label class="form-label">비밀번호 재입력</label>
+            <input type="password"
+                   name="passwordConfirm"
+                   class="input-field"
+                   placeholder="비밀번호를 재입력해 주세요."
+                   required>
+            <span id="passwordMismatchError" class="error-message" style="display: none;">비밀번호가 일치하지 않습니다.</span>
+        </div>
+
+        <!-- 학부모 이름 -->
+        <div class="form-group">
+            <label class="form-label">학부모 이름</label>
+            <input type="text"
+                   th:field="*{name}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('name')} ? 'error' : ''"
+                   placeholder="이름을 입력해 주세요."
+                   required>
+            <span th:if="${#fields.hasErrors('name')}"
+                  th:errors="*{name}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 부모 이름 (실제 DB 필드) -->
+        <div class="form-group">
+            <label class="form-label">보호자 이름</label>
+            <input type="text"
+                   th:field="*{parentName}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('parentName')} ? 'error' : ''"
+                   placeholder="보호자 이름을 입력해 주세요."
+                   required>
+            <span th:if="${#fields.hasErrors('parentName')}"
+                  th:errors="*{parentName}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 생년월일 -->
+        <div class="form-group">
+            <label class="form-label">생년월일</label>
+            <input type="date"
+                   th:field="*{birthDate}"
+                   class="input-field date-input"
+                   th:classappend="${#fields.hasErrors('birthDate')} ? 'error' : ''"
+                   required>
+            <span th:if="${#fields.hasErrors('birthDate')}"
+                  th:errors="*{birthDate}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 학부모 연락처 -->
+        <div class="form-group">
+            <label class="form-label">학부모 연락처</label>
+            <input type="tel"
+                   th:field="*{phoneNumber}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('phoneNumber')} ? 'error' : ''"
+                   placeholder="연락처를 입력해 주세요."
+                   required>
+            <span th:if="${#fields.hasErrors('phoneNumber')}"
+                  th:errors="*{phoneNumber}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 그룹 -->
+        <div class="form-group">
+            <label class="form-label">그룹</label>
+            <select th:field="*{groupName}"
+                    class="select-field"
+                    th:classappend="${#fields.hasErrors('groupName')} ? 'error' : ''"
+                    required>
+                <option value="">소속된 그룹을 선택해 주세요.</option>
+                <option value="group1">그룹 1</option>
+                <option value="group2">그룹 2</option>
+                <option value="group3">그룹 3</option>
+            </select>
+            <span th:if="${#fields.hasErrors('groupName')}"
+                  th:errors="*{groupName}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- Hidden fields for defaults -->
+        <input type="hidden" th:field="*{role}" value="PARENT">
+        <input type="hidden" th:field="*{isActive}" value="true">
+        <input type="hidden" th:field="*{emailVerified}" value="false">
+    </form>
+
+    <!-- Agreement Section -->
+    <div class="agreement-section">
+        <div class="agreement-item" onclick="toggleAllAgreement()">
+            <div class="checkbox" id="agreeAll"></div>
+            <div class="agreement-text bold">전체 동의</div>
+        </div>
+
+        <div class="agreement-item" onclick="toggleAgreement('agreeTerms')">
+            <div class="checkbox" id="agreeTerms"></div>
+            <div class="agreement-text underline">이용 약관 동의(필수)</div>
+        </div>
+
+        <div class="agreement-item" onclick="toggleAgreement('agreePrivacy')">
+            <div class="checkbox" id="agreePrivacy"></div>
+            <div class="agreement-text underline">개인정보 수집 및 이용 동의(필수)</div>
+        </div>
+
+        <div class="agreement-item" onclick="toggleAgreement('agreeMarketing')">
+            <div class="checkbox" id="agreeMarketing"></div>
+            <div class="agreement-text underline">마케팅 정보 수신 동의(선택)</div>
+        </div>
+
+        <button type="submit" form="registerForm" class="submit-button" id="submitBtn" disabled>
+            <span class="loading" id="loadingSpinner" style="display: none;"></span>
+            <span id="submitText">회원가입 신청</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    // 체크박스 상태 관리
+    const checkboxes = {
+        agreeAll: false,
+        agreeTerms: false,
+        agreePrivacy: false,
+        agreeMarketing: false
+    };
+
+    function toggleAgreement(id) {
+        checkboxes[id] = !checkboxes[id];
+        updateCheckboxUI(id);
+        updateAllCheckbox();
+        updateSubmitButton();
+    }
+
+    function toggleAllAgreement() {
+        const newState = !checkboxes.agreeAll;
+        Object.keys(checkboxes).forEach(key => {
+            checkboxes[key] = newState;
+            updateCheckboxUI(key);
+        });
+        updateSubmitButton();
+    }
+
+    function updateCheckboxUI(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            if (checkboxes[id]) {
+                element.classList.add('checked');
+            } else {
+                element.classList.remove('checked');
+            }
+        }
+    }
+
+    function updateAllCheckbox() {
+        const individualCheckboxes = ['agreeTerms', 'agreePrivacy', 'agreeMarketing'];
+        const allChecked = individualCheckboxes.every(id => checkboxes[id]);
+
+        checkboxes.agreeAll = allChecked;
+        updateCheckboxUI('agreeAll');
+    }
+
+    function updateSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        const requiredAgreements = ['agreeTerms', 'agreePrivacy'];
+        const canSubmit = requiredAgreements.every(id => checkboxes[id]);
+
+        if (submitBtn) {
+            submitBtn.disabled = !canSubmit;
+        }
+    }
+
+    // 비밀번호 실시간 확인
+    function setupPasswordValidation() {
+        const passwordField = document.querySelector('input[name="password"]');
+        const passwordConfirmField = document.querySelector('input[name="passwordConfirm"]');
+        const errorMessage = document.getElementById('passwordMismatchError');
+
+        function checkPasswordMatch() {
+            const password = passwordField.value;
+            const passwordConfirm = passwordConfirmField.value;
+
+            if (passwordConfirm && password !== passwordConfirm) {
+                passwordConfirmField.classList.add('error');
+                errorMessage.style.display = 'block';
+                return false;
+            } else {
+                passwordConfirmField.classList.remove('error');
+                errorMessage.style.display = 'none';
+                return true;
+            }
+        }
+
+        passwordField.addEventListener('input', checkPasswordMatch);
+        passwordConfirmField.addEventListener('input', checkPasswordMatch);
+
+        return checkPasswordMatch;
+    }
+
+    // 폼 제출 처리
+    function setupFormSubmission() {
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const submitText = document.getElementById('submitText');
+
+        form.addEventListener('submit', function(e) {
+            // 필수 약관 동의 확인
+            if (!checkboxes.agreeTerms || !checkboxes.agreePrivacy) {
+                e.preventDefault();
+                alert('필수 약관에 동의해주세요.');
+                return false;
+            }
+
+            // 비밀번호 확인
+            if (!checkPasswordMatch()) {
+                e.preventDefault();
+                alert('비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+
+            // 로딩 상태 표시
+            submitBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            submitText.textContent = '처리 중...';
+
+            // 폼이 정상적으로 제출됨
+            return true;
+        });
+    }
+
+    // 사용자명 필드 자동 설정 (학부모 이름과 동일하게)
+    function setupUsernameSync() {
+        const emailField = document.querySelector('input[name="email"]');
+        // 이메일을 사용자명으로 사용하므로 별도 처리 불필요
+    }
+
+    // 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkPasswordMatch = setupPasswordValidation();
+        setupFormSubmission();
+        setupUsernameSync();
+        updateSubmitButton();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /*background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 20px;*/
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-container {
+    width: 100%;
+}
+
+/* 헤더 영역 - 이미지와 정확히 동일하게 */
+.header {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-left h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.header-left p {
+    color: #718096;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.coins {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.coins-label {
+    color: #718096;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.coin-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.coin-icon {
+    font-size: 24px;
+}
+
+.coin-number {
+    background: #f6ad55;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 28px;
+    min-width: 50px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* 환영 메시지 - 헤더 박스 안에 포함 */
+.welcome-message {
+    background: #e6f3ff;
+    color: #2d3748;
+    padding: 16px 24px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid #bee3f8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 16px;
+}
+
+/* 학습 섹션 카드 */
+.learning-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.section-card {
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+/* Words 카드 - 보라색 테마 */
+.section-card:first-child {
+    background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+    border-color: #a855f7;
+}
+
+/* Sentences 카드 - 초록색 테마 */
+.section-card:last-child {
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    border-color: #22c55e;
+}
+
+.section-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    margin-right: 12px;
+}
+
+.words-icon {
+    background: #8b5cf6;
+}
+
+.sentences-icon {
+    background: #eab308;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Words 카드 제목 색상 */
+.section-card:first-child .section-title {
+    color: #7c3aed;
+}
+
+/* Sentences 카드 제목 색상 */
+.section-card:last-child .section-title {
+    color: #15803d;
+}
+
+.section-subtitle {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+
+
+/* 학습 섹션 카드 */
+.learning-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.section-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.words-icon {
+    background-color: #722ed1;
+}
+
+.sentences-icon {
+    background-color: #52C41A;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.section-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* 학습 영역 */
+.study-area {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.sentences-area {
+    margin-bottom: 0; /* 마지막 섹션은 하단 여백 제거 */
+}
+
+.study-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.words-title,
+.sentences-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.study-title {
+    font-size: 16px;
+    color: #666;
+}
+
+.start-button {
+    background: linear-gradient(135deg, #ffa940 0%, #ffec3d 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(255, 169, 64, 0.3);
+}
+
+.start-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 169, 64, 0.4);
+}
+
+.start-button:active {
+    transform: translateY(0);
+}
+
+.rocket-icon {
+    font-size: 16px;
+}
+
+/* 단어 그리드 */
+.words-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.word-card {
+    background: #fffbe6;
+    border: 2px solid #fff7cc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.word-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #ffa940;
+}
+
+.word-english {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.word-korean {
+    font-size: 14px;
+    color: #666;
+}
+
+.word-favorite {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.word-favorite:hover {
+    color: #ff4d4f;
+}
+
+.word-sound {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: #ff4d4f;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.word-sound:hover {
+    background-color: #ff7875;
+    transform: scale(1.1);
+}
+
+/* 문장 그리드 */
+.sentences-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.sentence-card {
+    background: #f6ffed;
+    border: 2px solid #d9f7be;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sentence-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #52C41A;
+}
+
+.sentence-content {
+    padding-right: 30px; /* 음성 버튼 공간 확보 */
+}
+
+.sentence-text {
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.sentence-korean {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.sentence-sound {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: #ff4d4f;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sentence-sound:hover {
+    background-color: #ff7875;
+    transform: scale(1.1);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .learning-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .words-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .sentences-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .word-card,
+    .sentence-card {
+        padding: 15px;
+    }
+
+    .study-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .words-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-left h1 {
+        font-size: 24px;
+    }
+
+    .welcome-message {
+        font-size: 14px;
+        padding: 15px;
+    }
+}
+
+/* 스크롤바 스타일 */
+.main-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+        align-items: center;
+    }
+
+    .header-right {
+        align-items: center;
+    }
+
+    .learning-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .header-left h1 {
+        font-size: 20px;
+    }
+
+    .coin-number {
+        font-size: 24px;
+        padding: 6px 12px;
+    }
+}
