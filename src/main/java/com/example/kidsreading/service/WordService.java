@@ -157,4 +157,14 @@ public class WordService {
                 .korean(word.getMeaning()) // 호환성을 위한 매핑
                 .build();
     }
+
+    // 사이드바용 - 사용 가능한 레벨 목록
+    public List<Integer> getAvailableLevels() {
+        return wordRepository.findAvailableLevels();
+    }
+
+    // 사이드바용 - 특정 레벨의 사용 가능한 Day 목록
+    public List<Integer> getAvailableDaysByLevel(Integer level) {
+        return wordRepository.findAvailableDaysByLevel(level);
+    }
 }

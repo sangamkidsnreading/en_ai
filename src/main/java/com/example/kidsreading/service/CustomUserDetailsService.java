@@ -1,4 +1,3 @@
-// ========== CustomUserDetailsService.java ==========
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.entity.User;
