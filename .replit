@@ -7,3 +7,15 @@ externalPort = 80
 
 [deployment]
 run = ["sh", "-c", "java -jar target/kidsreading-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=5000"]
+
+[workflows]
+runButton = "Spring Boot App"
+
+[[workflows.workflow]]
+name = "Spring Boot App"
+author = 44520774
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mvn spring-boot:run"
