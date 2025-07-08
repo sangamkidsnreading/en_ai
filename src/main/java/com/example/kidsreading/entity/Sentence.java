@@ -54,6 +54,9 @@ public class Sentence {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "audio_url")
+    private String audioUrl;
+
     @OneToMany(mappedBy = "sentence", cascade = CascadeType.ALL)
     private List<UserSentenceProgress> userProgresses;
 
