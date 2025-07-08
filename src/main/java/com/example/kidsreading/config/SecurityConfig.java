@@ -45,7 +45,7 @@ public class SecurityConfig {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
         handler.setDefaultTargetUrl("/student/kiriboca/index");
         handler.setAlwaysUseDefaultTargetUrl(true); // 무조건 해당 URL로 이동
-        return handler;n handler;
+        return handler;
     }
 
     @Bean
