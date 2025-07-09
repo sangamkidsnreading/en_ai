@@ -29,6 +29,7 @@ public class UserSentenceProgress {
     private Boolean isLearned = false;
 
     @Column(name = "is_completed", nullable = false)
+    @Builder.Default
     private Boolean isCompleted = false;
 
     @Column(name = "has_recording", nullable = false)
@@ -38,7 +39,16 @@ public class UserSentenceProgress {
     private String recordingUrl;
 
     @Column(name = "learn_count", nullable = false)
+    @Builder.Default
     private Integer learnCount = 0;
+
+    @Column(name = "correct_count")
+    @Builder.Default
+    private Integer correctCount = 0;
+
+    @Column(name = "incorrect_count")
+    @Builder.Default
+    private Integer incorrectCount = 0;
 
     @Column(name = "first_learned_at")
     private LocalDateTime firstLearnedAt;

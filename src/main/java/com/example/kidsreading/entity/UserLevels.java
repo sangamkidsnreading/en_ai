@@ -23,6 +23,7 @@ public class UserLevels {
     private Long userId;
 
     @Column(name = "current_level", nullable = false)
+    @Builder.Default
     private Integer currentLevel = 1;
 
     @Column(name = "current_day", nullable = false)
@@ -34,7 +35,8 @@ public class UserLevels {
     @Column(name = "experience_points", nullable = false)
     private Integer experiencePoints = 0;
 
-    @Column(name = "streak_days", nullable = false)
+    @Column(name = "streak_days")
+    @Builder.Default
     private Integer streakDays = 0;
 
     @Column(name = "last_learning_date")
@@ -128,3 +130,4 @@ public class UserLevels {
         return lastLearningDate.equals(yesterday) || lastLearningDate.equals(today);
     }
 }
+```

@@ -27,15 +27,19 @@ public class LearningSessions {
     private LocalDate sessionDate;
 
     @Column(name = "words_learned", nullable = false)
+    @Builder.Default
     private Integer wordsLearned = 0;
 
     @Column(name = "sentences_learned", nullable = false)
+    @Builder.Default
     private Integer sentencesLearned = 0;
 
     @Column(name = "coins_earned", nullable = false)
+    @Builder.Default
     private Integer coinsEarned = 0;
 
     @Column(name = "session_duration_minutes")
+    @Builder.Default
     private Integer sessionDurationMinutes = 0;
 
     @Column(name = "created_at", nullable = false)

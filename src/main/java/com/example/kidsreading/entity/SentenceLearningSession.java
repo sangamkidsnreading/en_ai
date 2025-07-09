@@ -103,4 +103,4 @@ public class SentenceLearningSession {
         if (attemptsCount == 0) return 0.0;
         return (double) (attemptsCount - mistakesCount) / attemptsCount * 100;
     }
-} 
+}

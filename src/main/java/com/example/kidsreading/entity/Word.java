@@ -39,6 +39,7 @@ public class Word {
     private String audioUrl;  // 오디오 파일 URL
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)

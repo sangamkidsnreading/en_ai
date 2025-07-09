@@ -22,9 +22,11 @@ public class SentenceStatistics {
     private Long sentenceId;
 
     @Column(name = "total_attempts", nullable = false)
+    @Builder.Default
     private Integer totalAttempts = 0;  // 총 시도 횟수
 
     @Column(name = "successful_attempts", nullable = false)
+    @Builder.Default
     private Integer successfulAttempts = 0;  // 성공한 시도 횟수
 
     @Column(name = "average_completion_time")
@@ -34,6 +36,7 @@ public class SentenceStatistics {
     private Double difficultyRating;  // 난이도 평점 (1-5)
 
     @Column(name = "popularity_score")
+    @Builder.Default
     private Integer popularityScore = 0;  // 인기도 점수
 
     @Column(name = "last_accessed_at")
@@ -74,4 +77,4 @@ public class SentenceStatistics {
         if (totalAttempts == 0) return 0.0;
         return (double) successfulAttempts / totalAttempts * 100;
     }
-} 
+}
