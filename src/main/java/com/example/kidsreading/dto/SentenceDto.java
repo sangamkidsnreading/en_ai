@@ -1,60 +1,55 @@
+
 package com.example.kidsreading.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SentenceDto {
     private Long id;
-    private String text;
-    private String sentence;
-    private String translation;
-    private String pronunciation;
+    private String english;
+    private String korean;
     private Integer level;
     private Integer dayNumber;
     private String audioUrl;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String korean;
-    private String english;
-    private String meaning;
-    private String phonetic;
-    private String sentenceText;
-    private String sentenceTranslation;
-    private Integer learnCount;
-    private Integer correctCount;
-    private Integer incorrectCount;
-    private LocalDateTime lastStudied;
-    private Boolean isCompleted;
-    private Boolean hasRecording;
-    private String recordingUrl;
-    private LocalDateTime firstLearnedAt;
-    private LocalDateTime lastLearnedAt;
-    private Boolean isFavorite;
-    private Boolean isLearned;
-    private Integer totalDailyCoins;
-    private Integer coinsEarned;
-    private Integer dailyCoins;
-    private Integer totalCoins;
-    private Integer streakBonus;
-    private Integer sentenceCoins;
-    private Integer wordCoins;
-    private Integer dailyGoal;
-    private Integer levelUpCoin;
-    private Integer maxLevel;
-    private Integer dailyWordGoal;
-    private Integer dailySentenceGoal;
-    private Boolean voiceEnabled;
-    private Integer day;
-    private String voiceLanguage;
-    private Boolean soundEffects;
-    private Boolean autoPlay;
+
+    // 호환성을 위한 별칭 메서드들
+    public String getText() {
+        return this.english;
+    }
+
+    public void setText(String text) {
+        this.english = text;
+    }
+
+    public String getMeaning() {
+        return this.korean;
+    }
+
+    public void setMeaning(String meaning) {
+        this.korean = meaning;
+    }
+
+    public String getTranslation() {
+        return this.korean;
+    }
+
+    public void setTranslation(String translation) {
+        this.korean = translation;
+    }
+
+    public Integer getDay() {
+        return this.dayNumber;
+    }
+
+    public void setDay(Integer day) {
+        this.dayNumber = day;
+    }
 }

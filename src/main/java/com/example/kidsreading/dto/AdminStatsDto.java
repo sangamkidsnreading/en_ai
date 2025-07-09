@@ -1,21 +1,18 @@
+
 package com.example.kidsreading.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AdminStatsDto {
     private long totalUsers;
     private long totalWords;
     private long totalSentences;
     private long activeUsers;
-    private long todayActiveUsers;
-    private long weeklyActiveUsers;
-    private long monthlyActiveUsers;
-    private int totalLevels;
+    private long completedLearnings;
+    private double averageProgress;
 }

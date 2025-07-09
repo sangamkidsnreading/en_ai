@@ -1,12 +1,9 @@
+
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.List;
-
-
 
 @Entity
 @Table(name = "words")
@@ -21,24 +18,23 @@ public class Word {
     private Long id;
 
     @Column(nullable = false)
-    private String text;  // 영단어 텍스트
+    private String text;
 
     @Column(nullable = false)
-    private String meaning;  // 단어의 의미
+    private String meaning;
 
-    private String pronunciation;  // 발음 표기
-
-    @Column(nullable = false)
-    private Integer level;  // 레벨
+    private String pronunciation;
 
     @Column(nullable = false)
-    private Integer day;  // 일차
+    private Integer level;
+
+    @Column(nullable = false)
+    private Integer day;
 
     @Column(name = "audio_url")
-    private String audioUrl;  // 오디오 파일 URL
+    private String audioUrl;
 
     @Column(name = "is_active", nullable = false)
-    @Builder.Default
     private Boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
@@ -47,24 +43,31 @@ public class Word {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "day_number")
-    private Integer dayNumber;
-
-    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL)
-    private List<UserWordProgress> userProgresses;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.isActive = true;
+    // 호환성을 위한 별칭 메서드들
+    public String getEnglish() {
+        return this.text;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
+    public void setEnglish(String english) {
+        this.text = english;
+    }
+
+    public String getKorean() {
+        return this.meaning;
+    }
+
+    public void setKorean(String korean) {
+        this.meaning = korean;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public String getText() {
-        return this.text;
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

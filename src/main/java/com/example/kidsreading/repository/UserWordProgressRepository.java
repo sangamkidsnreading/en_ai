@@ -71,7 +71,7 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
     List<UserWordProgress> findByUserId(Long userId);
     boolean existsByUserIdAndWordId(Long userId, Long wordId);
     List<UserWordProgress> findByUserIdAndIsCompletedTrue(Long userId);
-    
+
     /**
      * 사용자의 특정 레벨/Day 완료된 단어 수 조회
      */
@@ -85,7 +85,7 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
     long countCompletedWordsByUserAndLevelAndDay(@Param("userId") Long userId,
                                                 @Param("level") Integer level,
                                                 @Param("day") Integer day);
-    
+
     /**
      * 사용자의 특정 레벨/Day 학습한 단어 수 조회 (완료되지 않았지만 학습은 한 것)
      */

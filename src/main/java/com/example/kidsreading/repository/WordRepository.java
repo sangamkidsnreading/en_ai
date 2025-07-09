@@ -46,8 +46,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     List<Word> findByLevelAndIsActiveTrueOrderByDayAsc(Integer level);
 
-
-
     int countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
 
     /**
@@ -62,5 +60,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
     List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(@Param("level") Integer level);
 
-    long countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
+    // 레벨과 Day별 활성화된 단어 수 조회
+    @Query("SELECT COUNT(w) FROM Word w WHERE w.level = :level AND w.day = :day AND w.isActive = true")
+    long countByLevelAndDayAndIsActiveTrue(@Param("level") Integer level, @Param("day") Integer day);
 }
