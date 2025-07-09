@@ -42,6 +42,8 @@ import java.util.zip.ZipInputStream;
 import java.io.IOException;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.kidsreading.service.S3Service;
+import java.io.ByteArrayOutputStream;
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -683,34 +685,84 @@ public class AdminService {
     }
 
     public Map<String, Object> bulkUploadSentenceAudio(MultipartFile file) {
-        log.info("문장 음원 일괄 업로드: filename={}", file.getOriginalFilename());
         Map<String, Object> result = new HashMap<>();
-        int successCount = 0, errorCount = 0;
         List<String> successFiles = new ArrayList<>();
         List<String> errorFiles = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
 
-        try (ZipInputStream zis = new ZipInputStream(file.getInputStream())) {
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (!entry.isDirectory()) {
+        try {
+            // ZIP 파일 검증
+            if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
+                throw new RuntimeException("ZIP 파일만 업로드 가능합니다.");
+            }
+
+            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
+                ZipEntry entry;
+                while ((entry = zipInputStream.getNextEntry()) != null) {
+                    if (entry.isDirectory()) {
+                        continue;
+                    }
+
                     String fileName = entry.getName();
+                    if (fileName.contains("/")) {
+                        fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+                    }
+
+                    // 오디오 파일 확장자 검증
+                    String lowerCaseFilename = fileName.toLowerCase();
+                    if (!lowerCaseFilename.endsWith(".mp3") && !lowerCaseFilename.endsWith(".wav") && !lowerCaseFilename.endsWith(".m4a") && !lowerCaseFilename.endsWith(".ogg")) {
+                        errorFiles.add(fileName + " - 지원하지 않는 파일 형식");
+                        errorCount++;
+                        continue;
+                    }
+
                     try {
-                        // 임시 파일로 저장
-                        File tempFile = File.createTempFile("audio_", null);
-                        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                            byte[] buffer = new byte[4096];
-                            int len;
-                            while ((len = zis.read(buffer)) > 0) {
-                                fos.write(buffer, 0, len);
-                            }
+                        // 파일을 임시로 저장
+                        byte[] buffer = new byte[1024];
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        int bytesRead;
+                        while ((bytesRead = zipInputStream.read(buffer)) > -1) {
+                            outputStream.write(buffer, 0, bytesRead);
                         }
-                        // S3 업로드 (원래 파일명으로)
-                        s3Service.uploadFileWithOriginalName(tempFile, "sentences", fileName);
+                        byte[] audioData = outputStream.toByteArray();
+
+                        // 파일명에서 문장 ID 추출
+                        String sentenceIdStr = fileName.replaceAll("\\.[^.]+$", ""); // 확장자 제거
+                        Long sentenceId = null;
+                        try {
+                            sentenceId = Long.parseLong(sentenceIdStr);
+                        } catch (NumberFormatException e) {
+                            errorFiles.add(fileName + " - 파일명이 문장 ID가 아닙니다");
+                            errorCount++;
+                            continue;
+                        }
+
+                        // 문장 존재 확인
+                        Optional<Sentence> sentenceOpt = sentenceRepository.findById(sentenceId);
+                        if (!sentenceOpt.isPresent()) {
+                            errorFiles.add(fileName + " - 해당 ID의 문장이 존재하지 않습니다");
+                            errorCount++;
+                            continue;
+                        }
+
+                        Sentence sentence = sentenceOpt.get();
+
+                        // S3에 업로드
+                        S3에 업로드 로직 추가 및 bulkUploadSentenceAudio 수정.```java
+                        String s3Key = s3Service.uploadFileWithOriginalName(new ByteArrayInputStream(audioData), "sentences", fileName);
+                        String s3Url = s3Service.getS3Url(s3Key);
+
+
+                        // 문장 정보 업데이트
+                        sentence.setAudioUrl(s3Url);
+                        sentenceRepository.save(sentence);
+
                         successFiles.add(fileName);
                         successCount++;
-                        tempFile.delete();
+
                     } catch (Exception e) {
-                        errorFiles.add(fileName + ": " + e.getMessage());
+                        errorFiles.add(fileName + " - 업로드 실패: " + e.getMessage());
                         errorCount++;
                     }
                 }
@@ -728,15 +780,15 @@ public class AdminService {
     }
 
     public List<Map<String, Object>> getUserProgress() {
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     public List<Map<String, Object>> getWordStats() {
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     public Map<String, Object> getDailyStats(String date) {
-        return new HashMap();
+        return new HashMap<>();
     }
 
     private UserDto convertToUserDto(User user) {
@@ -746,7 +798,6 @@ public class AdminService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .name(user.getName())
-The code has syntax errors and needs to be completed.
                 .isActive(user.getIsActive())
                 .build();
     }
