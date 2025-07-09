@@ -15,7 +15,7 @@ class CardChangeManager {
     }
 
     async init() {
-        console.log('🔄 카드 변경 관리자 초기화 시작');
+        console.log('🔄 카드 변경 관리자 초기화');
         console.log('🔄 카드 변경 관리자 초기화 시작');
 
         // 이벤트 리스너 설정
@@ -265,61 +265,6 @@ class CardChangeManager {
             window.kiribocaApp.showToast('오류', message);
         }
     }
-    async loadCardsData() {
-        if (this.isLoading) {
-            console.log('🔄 이미 로딩 중...');
-            return;
-        }
-
-        this.isLoading = true;
-        console.log(`🔄 카드 로드 중 - Level: ${this.currentLevel}, Day: ${this.currentDay}`);
-
-        try {
-            // 향상된 통합 학습 관리자가 있으면 해당 매니저에게 데이터 로드 요청
-            if (window.enhancedIntegratedLearningManager) {
-                console.log('🔄 향상된 통합 학습 관리자에게 데이터 전달');
-
-                window.enhancedIntegratedLearningManager.currentLevel = this.currentLevel;
-                window.enhancedIntegratedLearningManager.currentDay = this.currentDay;
-
-                await window.enhancedIntegratedLearningManager.loadLearningData();
-                window.enhancedIntegratedLearningManager.updateHeader();
-                return;
-            }
-
-            // 병렬로 API 호출
-            const [wordsResponse, sentencesResponse] = await Promise.all([
-                fetch(`/learning/api/words?level=${this.currentLevel}&day=${this.currentDay}`),
-                fetch(`/learning/api/sentences?level=${this.currentLevel}&day=${this.currentDay}`)
-            ]);
-
-            if (!wordsResponse.ok || !sentencesResponse.ok) {
-                throw new Error('데이터 로드 실패');
-            }
-
-            const words = await wordsResponse.json();
-            const sentences = await sentencesResponse.json();
-
-            console.log('📝 단어 데이터 로드됨:', words.length, '개');
-            console.log('📝 문장 데이터 로드됨:', sentences.length, '개');
-
-            // 헤더 업데이트
-            this.updateHeader({
-                totalWords: words.length,
-                totalSentences: sentences.length
-            });
-
-            // 카드 렌더링
-            this.renderWords(words);
-            this.renderSentences(sentences);
-
-        } catch (error) {
-            console.error('❌ 카드 로드 실패:', error);
-            this.showError('카드를 불러오는데 실패했습니다.');
-        } finally {
-            this.isLoading = false;
-        }
-    }
 }
 
 // 전역 인스턴스
@@ -339,3 +284,4 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(initCardChangeManager, 1000);
     }
 });
+`

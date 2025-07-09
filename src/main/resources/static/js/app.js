@@ -795,10 +795,20 @@ class KiribocaApp {
         if (displayDayEl) displayDayEl.textContent = this.currentDay;
     }
 
-    // 토스트 알림 표시 (비활성화됨)
+    // 토스트 알림 표시
     showToast(title, description) {
-        // 토스트 알림 비활성화
-        return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="toast-title">${title}</div>
+            <div class="toast-description">${description}</div>
+        `;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
     }
 
     // 페이지별 표시 함수들

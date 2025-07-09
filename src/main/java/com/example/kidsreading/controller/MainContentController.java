@@ -37,7 +37,7 @@ public class MainContentController {
     public String mainPage(Model model) {
         model.addAttribute("currentLevel", 1);
         model.addAttribute("currentDay", 1);
-        return "student/kiriboca/components/main-content";
+        return "learning/main";
     }
 
     /**
