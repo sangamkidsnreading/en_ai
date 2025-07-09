@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키리보카</title>
+
+    <!-- CSS 파일들 링크 -->
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/main.css}">
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/profile.css}">
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin.css}">
+
+    <!-- 중복 로드 방지 스크립트 -->
+    <script>
+        // 중복 선언 방지
+        if (typeof window.EnhancedIntegratedLearningManager !== 'undefined') {
+            delete window.EnhancedIntegratedLearningManager;
+        }
+        if (typeof window.enhancedIntegratedLearningManager !== 'undefined') {
+            delete window.enhancedIntegratedLearningManager;
+        }
+        if (typeof window.DarkModeManager !== 'undefined') {
+            delete window.DarkModeManager;
+        }
+        if (typeof window.CardChangeManager !== 'undefined') {
+            delete window.CardChangeManager;
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #sidebar-container {
+            width: 250px;
+            flex-shrink: 0;
+            border-right: 1px solid #e9ecef;
+            /*background: white;*/
+        }
+
+        #main-content-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #52C41A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* 페이지 컨테이너 */
+        .page-container {
+            display: none;
+        }
+
+        .page-container.active {
+            display: block;
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 토스트 */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .toast-description {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<!-- 로딩 화면 -->
+<div id="loading" class="loading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">키리보카 로딩중...</div>
+</div>
+
+<!-- 메인 앱 컨테이너 -->
+<div class="app-container">
+    <!-- 사이드바 영역 -->
+    <div id="sidebar-container">
+        <div th:replace="~{student/kiriboca/components/sidebar :: sidebar}"></div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <div id="main-content-container">
+        <!-- 학습하기 페이지 (기본) -->
+        <div id="learning-page" class="page-container active">
+            <div th:replace="~{student/kiriboca/components/main-content :: main-content}"></div>
+        </div>
+
+        <!-- 대시보드 페이지 -->
+        <div id="dashboard-page" class="page-container">
+            <div th:replace="~{student/kiriboca/components/dashboard :: dashboard-content}"></div>
+        </div>
+
+        <!-- 프로필 페이지 -->
+        <div id="profile-page" class="page-container">
+            <div th:replace="~{student/kiriboca/components/profile :: profile-content}"></div>
+        </div>
+
+        <!-- 관리자 페이지 -->
+        <div id="admin-page" class="page-container">
+            <div th:replace="~{student/kiriboca/components/admin :: admin-content}"></div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script th:inline="javascript">
+    // 키리보카 앱 클래스
+    class KiribocaApp {
+        constructor() {
+            this.currentPage = 'learning';
+            this.isLoading = false;
+            this.wordsLearned = 0;
+            this.sentencesLearned = 0;
+            this.totalCoins = 0;
+            this.learnedWords = new Set();
+            this.learnedSentences = new Set();
+            this.favoriteWords = new Set();
+            this.init();
+        }
+
+        // 앱 초기화
+        async init() {
+            console.log('🚀 키리보카 앱 시작');
+
+            try {
+                // 이벤트 리스너 설정
+                this.setupEventListeners();
+
+                // API 연결 상태 확인 및 재시도
+                await this.checkApiConnection();
+
+                // 로딩 완료
+                this.hideLoading();
+
+                console.log('✅ 키리보카 앱 로드 완료');
+            } catch (error) {
+                console.error('❌ 앱 로드 중 오류:', error);
+                this.showToast('오류', '앱을 로드하는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // API 연결 상태 확인
+        async checkApiConnection() {
+            console.log('🔍 API 연결 상태 확인');
+
+            try {
+                const response = await fetch('/api/sidebar/levels');
+                if (!response.ok) {
+                    console.log('⚠️ API 연결 실패, 재시도 중...');
+                    // 3초 후 재시도
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    console.log('✅ API 연결 성공');
+                }
+            } catch (error) {
+                console.error('❌ API 연결 확인 실패:', error);
+                this.showToast('연결 오류', 'API 서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // 이벤트 리스너 설정
+        setupEventListeners() {
+            console.log('🔗 이벤트 리스너 설정');
+
+            setTimeout(() => {
+                this.setupNavigationEvents();
+
+                // 향상된 통합 학습 관리자가 있으면 학습 이벤트는 설정하지 않음
+                if (!window.enhancedIntegratedLearningManager) {
+                this.setupLearningPageEvents();
+                } else {
+                    console.log('🔄 향상된 통합 학습 관리자가 있으므로 기본 학습 이벤트 스킵');
+                }
+
+                this.setupAdminEvents();
+                this.setupProfileEvents();
+                this.updateDisplay();
+            }, 100);
+        }
+
+        // 네비게이션 이벤트 설정
+        setupNavigationEvents() {
+            const navItems = document.querySelectorAll('.nav-item[data-page]');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+
+                    if (page && page !== this.currentPage) {
+                        this.navigateTo(page);
+                    }
+                });
+
+                // 호버 효과
+                item.addEventListener('mouseenter', () => {
+                    if (!item.classList.contains('active')) {
+                        item.style.transform = 'translateX(2px)';
+                        /*item.style.background = '#f8f9fa';*/
+                    }
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    if (!item.classList.contains('active')) {
+                        item.style.transform = 'translateX(0)';
+                        item.style.background = 'none';
+                    }
+                });
+            });
+
+            console.log('🧭 네비게이션 이벤트 설정 완료');
+        }
+
+        // 학습 페이지 이벤트 설정
+        setupLearningPageEvents() {
+            console.log('📚 학습 페이지 이벤트 설정');
+
+            // 향상된 통합 학습 관리자가 있으면 기본 이벤트는 설정하지 않음
+            if (window.enhancedIntegratedLearningManager) {
+                console.log('🔄 향상된 통합 학습 관리자가 있으므로 기본 학습 이벤트 스킵');
+                return;
+            }
+
+            // 단어 카드 이벤트
+            const wordCards = document.querySelectorAll('.word-card');
+            wordCards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.word-favorite')) {
+                        this.handleWordClick(card);
+                    }
+                });
+
+                // 즐겨찾기 버튼
+                const favoriteBtn = card.querySelector('.word-favorite');
+                if (favoriteBtn) {
+                    favoriteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleWordFavorite(card);
+                    });
+                }
+            });
+
+            // 문장 카드 이벤트
+            const sentenceCards = document.querySelectorAll('.sentence-card');
+            sentenceCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    this.handleSentenceClick(card);
+                });
+            });
+
+            // Start 버튼 이벤트
+            const startButtons = document.querySelectorAll('.start-button');
+            startButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.handleStartLearning();
+                });
+            });
+
+            // 검색 기능
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    this.handleSearch(e.target.value);
+                });
+            }
+        }
+
+        // 관리자 이벤트 설정
+        setupAdminEvents() {
+            console.log('⚙️ 관리자 이벤트 설정');
+
+            // 기존 navigateTo 메서드를 확장하여 관리자 페이지 진입 시 AdminDashboard 초기화
+            const originalNavigateTo = this.navigateTo.bind(this);
+
+            this.navigateTo = function(page) {
+                console.log(`📄 페이지 이동: ${this.currentPage} → ${page}`);
+
+                // 기존 네비게이션 로직 실행
+                originalNavigateTo(page);
+
+                // 관리자 페이지로 전환된 경우 AdminDashboard 초기화
+                if (page === 'admin') {
+                    console.log('🔧 관리자 페이지 진입 - AdminDashboard 초기화 예약');
+
+                    // 파일 로드 확인 및 초기화
+                    const initAdmin = () => {
+                        console.log('🔧 AdminDashboard 초기화 실행');
+
+                        // admin.js의 초기화 함수 호출
+                        if (typeof window.initAdminDashboard === 'function') {
+                            window.initAdminDashboard();
+                            console.log('✅ AdminDashboard 초기화 완료');
+                        } else {
+                            console.error('❌ admin.js가 로드되지 않았습니다. 파일 경로를 확인하세요.');
+                            console.log('🔍 디버그: window 객체에서 admin 관련 함수들:',
+                                Object.keys(window).filter(key => key.includes('admin') || key.includes('Admin')));
+
+                            // 재시도 로직 추가
+                            console.log('🔄 admin.js 로드 재시도 중...');
+                            setTimeout(() => {
+                                if (typeof window.initAdminDashboard === 'function') {
+                                    window.initAdminDashboard();
+                                    console.log('✅ AdminDashboard 재시도 초기화 완료');
+                                } else {
+                                    console.error('❌ admin.js 로드 실패 - 수동으로 새로고침해주세요.');
+                                }
+                            }, 1000);
+                        }
+                    };
+
+                    // DOM이 완전히 로드될 때까지 충분히 대기
+                    setTimeout(initAdmin, 300);
+                }
+            };
+        }
+
+        // 프로필 이벤트 설정
+        setupProfileEvents() {
+            console.log('👤 프로필 이벤트 설정');
+
+            setTimeout(() => {
+                // 토글 스위치 기능
+                const toggleSwitches = document.querySelectorAll('.toggle-switch input');
+                toggleSwitches.forEach(toggle => {
+                    toggle.addEventListener('change', (e) => {
+                        console.log(`설정 변경: ${e.target.id} = ${e.target.checked}`);
+                        this.showToast('설정 변경', `${e.target.id} 설정이 변경되었습니다.`);
+                    });
+                });
+
+                // 버튼 클릭 이벤트
+                const updateBtns = document.querySelectorAll('.update-btn, .avatar-btn');
+                updateBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const btnText = e.target.textContent;
+                        this.showToast('기능 준비중', `${btnText} 기능은 준비중입니다.`);
+                    });
+                });
+            }, 200);
+        }
+
+        // 페이지 네비게이션 (기존 메서드는 setupAdminEvents에서 오버라이드됨)
+        navigateTo(page) {
+            console.log(`📄 페이지 이동: ${this.currentPage} → ${page}`);
+
+            if (this.isLoading) {
+                console.log('⏳ 이미 로딩 중입니다...');
+                return;
+            }
+
+            // 특별 처리 (로그아웃)
+            if (page === 'logout') {
+                if (confirm('정말 로그아웃하시겠습니까?')) {
+                    this.showToast('로그아웃', '로그아웃되었습니다!');
+                    // 실제 로그아웃 로직 추가
+                }
+                return;
+            }
+
+            // 네비게이션 상태 업데이트
+            this.updateNavigationState(page);
+
+            // 페이지 전환
+            this.switchPage(page);
+
+            this.currentPage = page;
+            this.showToast('페이지 이동', `${this.getPageTitle(page)} 페이지입니다.`);
+        }
+
+        // 페이지 전환
+        switchPage(targetPage) {
+            // 모든 페이지 숨기기
+            const allPages = document.querySelectorAll('.page-container');
+            allPages.forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // 대상 페이지 표시
+            const targetPageElement = document.getElementById(`${targetPage}-page`);
+            if (targetPageElement) {
+                targetPageElement.classList.add('active');
+                targetPageElement.classList.add('fade-in');
+
+                // 애니메이션 클래스 제거
+                setTimeout(() => {
+                    targetPageElement.classList.remove('fade-in');
+                }, 300);
+            }
+        }
+
+        // 네비게이션 상태 업데이트
+        updateNavigationState(activePage) {
+            const navItems = document.querySelectorAll('.nav-item[data-page]');
+
+            navItems.forEach(item => {
+                const page = item.dataset.page;
+
+                if (page === activePage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // 페이지 제목 반환
+        getPageTitle(page) {
+            const titles = {
+                'learning': '학습하기',
+                'dashboard': '대시보드',
+                'profile': '프로필',
+                'admin': '관리자'
+            };
+            return titles[page] || page;
+        }
+
+        // 단어 클릭 처리
+        handleWordClick(card) {
+            const wordId = card.dataset.word || Math.random().toString(36).substr(2, 9);
+            const wordText = card.querySelector('.word-english').textContent;
+
+            // TTS 재생
+            this.speakText(wordText);
+
+            // 시각적 피드백
+            card.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                card.style.transform = 'scale(1)';
+            }, 200);
+
+            // 학습 완료 처리
+            if (!this.learnedWords.has(wordId)) {
+                this.learnedWords.add(wordId);
+                this.wordsLearned++;
+                this.totalCoins += 1;
+
+                card.style.background = '#e6f7ff';
+                card.style.borderColor = '#91d5ff';
+
+                this.updateDisplay();
+                this.showToast('단어 학습 완료', `"${wordText}" 학습 완료! +1 코인`);
+            }
+        }
+
+        // 문장 클릭 처리
+        handleSentenceClick(card) {
+            const sentenceId = card.dataset.sentence || Math.random().toString(36).substr(2, 9);
+            const sentenceText = card.querySelector('.sentence-text').textContent;
+
+            // TTS 재생
+            this.speakText(sentenceText);
+
+            // 시각적 피드백
+            card.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                card.style.transform = 'scale(1)';
+            }, 200);
+
+            // 학습 완료 처리
+            if (!this.learnedSentences.has(sentenceId)) {
+                this.learnedSentences.add(sentenceId);
+                this.sentencesLearned++;
+                this.totalCoins += 3;
+
+                card.style.background = '#f6ffed';
+                card.style.borderColor = '#b7eb8f';
+
+                this.updateDisplay();
+                this.showToast('문장 학습 완료', `"${sentenceText}" 학습 완료! +3 코인`);
+            }
+        }
+
+        // 즐겨찾기 토글
+        toggleWordFavorite(card) {
+            const wordId = card.dataset.word || Math.random().toString(36).substr(2, 9);
+            const favoriteBtn = card.querySelector('.word-favorite');
+
+            if (this.favoriteWords.has(wordId)) {
+                this.favoriteWords.delete(wordId);
+                favoriteBtn.textContent = '♡';
+            } else {
+                this.favoriteWords.add(wordId);
+                favoriteBtn.textContent = '❤️';
+            }
+
+            // 애니메이션 효과
+            favoriteBtn.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                favoriteBtn.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // 학습 시작
+        handleStartLearning() {
+            const wordCards = document.querySelectorAll('.word-card');
+            if (wordCards.length === 0) return;
+
+            let currentIndex = 0;
+            const totalCards = wordCards.length;
+
+            const playNext = () => {
+                if (currentIndex >= totalCards) {
+                    this.showToast('학습 완료!', `${totalCards}개의 단어를 모두 학습했습니다.`);
+                    return;
+                }
+
+                const card = wordCards[currentIndex];
+                this.handleWordClick(card);
+                currentIndex++;
+
+                setTimeout(playNext, 2000);
+            };
+
+            playNext();
+            this.showToast('자동 학습 시작', '모든 단어를 순차적으로 학습합니다.');
+        }
+
+        // 검색 처리
+        handleSearch(query) {
+            // 검색어가 짧으면 모든 카드 표시 (아무 조작도 하지 않음)
+            if (query.length < 2) {
+                return;
+            }
+            // 검색 결과 필터링은 JS에서 직접 카드 display/visibility를 조작하지 않고,
+            // main-content.js, app.js에서만 담당하도록!
+        }
+
+        // TTS 음성 재생
+        speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // 디스플레이 업데이트
+        updateDisplay() {
+            // 헤더 정보 업데이트
+            const wordsLearnedEl = document.getElementById('words-learned');
+            const sentencesLearnedEl = document.getElementById('sentences-learned');
+            const totalCoinsEl = document.getElementById('total-coins');
+
+            if (wordsLearnedEl) wordsLearnedEl.textContent = this.wordsLearned;
+            if (sentencesLearnedEl) sentencesLearnedEl.textContent = this.sentencesLearned;
+            if (totalCoinsEl) totalCoinsEl.textContent = this.totalCoins;
+        }
+
+        // 토스트 알림 표시
+        showToast(title, description) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-description">${description}</div>
+                `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // 로딩 화면 숨기기
+        hideLoading() {
+            const loading = document.getElementById('loading');
+
+            if (loading) {
+                loading.style.opacity = '0';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 300);
+            }
+        }
+    }
+
+    // 앱 초기화 (DOM 로드 완료 후)
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🌐 DOM 로드 완료');
+        window.kiribocaApp = new KiribocaApp();
+    });
+
+    // 개발자 도구용 디버깅 함수
+    window.debugKiriboca = {
+        navigateTo: (page) => window.kiribocaApp.navigateTo(page),
+        showToast: (title, desc) => window.kiribocaApp.showToast(title, desc),
+        currentPage: () => window.kiribocaApp.currentPage,
+        initAdmin: () => window.initAdminDashboard() // 수동 관리자 초기화
+    };
+</script>
+<!-- JavaScript 파일들 (캐시 버스팅) - 한 번만 로드 -->
+    <script th:src="@{/js/main-content.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/change-cards.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/dark-mode.js?v=1.0.2}" defer></script>
+    <script th:src="@{/js/admin.js?v=1.0.2}" defer></script>
+</body>
+</html>
