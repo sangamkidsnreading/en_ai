@@ -592,7 +592,7 @@ class KiribocaApp {
             startIcon.textContent = '🎯';
             startText.textContent = 'Start';
 
-            this.showToast('학습 중단', '학습을 중단했습니다.');
+            /*this.showToast('학습 중단', '학습을 중단했습니다.');*/
             return;
         }
 
