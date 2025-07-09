@@ -325,7 +325,7 @@ public class AdminService {
 
             // S3에 파일 업로드
             String s3Key = s3Service.uploadFile(file, "words");
-            
+
             // S3 URL 생성 (직접 URL 구성)
             String s3Url = String.format("https://%s.s3.ap-northeast-2.amazonaws.com/%s", 
                     "kidsnreading-sounds", s3Key);
@@ -744,19 +744,26 @@ public class AdminService {
     }
 
     private WordDto convertToWordDto(Word word) {
-        return WordDto.builder().id(word.getId()).english(word.getText()).korean(word.getMeaning()).level(word.getLevel()).day(word.getDay()).pronunciation(word.getPronunciation()).audioUrl(word.getAudioUrl()).isActive(word.getIsActive()).build();
+        return WordDto.builder().id(word.getId()).english(word.getText).korean(word.getMeaning()).level(word.getLevel()).day(word.getDay()).pronunciation(word.getPronunciation()).audioUrl(word.getAudioUrl()).isActive(word.getIsActive()).build();
     }
 
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
-            .id(sentence.getId())
-            .text(sentence.getEnglishText())
-            .korean(sentence.getKoreanTranslation())
-            .level(sentence.getDifficultyLevel())
-            .dayNumber(sentence.getDayNumber())
-            .audioUrl(sentence.getAudioUrl())
-            .isActive(sentence.getIsActive())
-            .build();
+                .id(sentence.getId())
+                .text(sentence.getEnglishText())
+                .sentence(sentence.getEnglishText())
+                .english(sentence.getEnglishText())
+                .korean(sentence.getKoreanTranslation())
+                .translation(sentence.getKoreanTranslation())
+                .level(sentence.getDifficultyLevel())
+                .dayNumber(sentence.getDayNumber())
+                .audioUrl(sentence.getAudioUrl())
+                .isActive(sentence.getIsActive())
+                .createdAt(sentence.getCreatedAt())
+                .updatedAt(sentence.getUpdatedAt())
+                .phonetic(sentence.getPhonetic())
+                .pronunciation(sentence.getPronunciation())
+                .build();
     }
 
     private LearningSettingsDto convertToLearningSettingsDto(LearningSettings settings) {

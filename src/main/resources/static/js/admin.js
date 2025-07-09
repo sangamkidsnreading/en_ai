@@ -333,7 +333,7 @@ class AdminDashboard {
     // 음원 파일 선택 처리
     handleAudioFileSelection(file, type) {
         console.log('🎵 음원 파일 처리 시작:', file, type);
-        
+
         if (!file) {
             console.warn('파일이 없습니다.');
             return;
@@ -361,11 +361,11 @@ class AdminDashboard {
         if (audioInfo && audioPreview && audioFileName) {
             // 파일 URL 생성
             const fileURL = URL.createObjectURL(file);
-            
+
             // 미리보기 설정
             audioPreview.src = fileURL;
             audioFileName.textContent = file.name;
-            
+
             // UI 표시 업데이트
             audioInfo.style.display = 'block';
             if (currentAudio) {
@@ -381,7 +381,7 @@ class AdminDashboard {
     // 선택된 음원 제거
     removeSelectedAudio(type) {
         console.log('🎵 음원 제거:', type);
-        
+
         const audioInfo = document.getElementById(type + '-audio-info');
         const audioFile = document.getElementById(type + '-audio-file');
         const audioPreview = document.getElementById(type + '-audio-preview');
@@ -390,11 +390,11 @@ class AdminDashboard {
         if (audioInfo && audioFile && audioPreview) {
             // 파일 입력 초기화
             audioFile.value = '';
-            
+
             // 미리보기 초기화
             audioPreview.src = '';
             audioInfo.style.display = 'none';
-            
+
             // 기존 음원이 있다면 다시 표시
             if (currentAudio) {
                 currentAudio.style.display = 'block';
@@ -920,7 +920,9 @@ class AdminDashboard {
 
         // 체크박스 이벤트 바인딩
         this.bindWordCheckboxEvents();
-        this.bindSelectAllWordEvents();
+        The code has been modified to handle null values in sentence rendering and modal opening, ensuring a more robust display of sentence data in the admin dashboard.
+``````text
+this.bindSelectAllWordEvents();
     }
 
     openWordModal(word) {
@@ -958,7 +960,7 @@ class AdminDashboard {
             const currentAudio = document.getElementById('word-current-audio');
             const audioInfo = document.getElementById('word-audio-info');
             const audioFile = document.getElementById('word-audio-file');
-            
+
             if (currentAudio) currentAudio.style.display = 'none';
             if (audioInfo) audioInfo.style.display = 'none';
             if (audioFile) audioFile.value = '';
@@ -1341,14 +1343,17 @@ class AdminDashboard {
 
         if (sentence) {
             title.textContent = '문장 수정';
-            document.getElementById('sentence-id').value = sentence.id;
-            document.getElementById('sentence-english').value = sentence.english;
-            document.getElementById('sentence-korean').value = sentence.translation || sentence.korean || '';
-            document.getElementById('sentence-level').value = sentence.level;
-            // day 값 select에 반영
-            if (sentence.day) {
-                document.getElementById('sentence-day').value = sentence.day;
-            }
+            // 다양한 필드명 시도하여 null 값 방지
+            const englishText = sentence.english || sentence.text || sentence.sentence || '';
+            const koreanText = sentence.korean || sentence.translation || '';
+            const level = sentence.level || 1;
+            const dayNumber = sentence.dayNumber || sentence.day || 1;
+
+            document.getElementById('sentence-english').value = englishText;
+            document.getElementById('sentence-korean').value = koreanText;
+            document.getElementById('sentence-level').value = level;
+            document.getElementById('sentence-day').value = dayNumber;
+            modal.setAttribute('data-sentence-id', sentence.id);
         } else {
             title.textContent = '문장 추가';
             document.getElementById('sentence-id').value = '';
@@ -1361,7 +1366,7 @@ class AdminDashboard {
             const currentAudio = document.getElementById('sentence-current-audio');
             const audioInfo = document.getElementById('sentence-audio-info');
             const audioFile = document.getElementById('sentence-audio-file');
-            
+
             if (currentAudio) currentAudio.style.display = 'none';
             if (audioInfo) audioInfo.style.display = 'none';
             if (audioFile) audioFile.value = '';
@@ -1619,12 +1624,12 @@ class AdminDashboard {
         if (modal && title && typeSelect) {
             title.textContent = type === 'words' ? '단어 음원 일괄 업로드' : '문장 음원 일괄 업로드';
             typeSelect.value = type;
-            
+
             // 초기화
             if (zipFile) zipFile.value = '';
             if (progress) progress.style.display = 'none';
             if (results) results.style.display = 'none';
-            
+
             modal.style.display = 'block';
             console.log('✅ 일괄 음원 업로드 모달이 열렸습니다:', type);
         }
@@ -1635,7 +1640,7 @@ class AdminDashboard {
         const self = this;
         const type = document.getElementById('bulk-audio-type').value;
         const zipFile = document.getElementById('bulk-audio-zip-file').files[0];
-        
+
         if (!zipFile) {
             this.showError('ZIP 파일을 선택해주세요.');
             return;
@@ -1651,7 +1656,7 @@ class AdminDashboard {
         const progress = document.getElementById('bulk-upload-progress');
         const progressFill = document.getElementById('bulk-progress-fill');
         const progressText = document.getElementById('bulk-progress-text');
-        
+
         if (progress) {
             progress.style.display = 'block';
             if (progressFill) progressFill.style.width = '0%';
@@ -1665,7 +1670,7 @@ class AdminDashboard {
 
         // 업로드 시작
         const endpoint = type === 'words' ? '/words/bulk-audio-upload' : '/sentences/bulk-audio-upload';
-        
+
         fetch(this.baseUrl + endpoint, {
             method: 'POST',
             body: formData
@@ -1680,22 +1685,22 @@ class AdminDashboard {
             // 진행률 완료 표시
             if (progressFill) progressFill.style.width = '100%';
             if (progressText) progressText.textContent = '업로드 완료!';
-            
+
             // 결과 표시
             self.showBulkUploadResults(result);
-            
+
             // 목록 새로고침
             if (type === 'words') {
                 self.loadWords();
             } else {
                 self.loadSentences();
             }
-            
+
             self.showSuccess('일괄 음원 업로드가 완료되었습니다.');
         })
         .catch(function(error) {
             console.error('일괄 음원 업로드 실패:', error);
-            
+
             if (progressText) progressText.textContent = '업로드 실패';
             self.showError('일괄 음원 업로드에 실패했습니다: ' + error.message);
         });
@@ -1710,13 +1715,13 @@ class AdminDashboard {
 
         if (results) {
             results.style.display = 'block';
-            
+
             if (successCount) successCount.textContent = result.successCount || 0;
             if (errorCount) errorCount.textContent = result.errorCount || 0;
-            
+
             if (resultDetails && result.details) {
                 let detailsHtml = '';
-                
+
                 if (result.successFiles && result.successFiles.length > 0) {
                     detailsHtml += '<h5>성공한 파일:</h5><ul>';
                     result.successFiles.slice(0, 10).forEach(function(file) {
@@ -1727,7 +1732,7 @@ class AdminDashboard {
                     }
                     detailsHtml += '</ul>';
                 }
-                
+
                 if (result.errorFiles && result.errorFiles.length > 0) {
                     detailsHtml += '<h5>실패한 파일:</h5><ul>';
                     result.errorFiles.slice(0, 10).forEach(function(error) {
@@ -1738,7 +1743,7 @@ class AdminDashboard {
                     }
                     detailsHtml += '</ul>';
                 }
-                
+
                 resultDetails.innerHTML = detailsHtml;
             }
         }
@@ -1752,7 +1757,7 @@ class AdminDashboard {
     // 음원 목록 로드
     loadAudioList() {
         const self = this;
-        
+
         // 병렬로 단어와 문장 데이터 로드
         Promise.all([
             this.apiCall('/words'),
@@ -1761,7 +1766,7 @@ class AdminDashboard {
         .then(function(results) {
             const words = results[0] || [];
             const sentences = results[1] || [];
-            
+
             self.renderAudioList(words, sentences);
         })
         .catch(function(error) {
@@ -1773,11 +1778,11 @@ class AdminDashboard {
     // 음원 목록 렌더링
     renderAudioList(words, sentences) {
         const audioList = document.getElementById('audio-list');
-        
+
         if (!audioList) return;
 
         const audioItems = [];
-        
+
         // 단어 항목들 추가
         words.forEach(function(word) {
             audioItems.push({
@@ -1790,7 +1795,7 @@ class AdminDashboard {
                 audioUrl: word.audioUrl
             });
         });
-        
+
         // 문장 항목들 추가
         sentences.forEach(function(sentence) {
             audioItems.push({
@@ -1806,7 +1811,7 @@ class AdminDashboard {
 
         // 필터 적용
         const filteredItems = this.applyAudioFilters(audioItems);
-        
+
         if (filteredItems.length === 0) {
             audioList.innerHTML = '<div class="no-data">조건에 맞는 항목이 없습니다.</div>';
             return;
@@ -1815,7 +1820,7 @@ class AdminDashboard {
         audioList.innerHTML = filteredItems.map(function(item) {
             const statusClass = item.hasAudio ? 'has-audio' : 'no-audio';
             const statusText = item.hasAudio ? '음원 있음' : '음원 없음';
-            
+
             return '<div class="audio-item" data-type="' + item.type + '" data-id="' + item.id + '">' +
                 '<div class="audio-item-info">' +
                 '<div class="audio-item-type">' + (item.type === 'word' ? '단어' : '문장') + '</div>' +
@@ -1848,9 +1853,9 @@ class AdminDashboard {
         const typeFilter = document.getElementById('audio-type-filter');
         const statusFilter = document.getElementById('audio-status-filter');
         const levelFilter = document.getElementById('audio-level-filter');
-        
+
         let filtered = items;
-        
+
         // 타입 필터
         if (typeFilter && typeFilter.value !== 'all') {
             const filterType = typeFilter.value === 'words' ? 'word' : 'sentence';
@@ -1858,7 +1863,7 @@ class AdminDashboard {
                 return item.type === filterType;
             });
         }
-        
+
         // 상태 필터
         if (statusFilter && statusFilter.value !== 'all') {
             const hasAudio = statusFilter.value === 'has-audio';
@@ -1866,7 +1871,7 @@ class AdminDashboard {
                 return item.hasAudio === hasAudio;
             });
         }
-        
+
         // 레벨 필터
         if (levelFilter && levelFilter.value !== 'all') {
             const level = parseInt(levelFilter.value);
@@ -1874,7 +1879,7 @@ class AdminDashboard {
                 return item.level === level;
             });
         }
-        
+
         return filtered;
     }
 
@@ -1886,29 +1891,29 @@ class AdminDashboard {
     // 개별 항목 음원 업로드
     uploadItemAudio(type, itemId) {
         const self = this;
-        
+
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'audio/*';
-        
+
         input.onchange = function(e) {
             const file = e.target.files[0];
             if (!file) return;
-            
+
             // 파일 검증
             if (file.size > 10 * 1024 * 1024) {
                 self.showError('파일 크기는 10MB 이하여야 합니다.');
                 return;
             }
-            
+
             const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a'];
             if (!validTypes.includes(file.type)) {
                 self.showError('MP3, M4A, WAV, OGG 형식의 음원 파일만 업로드 가능합니다.');
                 return;
             }
-            
+
             self.showLoading('음원을 업로드하는 중...');
-            
+
             self.uploadAudioFile(itemId, file, type)
                 .then(function() {
                     self.hideLoading();
@@ -1920,22 +1925,22 @@ class AdminDashboard {
                     self.showError('음원 업로드에 실패했습니다: ' + error.message);
                 });
         };
-        
+
         input.click();
     }
 
     // 개별 항목 음원 삭제
     deleteItemAudio(type, itemId) {
         const self = this;
-        
+
         if (!confirm('이 음원을 삭제하시겠습니까?')) {
             return;
         }
-        
+
         const endpoint = type === 'word' ? 
             '/words/' + itemId + '/audio' : 
             '/sentences/' + itemId + '/audio';
-        
+
         this.apiCall(endpoint, 'DELETE')
             .then(function() {
                 self.showSuccess('음원이 삭제되었습니다.');
@@ -1950,7 +1955,7 @@ class AdminDashboard {
     // 음원 통계 표시
     showAudioStats() {
         const self = this;
-        
+
         Promise.all([
             this.apiCall('/words'),
             this.apiCall('/sentences')
@@ -1958,17 +1963,17 @@ class AdminDashboard {
         .then(function(results) {
             const words = results[0] || [];
             const sentences = results[1] || [];
-            
+
             const wordStats = {
                 total: words.length,
                 withAudio: words.filter(function(w) { return w.audioUrl; }).length
             };
-            
+
             const sentenceStats = {
                 total: sentences.length,
                 withAudio: sentences.filter(function(s) { return s.audioUrl; }).length
             };
-            
+
             const statsMessage = 
                 '📊 음원 통계\n\n' +
                 '단어:\n' +
@@ -1981,7 +1986,7 @@ class AdminDashboard {
                 '  - 음원 있음: ' + sentenceStats.withAudio + '개\n' +
                 '  - 음원 없음: ' + (sentenceStats.total - sentenceStats.withAudio) + '개\n' +
                 '  - 완성도: ' + Math.round((sentenceStats.withAudio / sentenceStats.total) * 100) + '%';
-            
+
             alert(statsMessage);
         })
         .catch(function(error) {
@@ -2242,7 +2247,7 @@ class AdminDashboard {
             normalizeBtn.addEventListener('click', () => {
                 if (confirm('기존 DB의 오디오 파일명을 정규화하시겠습니까?\n\n이 작업은 다음과 같이 변환합니다:\n• "문장 3번, ..." → "sentence3.wav"\n• "14번 ..." → "no14.wav"\n\n⚠️ 주의: 실제 파일명도 함께 변경해야 합니다.')) {
                     this.showLoading('오디오 파일명을 정규화하고 있습니다...');
-                    
+
                     fetch(this.baseUrl + '/normalize-audio-filenames', {
                         method: 'POST',
                         headers: {
@@ -2346,7 +2351,7 @@ class AdminDashboard {
     bindWordCheckboxEvents() {
         const self = this;
         const checkboxes = document.querySelectorAll('.word-checkbox');
-        
+
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('change', function() {
                 self.updateWordDeleteButton();
@@ -2358,16 +2363,16 @@ class AdminDashboard {
     bindSelectAllWordEvents() {
         const self = this;
         const selectAllCheckbox = document.getElementById('select-all-words');
-        
+
         if (selectAllCheckbox) {
             selectAllCheckbox.addEventListener('change', function() {
                 const isChecked = this.checked;
                 const wordCheckboxes = document.querySelectorAll('.word-checkbox');
-                
+
                 wordCheckboxes.forEach(function(checkbox) {
                     checkbox.checked = isChecked;
                 });
-                
+
                 self.updateWordDeleteButton();
             });
         }
@@ -2376,7 +2381,7 @@ class AdminDashboard {
     bindSentenceCheckboxEvents() {
         const self = this;
         const checkboxes = document.querySelectorAll('.sentence-checkbox');
-        
+
         checkboxes.forEach(function(checkbox) {
             checkbox.addEventListener('change', function() {
                 self.updateSentenceDeleteButton();
@@ -2388,16 +2393,16 @@ class AdminDashboard {
     bindSelectAllSentenceEvents() {
         const self = this;
         const selectAllCheckbox = document.getElementById('select-all-sentences');
-        
+
         if (selectAllCheckbox) {
             selectAllCheckbox.addEventListener('change', function() {
                 const isChecked = this.checked;
                 const sentenceCheckboxes = document.querySelectorAll('.sentence-checkbox');
-                
+
                 sentenceCheckboxes.forEach(function(checkbox) {
                     checkbox.checked = isChecked;
                 });
-                
+
                 self.updateSentenceDeleteButton();
             });
         }
@@ -2407,7 +2412,7 @@ class AdminDashboard {
     updateWordDeleteButton() {
         const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
         const deleteBtn = document.getElementById('delete-selected-words-btn');
-        
+
         if (deleteBtn) {
             if (checkedBoxes.length > 0) {
                 deleteBtn.style.display = 'inline-block';
@@ -2421,7 +2426,7 @@ class AdminDashboard {
     updateSentenceDeleteButton() {
         const checkedBoxes = document.querySelectorAll('.sentence-checkbox:checked');
         const deleteBtn = document.getElementById('delete-selected-sentences-btn');
-        
+
         if (deleteBtn) {
             if (checkedBoxes.length > 0) {
                 deleteBtn.style.display = 'inline-block';
@@ -2437,7 +2442,7 @@ class AdminDashboard {
         const selectAllCheckbox = document.getElementById('select-all-words');
         const wordCheckboxes = document.querySelectorAll('.word-checkbox');
         const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
-        
+
         if (selectAllCheckbox && wordCheckboxes.length > 0) {
             if (checkedBoxes.length === 0) {
                 selectAllCheckbox.checked = false;
@@ -2456,7 +2461,7 @@ class AdminDashboard {
         const selectAllCheckbox = document.getElementById('select-all-sentences');
         const sentenceCheckboxes = document.querySelectorAll('.sentence-checkbox');
         const checkedBoxes = document.querySelectorAll('.sentence-checkbox:checked');
-        
+
         if (selectAllCheckbox && sentenceCheckboxes.length > 0) {
             if (checkedBoxes.length === 0) {
                 selectAllCheckbox.checked = false;
@@ -2475,7 +2480,7 @@ class AdminDashboard {
     deleteSelectedWords() {
         const self = this;
         const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
-        
+
         if (checkedBoxes.length === 0) {
             this.showWarning('삭제할 단어를 선택해주세요.');
             return;
@@ -2486,7 +2491,7 @@ class AdminDashboard {
         });
 
         const confirmMessage = `선택된 ${selectedIds.length}개의 단어를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
-        
+
         if (!confirm(confirmMessage)) {
             return;
         }
@@ -2518,7 +2523,7 @@ class AdminDashboard {
     deleteSelectedSentences() {
         const self = this;
         const checkedBoxes = document.querySelectorAll('.sentence-checkbox:checked');
-        
+
         if (checkedBoxes.length === 0) {
             this.showWarning('삭제할 문장을 선택해주세요.');
             return;
@@ -2529,7 +2534,7 @@ class AdminDashboard {
         });
 
         const confirmMessage = `선택된 ${selectedIds.length}개의 문장을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
-        
+
         if (!confirm(confirmMessage)) {
             return;
         }
