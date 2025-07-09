@@ -44,11 +44,6 @@
         <div class="filter-group">
             <label class="filter-label">Day 선택</label>
             <select class="filter-select" id="day-select" data-current-day="1">
-                <!-- Day 1~50 -->
-                <!--# th:each="d : ${#numbers.sequence(1,50)}"-->
-                <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
-                <!--/-->
-                <!-- 아래는 하드코딩 -->
                 <option value="1">Day 1</option>
                 <option value="2">Day 2</option>
                 <option value="3">Day 3</option>

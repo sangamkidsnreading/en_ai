@@ -21,6 +21,8 @@ class CardChangeManager {
         this.setupEventListeners();
 
         // 초기 카드 로드
+        this.initializeLevelOptions();
+        this.updateDayOptions();
         await this.loadCards();
 
         console.log('✅ 카드 변경 관리자 초기화 완료');
@@ -42,7 +44,6 @@ class CardChangeManager {
                         daySelect.value = 1;
                     }
 
-                    await this.updateDayOptions();
                     await this.loadCards();
                 }
             });
@@ -63,33 +64,23 @@ class CardChangeManager {
         console.log('🔗 카드 변경 이벤트 리스너 설정 완료');
     }
 
-    async updateDayOptions() {
-        try {
-            const response = await fetch(`/api/sidebar/days?level=${this.currentLevel}`);
-            if (!response.ok) throw new Error('Day 옵션 로드 실패');
+    updateDayOptions() {
+        // 정적으로 1-50 Day가 이미 HTML에 설정되어 있으므로 
+        // 현재 Day만 선택된 상태로 설정
+        const daySelect = document.getElementById('day-select');
+        if (daySelect) {
+            daySelect.value = this.currentDay;
+            console.log('✅ 정적 Day 옵션 초기화 완료 (Day 1-50)');
+        }
+    }
 
-            const availableDays = await response.json();
-            const daySelect = document.getElementById('day-select');
-
-            if (daySelect && availableDays.length > 0) {
-                // 기존 옵션 제거 (첫 번째 "모든 Day" 옵션 제외)
-                while (daySelect.children.length > 1) {
-                    daySelect.removeChild(daySelect.lastChild);
-                }
-
-                // 새로운 Day 옵션 추가
-                availableDays.forEach(day => {
-                    const option = document.createElement('option');
-                    option.value = day;
-                    option.textContent = `Day ${day}`;
-                    if (day === this.currentDay) {
-                        option.selected = true;
-                    }
-                    daySelect.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Day 옵션 업데이트 실패:', error);
+    async initializeLevelOptions() {
+        // 정적으로 1-10 레벨이 이미 HTML에 설정되어 있으므로 
+        // 현재 레벨만 선택된 상태로 설정
+        const levelSelect = document.getElementById('level-select');
+        if (levelSelect) {
+            levelSelect.value = this.currentLevel;
+            console.log('✅ 정적 레벨 옵션 초기화 완료 (Level 1-10)');
         }
     }
 
@@ -116,12 +107,12 @@ class CardChangeManager {
                 window.enhancedIntegratedLearningManager.sentences = data.sentences || [];
                 window.enhancedIntegratedLearningManager.currentLevel = this.currentLevel;
                 window.enhancedIntegratedLearningManager.currentDay = this.currentDay;
-                
+
                 // 카드 재렌더링
                 window.enhancedIntegratedLearningManager.renderWordsToHTML();
                 window.enhancedIntegratedLearningManager.renderSentencesToHTML();
                 window.enhancedIntegratedLearningManager.updateUI();
-                
+
                 // 이벤트 재설정 (새로운 카드가 로드되었으므로 리셋)
                 window.enhancedIntegratedLearningManager.eventListenersAdded = false;
                 window.enhancedIntegratedLearningManager.setupEvents();
