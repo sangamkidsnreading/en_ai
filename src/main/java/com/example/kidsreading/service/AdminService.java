@@ -15,6 +15,7 @@ import com.example.kidsreading.entity.Sentence;
 import com.example.kidsreading.entity.User;
 import com.example.kidsreading.entity.Word;
 import com.example.kidsreading.entity.User.Role;
+import com.example.kidsreading.exception.AdminException;
 import com.example.kidsreading.repository.LearningSettingsRepository;
 import com.example.kidsreading.repository.SentenceRepository;
 import com.example.kidsreading.repository.UserRepository;
@@ -42,7 +43,8 @@ import java.util.zip.ZipInputStream;
 import java.io.IOException;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.kidsreading.service.S3Service;
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Optional;
 
 @Service
@@ -224,37 +226,69 @@ public class AdminService {
     }
 
     public SentenceDto createSentence(SentenceDto sentenceDto) {
-        try {
-            Sentence sentence = Sentence.builder()
-                .englishText(sentenceDto.getEnglish())
-                .koreanTranslation(sentenceDto.getKorean())
-                .difficultyLevel(sentenceDto.getLevel())
-                .dayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : 1)
-                .isActive(true)
+        // DTO에서 값 가져오기 (다양한 필드명 호환)
+        String englishText = sentenceDto.getEnglishText() != null ? sentenceDto.getEnglishText() : 
+                            sentenceDto.getEnglish() != null ? sentenceDto.getEnglish() : sentenceDto.getText();
+        String koreanTranslation = sentenceDto.getKoreanTranslation() != null ? sentenceDto.getKoreanTranslation() : 
+                                  sentenceDto.getKorean() != null ? sentenceDto.getKorean() : 
+                                  sentenceDto.getMeaning() != null ? sentenceDto.getMeaning() : sentenceDto.getTranslation();
+        Integer difficultyLevel = sentenceDto.getDifficultyLevel() != null ? sentenceDto.getDifficultyLevel() : sentenceDto.getLevel();
+
+        Sentence sentence = Sentence.builder()
+                .englishText(englishText)
+                .koreanTranslation(koreanTranslation)
+                .difficultyLevel(difficultyLevel)
+                .dayNumber(sentenceDto.getDayNumber())
+                .audioUrl(sentenceDto.getAudioUrl())
+                .isActive(sentenceDto.getIsActive() != null ? sentenceDto.getIsActive() : true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-            Sentence savedSentence = (Sentence)this.sentenceRepository.save(sentence);
-            return this.convertToSentenceDto(savedSentence);
-        } catch (Exception e) {
-            log.error("문장 생성 실패", e);
-            throw new RuntimeException("문장 생성에 실패했습니다.");
-        }
+
+        Sentence savedSentence = sentenceRepository.save(sentence);
+        return convertToSentenceDto(savedSentence);
     }
 
     public SentenceDto updateSentence(Long sentenceId, SentenceDto sentenceDto) {
-        try {
-            Sentence sentence = (Sentence)this.sentenceRepository.findById(sentenceId).orElseThrow(() -> new RuntimeException("문장을 찾을 수 없습니다."));
-            sentence.setEnglishText(sentenceDto.getEnglish());
-            sentence.setKoreanTranslation(sentenceDto.getKorean());
-            sentence.setDifficultyLevel(sentenceDto.getLevel());
-            sentence.setDayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : sentence.getDayNumber());
-            Sentence savedSentence = (Sentence)this.sentenceRepository.save(sentence);
-            return this.convertToSentenceDto(savedSentence);
-        } catch (Exception e) {
-            log.error("문장 수정 실패", e);
-            throw new RuntimeException("문장 수정에 실패했습니다.");
+        Sentence sentence = sentenceRepository.findById(sentenceId)
+                .orElseThrow(() -> new AdminException("문장을 찾을 수 없습니다. ID: " + sentenceId));
+
+        // DTO에서 값 가져오기 (다양한 필드명 호환)
+        if (sentenceDto.getEnglishText() != null || sentenceDto.getEnglish() != null || sentenceDto.getText() != null) {
+            String englishText = sentenceDto.getEnglishText() != null ? sentenceDto.getEnglishText() : 
+                                sentenceDto.getEnglish() != null ? sentenceDto.getEnglish() : sentenceDto.getText();
+            sentence.setEnglishText(englishText);
         }
+
+        if (sentenceDto.getKoreanTranslation() != null || sentenceDto.getKorean() != null || 
+            sentenceDto.getMeaning() != null || sentenceDto.getTranslation() != null) {
+            String koreanTranslation = sentenceDto.getKoreanTranslation() != null ? sentenceDto.getKoreanTranslation() : 
+                                      sentenceDto.getKorean() != null ? sentenceDto.getKorean() : 
+                                      sentenceDto.getMeaning() != null ? sentenceDto.getMeaning() : sentenceDto.getTranslation();
+            sentence.setKoreanTranslation(koreanTranslation);
+        }
+
+        if (sentenceDto.getDifficultyLevel() != null || sentenceDto.getLevel() != null) {
+            Integer difficultyLevel = sentenceDto.getDifficultyLevel() != null ? sentenceDto.getDifficultyLevel() : sentenceDto.getLevel();
+            sentence.setDifficultyLevel(difficultyLevel);
+        }
+
+        if (sentenceDto.getDayNumber() != null) {
+            sentence.setDayNumber(sentenceDto.getDayNumber());
+        }
+
+        if (sentenceDto.getAudioUrl() != null) {
+            sentence.setAudioUrl(sentenceDto.getAudioUrl());
+        }
+
+        if (sentenceDto.getIsActive() != null) {
+            sentence.setIsActive(sentenceDto.getIsActive());
+        }
+
+        sentence.setUpdatedAt(LocalDateTime.now());
+
+        Sentence updatedSentence = sentenceRepository.save(sentence);
+        return convertToSentenceDto(updatedSentence);
     }
 
     public void deleteSentence(Long sentenceId) {
@@ -697,8 +731,7 @@ public class AdminService {
                 throw new RuntimeException("ZIP 파일만 업로드 가능합니다.");
             }
 
-            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
-                ZipEntry entry;
+            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {                ZipEntry entry;
                 while ((entry = zipInputStream.getNextEntry()) != null) {
                     if (entry.isDirectory()) {
                         continue;
@@ -749,7 +782,6 @@ public class AdminService {
                         Sentence sentence = sentenceOpt.get();
 
                         // S3에 업로드
-                        S3에 업로드 로직 추가 및```java
                         String s3Key = s3Service.uploadFileWithOriginalName(new ByteArrayInputStream(audioData), "sentences", fileName);
                         String s3Url = s3Service.getS3Url(s3Key);
 
@@ -864,7 +896,7 @@ public class AdminService {
         String base = originalFilename.substring(0, originalFilename.lastIndexOf("."));
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("문장\\s*(\\d+)번").matcher(base);
         if (m.find()) return "sentence" + m.group(1) + ext;
-        m = java.util.regex.Pattern.compile("(\\d+)번").matcher(base);
+        m = java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)번").matcher(base);
         if (m.find()) return "no" + m.group(1) + ext;
         return originalFilename;
     }
