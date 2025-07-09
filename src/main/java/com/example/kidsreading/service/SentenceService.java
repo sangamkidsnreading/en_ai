@@ -1,5 +1,6 @@
 package com.example.kidsreading.service;
 
+import com.example.kidsreading.dto.BulkUploadResultDto;
 import com.example.kidsreading.dto.SentenceDto;
 import com.example.kidsreading.entity.Sentence;
 import com.example.kidsreading.entity.UserSentenceProgress;
@@ -7,6 +8,7 @@ import com.example.kidsreading.repository.SentenceRepository;
 import com.example.kidsreading.repository.UserSentenceProgressRepository;
 import com.example.kidsreading.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class SentenceService {
-
     private final SentenceRepository sentenceRepository;
+    private final AdminService adminService;
     private final UserSentenceProgressRepository userSentenceProgressRepository;
     private final S3Service s3Service;
 

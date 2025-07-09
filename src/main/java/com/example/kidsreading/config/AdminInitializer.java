@@ -1,15 +1,12 @@
-// ========== AdminInitializer.java (수정) ==========
 package com.example.kidsreading.config;
 
 import com.example.kidsreading.entity.User;
 import com.example.kidsreading.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -79,19 +76,21 @@ public class AdminInitializer implements CommandLineRunner {
         try {
             System.out.println("관리자 계정 생성 시작: " + adminEmail);
 
-            User admin = new User();
-            admin.setUsername(adminEmail);
-            admin.setEmail(adminEmail);
-            admin.setPassword(passwordEncoder.encode("admin123!"));
-            admin.setName("관리자");
-            admin.setParentName("관리자");
-            admin.setPhoneNumber("010-0000-0000");
-            admin.setGroupName("admin");
-            admin.setRole(User.Role.ADMIN);
-            admin.setIsActive(true);
-            admin.setEmailVerified(true);
-            admin.setCreatedAt(LocalDateTime.now());
-            admin.setUpdatedAt(LocalDateTime.now());
+            // 새로운 관리자 계정 생성
+            User admin = User.builder()
+                .username("admin@kidsreading.com")
+                .email("admin@kidsreading.com")
+                .password(passwordEncoder.encode("admin123!"))
+                .name("관리자")
+                .parentName("관리자")
+                .phoneNumber("010-0000-0000")
+                .groupName("admin")
+                .role(User.Role.ADMIN)
+                .isActive(true)
+                .emailVerified(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
             User savedAdmin = userRepository.save(admin);
             userRepository.flush(); // 즉시 DB에 반영
@@ -106,19 +105,21 @@ public class AdminInitializer implements CommandLineRunner {
         try {
             System.out.println("테스트 사용자 생성 시작");
 
-            User testUser = new User();
-            testUser.setUsername("test@kidsreading.com");
-            testUser.setEmail("test@kidsreading.com");
-            testUser.setPassword(passwordEncoder.encode("test123!"));
-            testUser.setName("테스트 사용자");
-            testUser.setParentName("테스트 부모");
-            testUser.setPhoneNumber("010-1234-5678");
-            testUser.setGroupName("test");
-            testUser.setRole(User.Role.USER);
-            testUser.setIsActive(true);
-            testUser.setEmailVerified(true);
-            testUser.setCreatedAt(LocalDateTime.now());
-            testUser.setUpdatedAt(LocalDateTime.now());
+            // 테스트 사용자 계정 생성
+            User testUser = User.builder()
+                .username("test@kidsreading.com")
+                .email("test@kidsreading.com")
+                .password(passwordEncoder.encode("test123!"))
+                .name("테스트 사용자")
+                .parentName("테스트 부모")
+                .phoneNumber("010-1234-5678")
+                .groupName("test")
+                .role(User.Role.USER)
+                .isActive(true)
+                .emailVerified(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
             User savedUser = userRepository.save(testUser);
             userRepository.flush();

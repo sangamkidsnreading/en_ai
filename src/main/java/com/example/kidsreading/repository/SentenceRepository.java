@@ -37,15 +37,15 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     List<Sentence> findByIdInAndIsActive(List<Long> ids, Boolean isActive);
 
-    List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
-
     List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
 
     List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
 
     List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
-    
+
     List<Sentence> findByCategoryIdAndIsActiveTrue(Long categoryId);
-    
+
     List<Sentence> findByCategoryIdAndDifficultyLevelAndIsActiveTrue(Long categoryId, Integer difficultyLevel);
+
+    long countByIsActiveTrue();
 }
