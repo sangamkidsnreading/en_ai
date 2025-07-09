@@ -163,16 +163,16 @@ class CardChangeManager {
             headerSubtitle.textContent = `오늘 학습: 단어 ${totalWords}개, 문장 ${totalSentences}개`;
         }
 
-        // 섹션 부제목 업데이트
-        const wordSubtitle = document.querySelector('.section-card:first-child .section-subtitle');
+        // 섹션 부제목 업데이트 (ID 기반으로 정확하게 선택)
+        const wordSubtitle = document.getElementById('words-section-subtitle');
         if (wordSubtitle) {
-            const totalWords = data.totalWords || 0;
+            const totalWords = data.words ? data.words.length : 0;
             wordSubtitle.textContent = `오늘의 단어 ${totalWords}개를 학습해보세요! (0/${totalWords})`;
         }
 
-        const sentenceSubtitle = document.querySelector('.section-card:last-child .section-subtitle');
+        const sentenceSubtitle = document.getElementById('sentences-section-subtitle');
         if (sentenceSubtitle) {
-            const totalSentences = data.totalSentences || 0;
+            const totalSentences = data.sentences ? data.sentences.length : 0;
             sentenceSubtitle.textContent = `오늘의 문장 ${totalSentences}개를 학습해보세요! (0/${totalSentences})`;
         }
     }
