@@ -34,6 +34,7 @@ public class SentenceLearningSession {
     private Integer completionTimeSeconds;  // 완료 시간 (초)
 
     @Column(name = "is_completed", nullable = false)
+    @Builder.Default
     private Boolean isCompleted = false;  // 완료 여부
 
     @Column(name = "score", nullable = false)
@@ -55,7 +56,8 @@ public class SentenceLearningSession {
     private String notes;  // 학습 노트
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -67,6 +69,18 @@ public class SentenceLearningSession {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sentence_id", insertable = false, updatable = false)
     private Sentence sentence;
+
+    @Builder.Default
+    @Column(name = "correct_answers")
+    private Integer correctAnswers = 0;
+
+    @Builder.Default
+    @Column(name = "total_questions")
+    private Integer totalQuestions = 0;
+
+    @Builder.Default
+    @Column(name = "time_spent")
+    private Integer timeSpent = 0;
 
     @PrePersist
     protected void onCreate() {
