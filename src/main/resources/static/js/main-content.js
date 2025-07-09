@@ -955,7 +955,7 @@ class EnhancedIntegratedLearningManager {
 
         } catch (error) {
             console.error('즐겨찾기 업데이트 실패:', error);
-        }
+        }```python
     }
 
     // 학습 시작 메서드들
@@ -1131,27 +1131,22 @@ class EnhancedIntegratedLearningManager {
 
     // UI 업데이트
     updateUI() {
-        console.log('📊 진행률 - 단어: ' + 
-                   (this.words.length > 0 ? ((this.completedWords.size / this.words.length) * 100).toFixed(1) : 0.0) + 
-                   '%, 문장: ' + 
-                   (this.sentences.length > 0 ? ((this.completedSentences.size / this.sentences.length) * 100).toFixed(1) : 0.0) + '%');
+        const {
+            completedWords = 0,
+            totalWords = 1,
+            completedSentences = 0,
+            totalSentences = 0,
+            coinsEarned = 0
+        } = this.stats;
 
-        // 부제목 업데이트
-        this.updateSubtitles();
+        // updateHeader 호출로 모든 헤더 정보 업데이트
+        this.updateHeader();
 
-        // 진행률 바 업데이트
-        const wordProgress = document.querySelector('.words-section .progress-fill');
-        const sentenceProgress = document.querySelector('.sentences-section .progress-fill');
+        // 진행률 계산
+        const wordProgress = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
+        const sentenceProgress = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
 
-        if (wordProgress) {
-            const wordPercentage = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
-            wordProgress.style.width = `${wordPercentage}%`;
-        }
-
-        if (sentenceProgress) {
-            const sentencePercentage = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
-            sentenceProgress.style.width = `${sentencePercentage}%`;
-        }
+        console.log(`📊 진행률 - 단어: ${wordProgress.toFixed(1)}%, 문장: ${sentenceProgress.toFixed(1)}%`);
     }
 
     // 부제목 업데이트 (별도 메서드)
