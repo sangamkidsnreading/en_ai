@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SentenceDto {
     private Long id;
+    private String text;
     private String sentence;
     private String translation;
     private String pronunciation;

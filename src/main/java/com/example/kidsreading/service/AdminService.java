@@ -224,7 +224,7 @@ public class AdminService {
     public SentenceDto createSentence(SentenceDto sentenceDto) {
         try {
             Sentence sentence = Sentence.builder()
-                .englishText(sentenceDto.getText())
+                .englishText(sentenceDto.getEnglish())
                 .koreanTranslation(sentenceDto.getKorean())
                 .difficultyLevel(sentenceDto.getLevel())
                 .dayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : 1)
@@ -243,7 +243,7 @@ public class AdminService {
     public SentenceDto updateSentence(Long sentenceId, SentenceDto sentenceDto) {
         try {
             Sentence sentence = (Sentence)this.sentenceRepository.findById(sentenceId).orElseThrow(() -> new RuntimeException("문장을 찾을 수 없습니다."));
-            sentence.setEnglishText(sentenceDto.getText());
+            sentence.setEnglishText(sentenceDto.getEnglish());
             sentence.setKoreanTranslation(sentenceDto.getKorean());
             sentence.setDifficultyLevel(sentenceDto.getLevel());
             sentence.setDayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : sentence.getDayNumber());
@@ -524,8 +524,100 @@ public class AdminService {
     public Map<String, Object> bulkUploadSentences(MultipartFile file) {
         log.info("문장 일괄 업로드: filename={}", file.getOriginalFilename());
         Map<String, Object> result = new HashMap();
-        result.put("successCount", 0);
-        result.put("errorCount", 0);
+        int successCount = 0;
+        int errorCount = 0;
+        List<String> errorRows = new ArrayList<>();
+
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+
+            // 헤더 읽기
+            if (!rowIterator.hasNext()) {
+                result.put("successCount", 0);
+                result.put("errorCount", 0);
+                result.put("errorRows", List.of("엑셀에 데이터가 없습니다."));
+                return result;
+            }
+            Row headerRow = rowIterator.next();
+            String englishHeader = headerRow.getCell(0).getStringCellValue().trim();
+            String koreanHeader = headerRow.getCell(1).getStringCellValue().trim();
+            String audioHeader = headerRow.getCell(2).getStringCellValue().trim();
+            String levelHeader = headerRow.getCell(3) != null ? headerRow.getCell(3).getStringCellValue().trim() : null;
+            String dayHeader = headerRow.getCell(4) != null ? headerRow.getCell(4).getStringCellValue().trim() : null;
+
+            if (!"english".equalsIgnoreCase(englishHeader) ||
+                !"korean".equalsIgnoreCase(koreanHeader) ||
+                !"audio_file".equalsIgnoreCase(audioHeader) ||
+                (levelHeader != null && !"level".equalsIgnoreCase(levelHeader)) ||
+                (dayHeader != null && !"day".equalsIgnoreCase(dayHeader))) {
+                result.put("successCount", 0);
+                result.put("errorCount", 0);
+                result.put("errorRows", List.of("헤더명이 올바르지 않습니다. (english, korean, audio_file, level, day)"));
+                return result;
+            }
+
+            // 데이터 읽기
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                try {
+                    String english = getCellString(row.getCell(0));
+                    String korean = getCellString(row.getCell(1));
+                    String audioFile = getCellString(row.getCell(2));
+                    Integer level = 1;
+                    Integer day = 1;
+                    if (row.getCell(3) != null) {
+                        String levelStr = getCellString(row.getCell(3));
+                        if (levelStr != null && !levelStr.isEmpty()) {
+                            try { level = (int) Double.parseDouble(levelStr); } catch (Exception ignore) {}
+                        }
+                    }
+                    if (row.getCell(4) != null) {
+                        String dayStr = getCellString(row.getCell(4));
+                        if (dayStr != null && !dayStr.isEmpty()) {
+                            try { day = (int) Double.parseDouble(dayStr); } catch (Exception ignore) {}
+                        }
+                    }
+
+                    if (english == null || english.isEmpty() || korean == null || korean.isEmpty()) {
+                         errorRows.add("영어 또는 한국어가 비어있습니다. (행: " + (row.getRowNum() + 1) + ")");
+                         errorCount++;
+                         continue;
+                    }
+
+                    Sentence newSentence = Sentence.builder()
+                        .englishText(english)
+                        .koreanTranslation(korean)
+                        .difficultyLevel(level)
+                        .dayNumber(day)
+                        .isActive(true)
+                        .build();
+
+                    if (audioFile != null && !audioFile.isEmpty()) {
+                        // S3 URL로 저장
+                        String s3Key = s3Service.buildS3Key("sentences", audioFile);
+                        String s3Url = s3Service.getS3Url(s3Key);
+                        newSentence.setAudioUrl(s3Url);
+                    } else {
+                        newSentence.setAudioUrl(null);
+                    }
+                    this.sentenceRepository.save(newSentence);
+                    successCount++;
+                } catch (Exception e) {
+                    errorRows.add("행 " + (row.getRowNum() + 1) + " 오류: " + e.getMessage());
+                    errorCount++;
+                }
+            }
+            result.put("successCount", successCount);
+            result.put("errorCount", errorCount);
+            result.put("errorRows", errorRows);
+        } catch (Exception e) {
+            log.error("문장 일괄 업로드 실패", e);
+            result.put("successCount", 0);
+            result.put("errorCount", 1);
+            result.put("errorRows", List.of("파일 읽기 중 오류 발생: " + e.getMessage()));
+        }
+
         return result;
     }
 
@@ -650,6 +742,7 @@ public class AdminService {
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
             .id(sentence.getId())
+```text
             .text(sentence.getEnglishText())
             .korean(sentence.getKoreanTranslation())
             .level(sentence.getDifficultyLevel())
