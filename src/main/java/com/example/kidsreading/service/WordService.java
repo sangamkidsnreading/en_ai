@@ -112,28 +112,10 @@ public class WordService {
     }
 
     /**
-     * 완료된 단어 수 조회 (특정 레벨/Day) - Long 타입 userId
+     * 완료된 단어 수 조회
      */
     public int getCompletedWordsCount(Long userId, Integer level, Integer day) {
-        return userWordProgressRepository.countByUserIdAndWordLevelAndWordDayAndIsCompletedTrue(
-                userId.toString(), level, day);
-    }
-
-    /**
-     * 완료된 단어 수 조회 (특정 레벨/Day) - String 타입 userId
-     */
-    public int getCompletedWordsCountByUserId(String userId, Integer level, Integer day) {
-        return userWordProgressRepository.countByUserIdAndWordLevelAndWordDayAndIsCompletedTrue(
-                userId, level, day);
-    }
-
-    /**
-     * 코인 획득 수 조회 - String 타입 userId
-     */
-    public int getCoinsEarnedByUserId(String userId, Integer level, Integer day) {
-        // 완료된 단어 수 * 단어당 코인
-        int completedWords = getCompletedWordsCountByUserId(userId, level, day);
-        return completedWords; // 단어당 1코인으로 가정
+        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
     }
 
     /**

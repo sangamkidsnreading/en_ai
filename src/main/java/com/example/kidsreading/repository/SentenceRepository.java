@@ -1,3 +1,8 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package com.example.kidsreading.repository;
 
 import com.example.kidsreading.entity.Sentence;
@@ -10,19 +15,17 @@ import java.util.List;
 
 @Repository
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
-
-    List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer level, Integer day);
-
-    List<Sentence> findByDifficultyLevelAndIsActiveTrue(Integer level);
-
+    
     List<Sentence> findByIsActiveTrue();
 
-    long countByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer level, Integer day);
+    List<Sentence> findByDifficultyLevelAndIsActiveTrue(Integer difficultyLevel);
 
-    @Query("SELECT s FROM Sentence s WHERE s.difficultyLevel = :level AND s.dayNumber = :day AND s.isActive = true")
-    List<Sentence> findActiveSentencesByLevelAndDay(@Param("level") Integer level, @Param("day") Integer day);
+    @Query("SELECT s FROM Sentence s WHERE s.isActive = true AND (LOWER(s.englishText) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(s.koreanTranslation) LIKE LOWER(CONCAT('%', :query, '%')))")
+    List<Sentence> searchByQuery(@Param("query") String query);
 
     long countByDifficultyLevelAndIsActiveTrue(Integer difficultyLevel);
+
+    long countByIsActiveTrue();
 
     boolean existsByEnglishTextAndIsActiveTrue(String englishText);
 
@@ -37,15 +40,15 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     List<Sentence> findByIdInAndIsActive(List<Long> ids, Boolean isActive);
 
+    List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
+
     List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
 
     List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
 
     List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
-
+    
     List<Sentence> findByCategoryIdAndIsActiveTrue(Long categoryId);
-
+    
     List<Sentence> findByCategoryIdAndDifficultyLevelAndIsActiveTrue(Long categoryId, Integer difficultyLevel);
-
-    long countByIsActiveTrue();
 }

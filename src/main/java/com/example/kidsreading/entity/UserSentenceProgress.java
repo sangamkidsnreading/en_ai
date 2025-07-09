@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -21,31 +20,33 @@ public class UserSentenceProgress {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private Long userId;
 
     @Column(name = "sentence_id", nullable = false)
     private Long sentenceId;
 
     @Column(name = "is_learned", nullable = false)
-    @Builder.Default
     private Boolean isLearned = false;
 
-    @Column(name = "has_recording", nullable = false)
+    @Column(name = "is_completed", nullable = false)
     @Builder.Default
+    private Boolean isCompleted = false;
+
+    @Column(name = "has_recording", nullable = false)
     private Boolean hasRecording = false;
 
-    @Column(name = "recording_url", length = 500)
+    @Column(name = "recording_url")
     private String recordingUrl;
 
     @Column(name = "learn_count", nullable = false)
     @Builder.Default
     private Integer learnCount = 0;
 
-    @Column(name = "correct_count", nullable = false)
+    @Column(name = "correct_count")
     @Builder.Default
     private Integer correctCount = 0;
 
-    @Column(name = "incorrect_count", nullable = false)
+    @Column(name = "incorrect_count")
     @Builder.Default
     private Integer incorrectCount = 0;
 
@@ -55,18 +56,15 @@ public class UserSentenceProgress {
     @Column(name = "last_learned_at")
     private LocalDateTime lastLearnedAt;
 
-    @Column(name = "last_studied")
-    private LocalDateTime lastStudied;
-
-    @Column(name = "is_completed", nullable = false)
-    @Builder.Default
-    private Boolean isCompleted = false;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sentence_id", insertable = false, updatable = false)
