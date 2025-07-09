@@ -732,7 +732,9 @@ public class AdminService {
             }
 
             try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {                ZipEntry entry;
-                while ((entry = zipInputStream.getNextEntry()) != null) {
+                while ((The code changes fix a syntax error in the `bulkUploadSentenceAudio` method related to S3 upload logic.
+```java
+                    entry = zipInputStream.getNextEntry()) != null) {
                     if (entry.isDirectory()) {
                         continue;
                     }
