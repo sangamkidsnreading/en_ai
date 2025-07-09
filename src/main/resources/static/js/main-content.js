@@ -40,14 +40,14 @@ class EnhancedIntegratedLearningManager {
                 this.setupEvents();
                 this.eventListenersAdded = true;
             }
-
+            
             // sidebar 연동 필터 이벤트 추가
             try {
                 this.setupSidebarFilters();
             } catch (sidebarError) {
                 console.warn('⚠️ 사이드바 필터 설정 실패:', sidebarError);
             }
-
+            
             this.updateHeader();
 
             // UI 업데이트
@@ -147,7 +147,7 @@ class EnhancedIntegratedLearningManager {
                 <div class="word-favorite">♡</div>
                 <div class="word-english">${word.text || 'Word'}</div>
                 <div class="word-korean">${word.meaning || '의미'}</div>
-
+               
             `;
 
             wordsGrid.appendChild(wordCard);
@@ -157,14 +157,10 @@ class EnhancedIntegratedLearningManager {
             document.querySelectorAll('.word-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.visibility = 'visible';
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
-                card.style.height = 'auto';
-                card.style.width = 'auto';
             });
             // 동적 렌더링 후 반드시 이벤트 재설정
             this.setupWordCardEvents();
-        }, 100);
+        }, 0);
         hideLoadingSpinner();
         console.log(`📝 ${this.words.length}개의 단어 카드가 렌더링되었습니다.`);
     }
@@ -209,7 +205,7 @@ class EnhancedIntegratedLearningManager {
                     <div class="sentence-text">${englishText}</div>
                     ${koreanText ? `<div class="sentence-korean">${koreanText}</div>` : ''}
                 </div>
-
+              
             `;
 
             sentencesGrid.appendChild(sentenceCard);
@@ -219,14 +215,10 @@ class EnhancedIntegratedLearningManager {
             document.querySelectorAll('.sentence-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.visibility = 'visible';
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
-                card.style.height = 'auto';
-                card.style.width = 'auto';
             });
             // 동적 렌더링 후 반드시 이벤트 재설정
             this.setupSentenceCardEvents();
-        }, 100);
+        }, 0);
         hideLoadingSpinner();
         console.log(`📝 ${this.sentences.length}개의 문장 카드가 동적으로 렌더링되었습니다.`);
     }
@@ -456,7 +448,7 @@ class EnhancedIntegratedLearningManager {
     // 음성 재생 완료 후 코인 추가 (비동기 처리로 속도 향상)
     async addCoinAfterAudio(type, text) {
         console.log('addCoinAfterAudio called', type, text);
-
+        
         // 코인 API 호출을 비동기로 처리 (음성 재생 속도에 영향 없도록)
         Promise.resolve().then(async () => {
             try {
@@ -471,11 +463,11 @@ class EnhancedIntegratedLearningManager {
                         this.coins = coinResult.coinResult;
                         this.updateCoinDisplay();
                     }
-
+                    
                     // learning_settings에서 가져온 실제 코인 수량 사용
                     let coinAmount = '+1';
                     let coinCount = 1;
-
+                    
                     if (type === 'word') {
                         coinCount = coinResult.wordCoins || 1;
                         coinAmount = `+${coinCount}`;
@@ -483,12 +475,12 @@ class EnhancedIntegratedLearningManager {
                         coinCount = coinResult.sentenceCoins || 3;
                         coinAmount = `+${coinCount}`;
                     }
-
+                    
                     this.showCoinAnimation(coinAmount);
                     console.log(`🪙 ${type} 코인 획득 (설정값 기반):`, coinCount, '개');
                     /*this.showMessage(`"${text}" 학습 완료! 코인 ${coinCount}개 획득! 🪙`);*/
                 }
-
+                
                 // 통계 새로고침도 비동기로 처리
                 this.refreshStats();
             } catch (error) {
@@ -763,7 +755,7 @@ class EnhancedIntegratedLearningManager {
                 return new Promise((resolve, reject) => {
                     const audio = new Audio(audioUrl);
                     this.currentPlaybook = audio;
-
+                    
                     audio.onended = () => {
                         if (soundBtn) {
                             soundBtn.style.color = '';
@@ -773,18 +765,18 @@ class EnhancedIntegratedLearningManager {
                         this.currentPlayback = null;
                         resolve();
                     };
-
+                    
                     audio.onerror = async (error) => {
                         console.warn(`🎵 오디오 파일 재생 실패 (${audioUrl}):`, error);
                         console.log('📢 TTS로 폴백 재생');
-
+                        
                         // TTS로 폴백
                         try {
                             await this.speakText(wordText);
                         } catch (ttsError) {
                             console.error('TTS도 실패:', ttsError);
                         }
-
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
@@ -792,19 +784,19 @@ class EnhancedIntegratedLearningManager {
                         this.logAudioPlay('word', wordId);
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     };
-
+                    
                     // 재생 시작
                     audio.play().catch(async (playError) => {
                         console.warn(`🎵 오디오 재생 시작 실패 (${audioUrl}):`, playError);
                         console.log('📢 TTS로 폴백 재생');
-
+                        
                         // TTS로 폴백
                         try {
                             await this.speakText(wordText);
                         } catch (ttsError) {
                             console.error('TTS도 실패:', ttsError);
                         }
-
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
@@ -867,7 +859,7 @@ class EnhancedIntegratedLearningManager {
                 return new Promise((resolve, reject) => {
                     const audio = new Audio(audioUrl);
                     this.currentPlayback = audio;
-
+                    
                     audio.onended = () => {
                         if (soundBtn) {
                             soundBtn.style.color = '';
@@ -877,18 +869,18 @@ class EnhancedIntegratedLearningManager {
                         this.currentPlayback = null;
                         resolve();
                     };
-
+                    
                     audio.onerror = async (error) => {
                         console.warn(`🎵 문장 오디오 파일 재생 실패 (${audioUrl}):`, error);
                         console.log('📢 TTS로 폴백 재생');
-
+                        
                         // TTS로 폴백
                         try {
                             await this.speakText(sentenceText);
                         } catch (ttsError) {
                             console.error('TTS도 실패:', ttsError);
                         }
-
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
@@ -896,19 +888,19 @@ class EnhancedIntegratedLearningManager {
                         this.logAudioPlay('sentence', sentenceId);
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     };
-
+                    
                     // 재생 시작
                     audio.play().catch(async (playError) => {
                         console.warn(`🎵 문장 오디오 재생 시작 실패 (${audioUrl}):`, playError);
                         console.log('📢 TTS로 폴백 재생');
-
+                        
                         // TTS로 폴백
                         try {
                             await this.speakText(sentenceText);
                         } catch (ttsError) {
                             console.error('TTS도 실패:', ttsError);
                         }
-
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
@@ -963,7 +955,7 @@ class EnhancedIntegratedLearningManager {
 
         } catch (error) {
             console.error('즐겨찾기 업데이트 실패:', error);
-        }```python
+        }
     }
 
     // 학습 시작 메서드들
@@ -1147,28 +1139,20 @@ class EnhancedIntegratedLearningManager {
             coinsEarned = 0
         } = this.stats;
 
-        // updateHeader 호출로 모든 헤더 정보 업데이트
-        this.updateHeader();
+        // 헤더 정보 업데이트
+        this.updateElement('.header-left p', `오늘 학습: 단어 ${this.completedWords.size}개, 문장 ${this.completedSentences.size}개`);
+
+        // 섹션 부제목 업데이트
+        this.updateElement('.section-card:first-child .section-subtitle',
+            `오늘의 단어 ${this.words.length}개를 학습해보세요! (${this.completedWords.size}/${this.words.length})`);
+        this.updateElement('.section-card:last-child .section-subtitle',
+            `오늘의 문장 ${this.sentences.length}개를 학습해보세요! (${this.completedSentences.size}/${this.sentences.length})`);
 
         // 진행률 계산
         const wordProgress = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
         const sentenceProgress = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
 
         console.log(`📊 진행률 - 단어: ${wordProgress.toFixed(1)}%, 문장: ${sentenceProgress.toFixed(1)}%`);
-    }
-
-    // 부제목 업데이트 (별도 메서드)
-    updateSubtitles() {
-        const wordSubtitle = document.getElementById('words-section-subtitle');
-        if (wordSubtitle) {
-            wordSubtitle.textContent = 
-            `오늘의 단어 ${this.words.length}개를 학습해보세요! (${this.completedWords.size}/${this.words.length})`;
-        }
-        const sentenceSubtitle = document.getElementById('sentences-section-subtitle');
-        if (sentenceSubtitle) {
-            sentenceSubtitle.textContent = 
-            `오늘의 문장 ${this.sentences.length}개를 학습해보세요! (${this.completedSentences.size}/${this.sentences.length})`;
-        }
     }
 
     // 유틸리티 메서드들

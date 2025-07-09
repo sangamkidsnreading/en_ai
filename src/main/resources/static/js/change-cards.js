@@ -123,16 +123,6 @@ class CardChangeManager {
                 window.enhancedIntegratedLearningManager.renderSentencesToHTML();
                 window.enhancedIntegratedLearningManager.updateUI();
 
-                // 카드 가시성 강제 복구
-                setTimeout(() => {
-                    document.querySelectorAll('.word-card, .sentence-card').forEach(card => {
-                        card.style.display = 'block';
-                        card.style.visibility = 'visible';
-                        card.style.opacity = '1';
-                        card.style.transform = 'none';
-                    });
-                }, 200);
-
                 // 이벤트 재설정 (새로운 카드가 로드되었으므로 리셋)
                 window.enhancedIntegratedLearningManager.eventListenersAdded = false;
                 window.enhancedIntegratedLearningManager.setupEvents();
@@ -173,16 +163,16 @@ class CardChangeManager {
             headerSubtitle.textContent = `오늘 학습: 단어 ${totalWords}개, 문장 ${totalSentences}개`;
         }
 
-        // 섹션 부제목 업데이트 (ID 기반으로 정확하게 선택)
-        const wordSubtitle = document.getElementById('words-section-subtitle');
+        // 섹션 부제목 업데이트
+        const wordSubtitle = document.querySelector('.section-card:first-child .section-subtitle');
         if (wordSubtitle) {
-            const totalWords = data.words ? data.words.length : 0;
+            const totalWords = data.totalWords || 0;
             wordSubtitle.textContent = `오늘의 단어 ${totalWords}개를 학습해보세요! (0/${totalWords})`;
         }
 
-        const sentenceSubtitle = document.getElementById('sentences-section-subtitle');
+        const sentenceSubtitle = document.querySelector('.section-card:last-child .section-subtitle');
         if (sentenceSubtitle) {
-            const totalSentences = data.sentences ? data.sentences.length : 0;
+            const totalSentences = data.totalSentences || 0;
             sentenceSubtitle.textContent = `오늘의 문장 ${totalSentences}개를 학습해보세요! (0/${totalSentences})`;
         }
     }
