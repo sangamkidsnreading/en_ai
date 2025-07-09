@@ -756,10 +756,10 @@ class EnhancedIntegratedLearningManager {
                 console.log('⚠️ 오디오 파일명이 없습니다. TTS를 사용합니다.');
             }
             if (audioUrl) {
-                // CORS 문제로 인해 HEAD 요청 제거하고 바로 재생
                 return new Promise((resolve, reject) => {
                     const audio = new Audio(audioUrl);
-                    this.currentPlayback = audio;
+                    this.currentPlaybook = audio;
+                    
                     audio.onended = () => {
                         if (soundBtn) {
                             soundBtn.style.color = '';
@@ -769,19 +769,44 @@ class EnhancedIntegratedLearningManager {
                         this.currentPlayback = null;
                         resolve();
                     };
-                    audio.onerror = async () => {
-                        console.log('오디오 파일 재생 실패, TTS로 폴백');
-                        await this.speakText(wordText);
+                    
+                    audio.onerror = async (error) => {
+                        console.warn(`🎵 오디오 파일 재생 실패 (${audioUrl}):`, error);
+                        console.log('📢 TTS로 폴백 재생');
+                        
+                        // TTS로 폴백
+                        try {
+                            await this.speakText(wordText);
+                        } catch (ttsError) {
+                            console.error('TTS도 실패:', ttsError);
+                        }
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('word', wordId);
-                        resolve();
+                        resolve(); // 에러가 아닌 정상 종료로 처리
                     };
-                    audio.play().catch(error => {
-                        console.error('오디오 재생 실패:', error);
-                        reject(error);
+                    
+                    // 재생 시작
+                    audio.play().catch(async (playError) => {
+                        console.warn(`🎵 오디오 재생 시작 실패 (${audioUrl}):`, playError);
+                        console.log('📢 TTS로 폴백 재생');
+                        
+                        // TTS로 폴백
+                        try {
+                            await this.speakText(wordText);
+                        } catch (ttsError) {
+                            console.error('TTS도 실패:', ttsError);
+                        }
+                        
+                        if (soundBtn) {
+                            soundBtn.style.color = '';
+                            soundBtn.style.transform = 'scale(1)';
+                        }
+                        this.logAudioPlay('word', wordId);
+                        resolve(); // 에러가 아닌 정상 종료로 처리
                     });
                 });
             }
@@ -835,10 +860,10 @@ class EnhancedIntegratedLearningManager {
                 console.log('⚠️ 문장 오디오 파일명이 없습니다. TTS를 사용합니다.');
             }
             if (audioUrl) {
-                // CORS 문제로 인해 HEAD 요청 제거하고 바로 재생
                 return new Promise((resolve, reject) => {
                     const audio = new Audio(audioUrl);
                     this.currentPlayback = audio;
+                    
                     audio.onended = () => {
                         if (soundBtn) {
                             soundBtn.style.color = '';
@@ -848,19 +873,44 @@ class EnhancedIntegratedLearningManager {
                         this.currentPlayback = null;
                         resolve();
                     };
-                    audio.onerror = async () => {
-                        console.log('오디오 파일 재생 실패, TTS로 폴백');
-                        await this.speakText(sentenceText);
+                    
+                    audio.onerror = async (error) => {
+                        console.warn(`🎵 문장 오디오 파일 재생 실패 (${audioUrl}):`, error);
+                        console.log('📢 TTS로 폴백 재생');
+                        
+                        // TTS로 폴백
+                        try {
+                            await this.speakText(sentenceText);
+                        } catch (ttsError) {
+                            console.error('TTS도 실패:', ttsError);
+                        }
+                        
                         if (soundBtn) {
                             soundBtn.style.color = '';
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('sentence', sentenceId);
-                        resolve();
+                        resolve(); // 에러가 아닌 정상 종료로 처리
                     };
-                    audio.play().catch(error => {
-                        console.error('오디오 재생 실패:', error);
-                        reject(error);
+                    
+                    // 재생 시작
+                    audio.play().catch(async (playError) => {
+                        console.warn(`🎵 문장 오디오 재생 시작 실패 (${audioUrl}):`, playError);
+                        console.log('📢 TTS로 폴백 재생');
+                        
+                        // TTS로 폴백
+                        try {
+                            await this.speakText(sentenceText);
+                        } catch (ttsError) {
+                            console.error('TTS도 실패:', ttsError);
+                        }
+                        
+                        if (soundBtn) {
+                            soundBtn.style.color = '';
+                            soundBtn.style.transform = 'scale(1)';
+                        }
+                        this.logAudioPlay('sentence', sentenceId);
+                        resolve(); // 에러가 아닌 정상 종료로 처리
                     });
                 });
             }

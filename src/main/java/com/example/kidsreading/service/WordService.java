@@ -12,9 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class WordService {
 
     private final WordRepository wordRepository;
@@ -40,9 +43,27 @@ public class WordService {
             words = wordRepository.findByLevelAndDayAndIsActiveTrue(level, day);
         }
 
-        return words.stream()
-                .map(this::convertToDto)
+        List<WordDto> wordDtos = words.stream()
+                .map(word -> {
+                    WordDto dto = convertToDto(word);
+                    // 오디오 URL 유효성 검증 및 수정
+                    if (dto.getAudioUrl() != null && !dto.getAudioUrl().isEmpty()) {
+                        String audioUrl = dto.getAudioUrl();
+                        // S3 URL이 아닌 경우 로컬 경로로 변경
+                        if (!audioUrl.contains("amazonaws.com")) {
+                            // 파일명만 있는 경우 적절한 경로로 변경
+                            if (!audioUrl.startsWith("/audio/words/")) {
+                                audioUrl = "/audio/words/" + audioUrl;
+                            }
+                            dto.setAudioUrl(audioUrl);
+                        }
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
+        log.info("Level {} Day {} 단어 조회 완료: {}개", level, day, wordDtos.size());
+        return wordDtos;
     }
 
     /**

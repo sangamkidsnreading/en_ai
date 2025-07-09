@@ -84,6 +84,19 @@ public class S3Service {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, "ap-northeast-2", key);
     }
     
+    public boolean fileExists(String key) {
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+            s3Client.headObject(headObjectRequest);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
     public void deleteFile(String key) {
         s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
     }
