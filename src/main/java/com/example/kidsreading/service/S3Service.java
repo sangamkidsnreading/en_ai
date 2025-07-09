@@ -39,7 +39,7 @@ public class S3Service {
         LocalDate today = LocalDate.now();
         String year = String.valueOf(today.getYear());
         String monthDay = String.format("%02d-%02d", today.getMonthValue(), today.getDayOfMonth());
-        
+
         // Create folder structure: vocabulary/YYYY/MM-DD/words or vocabulary/YYYY/MM-DD/sentences
         String folderType = "words".equals(type) ? "words" : "sentences";
         return String.format("vocabulary/%s/%s/%s/%s", year, monthDay, folderType, fileName);
@@ -69,7 +69,7 @@ public class S3Service {
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
         return key;
     }
-    
+
     public String uploadFileWithOriginalName(File file, String type, String originalFileName) throws IOException {
         String key = buildS3Key(type, originalFileName);
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -80,11 +80,11 @@ public class S3Service {
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
         return key;
     }
-    
+
     public String getS3Url(String key) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, "ap-northeast-2", key);
     }
-    
+
     public boolean fileExists(String key) {
         try {
             HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
@@ -97,8 +97,18 @@ public class S3Service {
             return false;
         }
     }
-    
+
     public void deleteFile(String key) {
         s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
+    }
+
+    private String buildS3Key(String type, String originalFileName) {
+        LocalDate today = LocalDate.now();
+        String year = String.valueOf(today.getYear());
+        String monthDay = String.format("%02d-%02d", today.getMonthValue(), today.getDayOfMonth());
+
+        // 파일명의 공백을 언더스코어로 변경하여 S3 키 생성
+        String encodedFileName = originalFileName.replaceAll("\\s+", "_");
+        return String.format("vocabulary/%s/%s/%s/%s", year, monthDay, type, encodedFileName);
     }
 }
