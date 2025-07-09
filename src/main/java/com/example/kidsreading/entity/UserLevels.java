@@ -1,3 +1,4 @@
+
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -27,12 +28,15 @@ public class UserLevels {
     private Integer currentLevel = 1;
 
     @Column(name = "current_day", nullable = false)
+    @Builder.Default
     private Integer currentDay = 1;
 
     @Column(name = "total_coins", nullable = false)
+    @Builder.Default
     private Integer totalCoins = 0;
 
     @Column(name = "experience_points", nullable = false)
+    @Builder.Default
     private Integer experiencePoints = 0;
 
     @Column(name = "streak_days")
@@ -70,64 +74,95 @@ public class UserLevels {
      */
     public void addCoins(Integer coins) {
         this.totalCoins += coins;
-        this.experiencePoints += coins;
     }
 
     /**
-     * 레벨 업 체크 및 처리
+     * 경험치 추가
      */
-    public boolean checkAndLevelUp(Integer levelUpRequiredCoins) {
-        if (this.experiencePoints >= levelUpRequiredCoins) {
-            this.currentLevel++;
-            this.currentDay = 1;
-            this.experiencePoints = 0;
+    public void addExperience(Integer exp) {
+        this.experiencePoints += exp;
+    }
+
+    /**
+     * 레벨업 체크 및 실행
+     */
+    public boolean checkLevelUp() {
+        int requiredExp = currentLevel * 100; // 레벨당 필요 경험치
+        if (experiencePoints >= requiredExp) {
+            currentLevel++;
+            experiencePoints -= requiredExp;
             return true;
         }
         return false;
     }
 
     /**
-     * 다음 날로 진행
+     * 스트릭 업데이트
      */
-    public void nextDay() {
-        this.currentDay++;
-        this.lastLearningDate = LocalDate.now();
-    }
-
-    /**
-     * 연속 학습 일수 업데이트
-     */
-    public void updateStreakDays() {
+    public void updateStreak() {
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
-
         if (lastLearningDate == null) {
-            // 첫 학습
-            this.streakDays = 1;
-        } else if (lastLearningDate.equals(yesterday)) {
-            // 연속 학습
-            this.streakDays++;
-        } else if (lastLearningDate.equals(today)) {
-            // 오늘 이미 학습함 (변경 없음)
-            return;
-        } else {
-            // 연속 학습 끊김
-            this.streakDays = 1;
+            streakDays = 1;
+        } else if (lastLearningDate.equals(today.minusDays(1))) {
+            streakDays++;
+        } else if (!lastLearningDate.equals(today)) {
+            streakDays = 1;
         }
-
-        this.lastLearningDate = today;
+        lastLearningDate = today;
     }
 
     /**
-     * 연속 학습 여부 확인
+     * 다음 레벨까지 필요한 경험치
      */
-    public boolean isConsecutiveLearning() {
-        if (lastLearningDate == null) return false;
+    public Integer getExpToNextLevel() {
+        return (currentLevel * 100) - experiencePoints;
+    }
 
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
+    /**
+     * 현재 레벨 진행률 (%)
+     */
+    public Double getLevelProgress() {
+        int requiredExp = currentLevel * 100;
+        return (double) experiencePoints / requiredExp * 100;
+    }
 
-        return lastLearningDate.equals(yesterday) || lastLearningDate.equals(today);
+    /**
+     * 총 학습 일수
+     */
+    public Integer getTotalLearningDays() {
+        return streakDays;
+    }
+
+    /**
+     * 오늘 학습했는지 확인
+     */
+    public Boolean isLearnedToday() {
+        return lastLearningDate != null && lastLearningDate.equals(LocalDate.now());
+    }
+
+    /**
+     * 연속 학습 중인지 확인
+     */
+    public Boolean isOnStreak() {
+        return streakDays > 0 && (lastLearningDate == null || 
+               lastLearningDate.equals(LocalDate.now()) || 
+               lastLearningDate.equals(LocalDate.now().minusDays(1)));
+    }
+
+    /**
+     * 레벨별 보상 코인 계산
+     */
+    public Integer calculateLevelReward() {
+        return currentLevel * 10; // 레벨당 10코인
+    }
+
+    /**
+     * 스트릭 보너스 코인 계산
+     */
+    public Integer calculateStreakBonus() {
+        if (streakDays >= 7) {
+            return streakDays / 7 * 5; // 주당 5코인
+        }
+        return 0;
     }
 }
-```
