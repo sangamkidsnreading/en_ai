@@ -231,14 +231,14 @@ public class CoinService {
     public UserCoinsDto addCurrentUserWordCoins() {
         String userId = getCurrentUserId();
         LearningSettingsDto settings = getCoinSettings();
-        int wordReward = settings.getWordCoins() != null ? settings.getWordCoins() : 1;
+        int wordReward = settings.getWordCoin() != null ? settings.getWordCoin() : 1;
         return addWordCoins(userId, wordReward);
     }
 
     public UserCoinsDto addCurrentUserSentenceCoins() {
         String userId = getCurrentUserId();
         LearningSettingsDto settings = getCoinSettings();
-        int sentenceReward = settings.getSentenceCoins() != null ? settings.getSentenceCoins() : 3;
+        int sentenceReward = settings.getSentenceCoin() != null ? settings.getSentenceCoin() : 3;
         return addSentenceCoins(userId, sentenceReward);
     }
 

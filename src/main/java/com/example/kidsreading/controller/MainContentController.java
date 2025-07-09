@@ -241,7 +241,7 @@ public class MainContentController {
     public ResponseEntity<Map<String, Object>> addWordCoins() {
         try {
             var coinSettings = coinService.getCoinSettings();
-            int wordCoins = coinSettings.getWordCoins() != null ? coinSettings.getWordCoins() : 1;
+            int wordCoins = coinSettings.getWordCoin() != null ? coinSettings.getWordCoin() : 1;
             
             var result = coinService.addCurrentUserWordCoins();
             
@@ -264,7 +264,7 @@ public class MainContentController {
     public ResponseEntity<Map<String, Object>> addSentenceCoins() {
         try {
             var coinSettings = coinService.getCoinSettings();
-            int sentenceCoins = coinSettings.getSentenceCoins() != null ? coinSettings.getSentenceCoins() : 3;
+            int sentenceCoins = coinSettings.getSentenceCoin() != null ? coinSettings.getSentenceCoin() : 3;
             
             var result = coinService.addCurrentUserSentenceCoins();
             
