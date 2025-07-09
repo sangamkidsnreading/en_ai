@@ -744,7 +744,7 @@ public class AdminService {
     }
 
     private WordDto convertToWordDto(Word word) {
-        return WordDto.builder().id(word.getId()).english(word.getText).korean(word.getMeaning()).level(word.getLevel()).day(word.getDay()).pronunciation(word.getPronunciation()).audioUrl(word.getAudioUrl()).isActive(word.getIsActive()).build();
+        return WordDto.builder().id(word.getId()).english(word.getText()).korean(word.getMeaning()).level(word.getLevel()).day(word.getDay()).pronunciation(word.getPronunciation()).audioUrl(word.getAudioUrl()).isActive(word.getIsActive()).build();
     }
 
     private SentenceDto convertToSentenceDto(Sentence sentence) {
