@@ -1,0 +1,64 @@
+NFO] Compiling 64 source files with javac [debug parameters release 17] to target/classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[54,68] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[54,74] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[61,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[70,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[71,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[72,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[77,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[79,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[84,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[88,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[90,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[92,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[97,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[99,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[100,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[106,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[115,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[116,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[118,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[119,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[135,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[141,5] class, interface, enum, or record expected
+[INFO] 22 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.600 s
+[INFO] Finished at: 2025-07-09T03:02:26Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project kidsreading: Compilation failure: Compilation failure: 
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[54,68] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[54,74] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[61,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[70,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[71,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[72,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[77,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[79,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[84,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[88,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[90,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[92,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[97,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[99,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[100,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[106,12] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[115,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[116,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[118,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[119,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[135,5] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/WordService.java:[141,5] class, interface, enum, or record expected
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
