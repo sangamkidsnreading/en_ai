@@ -920,8 +920,7 @@ class AdminDashboard {
 
         // 체크박스 이벤트 바인딩
         this.bindWordCheckboxEvents();
-        The code has been modified to handle null values in sentence rendering and modal opening, ensuring a more robust display of sentence data in the admin dashboard.
-``````text
+
 this.bindSelectAllWordEvents();
     }
 
