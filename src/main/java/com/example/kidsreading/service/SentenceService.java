@@ -2,9 +2,11 @@ package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.SentenceDto;
 import com.example.kidsreading.entity.Sentence;
+import com.example.kidsreading.entity.User;
 import com.example.kidsreading.entity.UserSentenceProgress;
 import com.example.kidsreading.repository.SentenceRepository;
 import com.example.kidsreading.repository.UserSentenceProgressRepository;
+import com.example.kidsreading.repository.UserRepository;
 import com.example.kidsreading.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -12,7 +14,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +28,7 @@ public class SentenceService {
 
     private final SentenceRepository sentenceRepository;
     private final UserSentenceProgressRepository userSentenceProgressRepository;
+    private final UserRepository userRepository;
     private final S3Service s3Service;
 
     /**
@@ -167,5 +172,49 @@ public class SentenceService {
                 .meaning(sentence.getKoreanTranslation())
                 .isActive(sentence.getIsActive())
                 .build();
+    }
+
+    public void updateUserSentenceProgress(Long userId, Long sentenceId, boolean isCompleted) {
+        UserSentenceProgress progress = userSentenceProgressRepository
+                .findByUserIdAndSentenceId(userId, sentenceId)
+                .orElse(UserSentenceProgress.builder()
+                        .userId(userId)
+                        .sentenceId(sentenceId)
+                        .build());
+
+        if (isCompleted) {
+            progress.setIsCompleted(true);
+            progress.setCorrectCount(progress.getCorrectCount() + 1);
+        } else {
+            progress.setIncorrectCount(progress.getIncorrectCount() + 1);
+        }
+
+        progress.setLearnCount(progress.getLearnCount() + 1);
+        progress.setLastLearnedAt(LocalDateTime.now());
+
+        if (progress.getFirstLearnedAt() == null) {
+            progress.setFirstLearnedAt(LocalDateTime.now());
+        }
+
+        userSentenceProgressRepository.save(progress);
+    }
+
+    // 통계 관련 메서드들 추가
+    public long countSentencesByLevelAndDay(int level, int day) {
+        return sentenceRepository.countByDifficultyLevelAndDayNumberAndIsActiveTrue(level, day);
+    }
+
+    public long countCompletedSentencesByUser(String username, int level, int day) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
+        return userSentenceProgressRepository.countCompletedSentencesByUserAndLevelAndDay(user.getId(), level, day);
+    }
+
+    public long countCompletedSentencesByUserId(Long userId, int level, int day) {
+        return userSentenceProgressRepository.countCompletedSentencesByUserAndLevelAndDay(userId, level, day);
+    }
+
+    public long countStudiedSentencesByUserId(Long userId, int level, int day) {
+        return userSentenceProgressRepository.countStudiedSentencesByUserAndLevelAndDay(userId, level, day);
     }
 }

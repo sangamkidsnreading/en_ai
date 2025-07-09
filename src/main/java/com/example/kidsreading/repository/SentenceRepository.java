@@ -15,7 +15,7 @@ import java.util.List;
 
 @Repository
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
-    
+
     List<Sentence> findByIsActiveTrue();
 
     List<Sentence> findByDifficultyLevelAndIsActiveTrue(Integer difficultyLevel);
@@ -42,13 +42,5 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
 
-    List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
-
-    List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
-
-    List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
-    
-    List<Sentence> findByCategoryIdAndIsActiveTrue(Long categoryId);
-    
-    List<Sentence> findByCategoryIdAndDifficultyLevelAndIsActiveTrue(Long categoryId, Integer difficultyLevel);
+    long countByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
 }

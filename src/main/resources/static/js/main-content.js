@@ -426,7 +426,7 @@ class EnhancedIntegratedLearningManager {
         });
     }
 
-    // 단어 클릭 처리 - 코인 시스템 통합
+    // 단어 클릭 처리 - 코인 시스템 통합 + 진행상황 업데이트
     async handleWordClick(card) {
         const wordId = card.getAttribute('data-word-id');
         const wordText = card.querySelector('.word-english')?.textContent;
@@ -441,8 +441,17 @@ class EnhancedIntegratedLearningManager {
         // 실제 오디오 파일 또는 TTS 음성 재생
         await this.playWordAudio(card);
 
+        // 진행상황 업데이트 (학습 완료로 처리)
+        if (wordId) {
+            await this.updateWordProgress(wordId, true);
+        }
+
         // 음성 재생 완료 후 코인 추가
         await this.addCoinAfterAudio('word', wordText);
+
+        // 실시간 통계 새로고침
+        await this.fetchRealtimeStats();
+        this.updateUI();
     }
 
     // 음성 재생 완료 후 코인 추가 (비동기 처리로 속도 향상)
@@ -489,7 +498,7 @@ class EnhancedIntegratedLearningManager {
         });
     }
 
-    // 문장 클릭 처리 - 코인 시스템 통합
+    // 문장 클릭 처리 - 코인 시스템 통합 + 진행상황 업데이트
     async handleSentenceClick(card) {
         const sentenceId = card.getAttribute('data-sentence-id');
         const sentenceText = card.querySelector('.sentence-text')?.textContent;
@@ -504,8 +513,17 @@ class EnhancedIntegratedLearningManager {
         // 실제 오디오 파일 또는 TTS 음성 재생
         await this.playSentenceAudio(card);
 
+        // 진행상황 업데이트 (학습 완료로 처리)
+        if (sentenceId) {
+            await this.updateSentenceProgress(sentenceId, true);
+        }
+
         // 음성 재생 완료 후 코인 추가
         await this.addCoinAfterAudio('sentence', sentenceText.substring(0, 20) + '...');
+
+        // 실시간 통계 새로고침
+        await this.fetchRealtimeStats();
+        this.updateUI();
     }
 
     // 완료도 체크 후 보너스 지급
@@ -1123,9 +1141,29 @@ class EnhancedIntegratedLearningManager {
     async refreshStats() {
         try {
             this.stats = await this.fetchStats();
+            await this.fetchRealtimeStats(); // 실시간 통계도 함께 조회
             this.updateUI();
         } catch (error) {
             console.error('통계 새로고침 실패:', error);
+        }
+    }
+
+    // 실시간 통계 조회
+    async fetchRealtimeStats() {
+        try {
+            const response = await fetch(`/learning/api/stats/realtime?level=${this.currentLevel}&day=${this.currentDay}`);
+            if (!response.ok) throw new Error('실시간 통계 데이터 로드 실패');
+            const realtimeStats = await response.json();
+            
+            console.log('📊 실시간 통계 로드됨:', realtimeStats);
+            
+            // 기존 stats에 실시간 데이터 병합
+            this.stats = { ...this.stats, ...realtimeStats };
+            
+            return realtimeStats;
+        } catch (error) {
+            console.error('실시간 통계 API 호출 실패:', error);
+            return {};
         }
     }
 
@@ -1136,23 +1174,77 @@ class EnhancedIntegratedLearningManager {
             totalWords = 1,
             completedSentences = 0,
             totalSentences = 0,
+            studiedWords = 0,
+            studiedSentences = 0,
+            wordProgress = 0,
+            sentenceProgress = 0,
             coinsEarned = 0
         } = this.stats;
 
-        // 헤더 정보 업데이트
-        this.updateElement('.header-left p', `오늘 학습: 단어 ${this.completedWords.size}개, 문장 ${this.completedSentences.size}개`);
+        // 헤더 정보 업데이트 (실시간 데이터 사용)
+        this.updateElement('.header-left p', `오늘 학습: 단어 ${studiedWords}개, 문장 ${studiedSentences}개`);
 
-        // 섹션 부제목 업데이트
+        // 섹션 부제목 업데이트 (실시간 데이터 사용)
         this.updateElement('.section-card:first-child .section-subtitle',
-            `오늘의 단어 ${this.words.length}개를 학습해보세요! (${this.completedWords.size}/${this.words.length})`);
+            `오늘의 단어 ${totalWords}개를 학습해보세요! (${completedWords}/${totalWords})`);
         this.updateElement('.section-card:last-child .section-subtitle',
-            `오늘의 문장 ${this.sentences.length}개를 학습해보세요! (${this.completedSentences.size}/${this.sentences.length})`);
+            `오늘의 문장 ${totalSentences}개를 학습해보세요! (${completedSentences}/${totalSentences})`);
 
-        // 진행률 계산
-        const wordProgress = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
-        const sentenceProgress = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
+        // 진행률 표시 (실시간 진행률 사용)
+        const wordProgressElement = document.querySelector('.word-progress-bar');
+        const sentenceProgressElement = document.querySelector('.sentence-progress-bar');
+        
+        if (wordProgressElement) {
+            wordProgressElement.style.width = `${wordProgress}%`;
+        }
+        
+        if (sentenceProgressElement) {
+            sentenceProgressElement.style.width = `${sentenceProgress}%`;
+        }
 
-        console.log(`📊 진행률 - 단어: ${wordProgress.toFixed(1)}%, 문장: ${sentenceProgress.toFixed(1)}%`);
+        console.log(`📊 실시간 진행률 - 단어: ${wordProgress}%, 문장: ${sentenceProgress}%`);
+        console.log(`📊 실시간 학습 현황 - 완료 단어: ${completedWords}/${totalWords}, 완료 문장: ${completedSentences}/${totalSentences}`);
+    }
+
+    // 진행상황 업데이트 메서드들
+    async updateWordProgress(wordId, isCompleted) {
+        try {
+            const response = await fetch('/learning/api/progress/word', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ wordId, isCompleted })
+            });
+
+            if (!response.ok) throw new Error('단어 진행상황 업데이트 실패');
+
+            const result = await response.json();
+            console.log('✅ 단어 진행상황 업데이트 완료:', result);
+            return result;
+
+        } catch (error) {
+            console.error('❌ 단어 진행상황 업데이트 실패:', error);
+            return null;
+        }
+    }
+
+    async updateSentenceProgress(sentenceId, isCompleted) {
+        try {
+            const response = await fetch('/learning/api/progress/sentence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sentenceId, isCompleted })
+            });
+
+            if (!response.ok) throw new Error('문장 진행상황 업데이트 실패');
+
+            const result = await response.json();
+            console.log('✅ 문장 진행상황 업데이트 완료:', result);
+            return result;
+
+        } catch (error) {
+            console.error('❌ 문장 진행상황 업데이트 실패:', error);
+            return null;
+        }
     }
 
     // 유틸리티 메서드들

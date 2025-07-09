@@ -71,6 +71,34 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
     List<UserWordProgress> findByUserId(Long userId);
     boolean existsByUserIdAndWordId(Long userId, Long wordId);
     List<UserWordProgress> findByUserIdAndIsCompletedTrue(Long userId);
+    
+    /**
+     * 사용자의 특정 레벨/Day 완료된 단어 수 조회
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp " +
+           "JOIN Word w ON uwp.wordId = w.id " +
+           "WHERE uwp.userId = :userId " +
+           "AND w.level = :level " +
+           "AND w.day = :day " +
+           "AND uwp.isCompleted = true " +
+           "AND w.isActive = true")
+    long countCompletedWordsByUserAndLevelAndDay(@Param("userId") Long userId,
+                                                @Param("level") Integer level,
+                                                @Param("day") Integer day);
+    
+    /**
+     * 사용자의 특정 레벨/Day 학습한 단어 수 조회 (완료되지 않았지만 학습은 한 것)
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp " +
+           "JOIN Word w ON uwp.wordId = w.id " +
+           "WHERE uwp.userId = :userId " +
+           "AND w.level = :level " +
+           "AND w.day = :day " +
+           "AND uwp.learnCount > 0 " +
+           "AND w.isActive = true")
+    long countStudiedWordsByUserAndLevelAndDay(@Param("userId") Long userId,
+                                              @Param("level") Integer level,
+                                              @Param("day") Integer day);
     long countByUserId(Long userId);
     long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

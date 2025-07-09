@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import com.example.kidsreading.entity.User;
+import com.example.kidsreading.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class WordService {
 
     private final WordRepository wordRepository;
     private final UserWordProgressRepository userWordProgressRepository;
+    private final UserRepository userRepository;
 
     /**
      * 특정 레벨과 날짜의 단어 목록 조회
@@ -150,6 +153,43 @@ public class WordService {
         userWordProgressRepository.save(progress);
 
         return progress.getIsFavorite();
+    }
+
+    public void updateUserWordProgress(Long userId, Long wordId, boolean isCompleted) {
+        UserWordProgress progress = userWordProgressRepository
+                .findByUserIdAndWordId(userId, wordId)
+                .orElse(UserWordProgress.builder()
+                        .userId(userId)
+                        .wordId(wordId)
+                        .build());
+
+        if (isCompleted) {
+            progress.addCorrectAttempt();
+            progress.setIsCompleted(true);
+        } else {
+            progress.addIncorrectAttempt();
+        }
+
+        userWordProgressRepository.save(progress);
+    }
+
+    // 통계 관련 메서드들 추가
+    public long countWordsByLevelAndDay(int level, int day) {
+        return wordRepository.countByLevelAndDayAndIsActiveTrue(level, day);
+    }
+
+    public long countCompletedWordsByUser(String username, int level, int day) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
+        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(user.getId(), level, day);
+    }
+
+    public long countCompletedWordsByUserId(Long userId, int level, int day) {
+        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
+    }
+
+    public long countStudiedWordsByUserId(Long userId, int level, int day) {
+        return userWordProgressRepository.countStudiedWordsByUserAndLevelAndDay(userId, level, day);
     }
 
     /**

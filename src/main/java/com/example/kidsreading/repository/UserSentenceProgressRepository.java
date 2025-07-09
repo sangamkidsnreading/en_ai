@@ -2,6 +2,8 @@ package com.example.kidsreading.repository;
 
 import com.example.kidsreading.entity.UserSentenceProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -13,15 +15,34 @@ public interface UserSentenceProgressRepository extends JpaRepository<UserSenten
 
     // 특정 사용자 전체 진행 이력 조회
     List<UserSentenceProgress> findByUserId(Long userId);
-
-    // 특정 사용자-문장 진행 이력 조회
-    Optional<UserSentenceProgress> findByUserIdAndSentenceId(Long userId, Long sentenceId);
-
-    // 특정 사용자-문장 진행 여부 체크
     boolean existsByUserIdAndSentenceId(Long userId, Long sentenceId);
-
-    // 특정 사용자가 완료한 문장 목록 조회
     List<UserSentenceProgress> findByUserIdAndIsCompletedTrue(Long userId);
+
+    /**
+     * 사용자의 특정 레벨/Day 완료된 문장 수 조회
+     */
+    @Query("SELECT COUNT(usp) FROM UserSentenceProgress usp " +
+           "LEFT JOIN Sentence s ON s.id = usp.sentenceId " +
+           "WHERE usp.userId = :userId " +
+           "AND s.difficultyLevel = :level " +
+           "AND s.dayNumber = :day " +
+           "AND usp.isCompleted = true")
+    long countCompletedSentencesByUserAndLevelAndDay(@Param("userId") Long userId,
+                                                    @Param("level") Integer level,
+                                                    @Param("day") Integer day);
+
+    /**
+     * 사용자의 특정 레벨/Day 학습한 문장 수 조회 (완료되지 않았지만 학습은 한 것)
+     */
+    @Query("SELECT COUNT(usp) FROM UserSentenceProgress usp " +
+           "LEFT JOIN Sentence s ON s.id = usp.sentenceId " +
+           "WHERE usp.userId = :userId " +
+           "AND s.difficultyLevel = :level " +
+           "AND s.dayNumber = :day " +
+           "AND usp.learnCount > 0")
+    long countStudiedSentencesByUserAndLevelAndDay(@Param("userId") Long userId,
+                                                  @Param("level") Integer level,
+                                                  @Param("day") Integer day);
 
     // 특정 사용자의 전체 이력 수 조회
     long countByUserId(Long userId);

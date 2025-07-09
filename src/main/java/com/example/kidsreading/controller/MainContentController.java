@@ -4,6 +4,7 @@ import com.example.kidsreading.dto.SentenceDto;
 import com.example.kidsreading.dto.WordDto;
 import com.example.kidsreading.service.SentenceService;
 import com.example.kidsreading.service.WordService;
+import com.example.kidsreading.service.UserService;
 import com.example.kidsreading.service.CoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ public class MainContentController {
 
     private final WordService wordService;
     private final SentenceService sentenceService;
+    private final UserService userService;
     private final CoinService coinService;
 
     /**
@@ -131,20 +134,31 @@ public class MainContentController {
      */
     @PostMapping("/api/progress/word")
     public ResponseEntity<Map<String, Object>> updateWordProgress(
-            @RequestBody Map<String, Object> request) {
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
 
+        String username = authentication.getName();
         Long wordId = Long.valueOf(request.get("wordId").toString());
         Boolean isCompleted = (Boolean) request.get("isCompleted");
 
-        // 사용자 ID는 세션이나 인증에서 가져와야 함 (여기서는 임시로 1L 사용)
-        Long userId = 1L;
+        log.info("단어 진행상황 업데이트 - 사용자: {}, 단어ID: {}, 완료: {}", username, wordId, isCompleted);
 
-        wordService.updateWordProgress(userId, wordId, isCompleted);
+        try {
+            Long userId = userService.getUserIdByUsername(username);
+            wordService.updateWordProgress(userId, wordId, isCompleted);
 
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "coinsEarned", 1
-        ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "단어 진행상황이 업데이트되었습니다");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("단어 진행상황 업데이트 실패", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "진행상황 업데이트에 실패했습니다");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     /**
@@ -152,47 +166,118 @@ public class MainContentController {
      */
     @PostMapping("/api/progress/sentence")
     public ResponseEntity<Map<String, Object>> updateSentenceProgress(
-            @RequestBody Map<String, Object> request) {
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
 
+        String username = authentication.getName();
         Long sentenceId = Long.valueOf(request.get("sentenceId").toString());
         Boolean isCompleted = (Boolean) request.get("isCompleted");
 
-        // 사용자 ID는 세션이나 인증에서 가져와야 함 (여기서는 임시로 1L 사용)
-        Long userId = 1L;
+        log.info("문장 진행상황 업데이트 - 사용자: {}, 문장ID: {}, 완료: {}", username, sentenceId, isCompleted);
 
-        sentenceService.updateSentenceProgress(userId, sentenceId, isCompleted);
+        try {
+            Long userId = userService.getUserIdByUsername(username);
+            sentenceService.updateSentenceProgress(userId, sentenceId, isCompleted);
 
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "coinsEarned", 3
-        ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "문장 진행상황이 업데이트되었습니다");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("문장 진행상황 업데이트 실패", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "진행상황 업데이트에 실패했습니다");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     /**
      * 오늘의 학습 통계 조회
      */
     @GetMapping("/api/stats/today")
-    public ResponseEntity<Map<String, Integer>> getTodayStats(
+    public ResponseEntity<Map<String, Object>> getTodayStats(
             @RequestParam(defaultValue = "1") Integer level,
-            @RequestParam(defaultValue = "1") Integer day) {
+            @RequestParam(defaultValue = "1") Integer day,
+            Authentication authentication) {
 
-        Long userId = 1L; // 임시 사용자 ID
+        String username = authentication.getName();
+        log.info("사용자 {} - Level {} Day {} 통계 조회", username, level, day);
 
-        int completedWords = wordService.getCompletedWordsCount(userId, level, day);
-        int totalWords = Math.max(wordService.getTotalWordsCount(level, day), 10); // 최소 10개
+        Map<String, Object> stats = new HashMap<>();
 
-        int completedSentences = sentenceService.getCompletedSentencesCount(userId, level, day);
-        int totalSentences = Math.max(sentenceService.getTotalSentencesCount(level, day), 5); // 최소 5개
+        try {
+            Long userId = userService.getUserIdByUsername(username);
 
-        int coinsEarned = wordService.getCoinsEarned(userId, level, day);
+            // 총 단어/문장 수
+            long totalWords = wordService.getTotalWordsCount(level, day);
+            long totalSentences = sentenceService.getTotalSentencesCount(level, day);
 
-        return ResponseEntity.ok(Map.of(
-                "completedWords", completedWords,
-                "totalWords", totalWords,
-                "completedSentences", completedSentences,
-                "totalSentences", totalSentences,
-                "coinsEarned", coinsEarned
-        ));
+            // 완료된 단어/문장 수 (사용자별)
+            long completedWords = wordService.getCompletedWordsCount(userId, level, day);
+            long completedSentences = sentenceService.getCompletedSentencesCount(userId, level, day);
+
+            stats.put("totalWords", totalWords);
+            stats.put("totalSentences", totalSentences);
+            stats.put("completedWords", completedWords);
+            stats.put("completedSentences", completedSentences);
+            stats.put("coinsEarned", 0); // 추후 구현
+
+            return ResponseEntity.ok(stats);
+
+        } catch (Exception e) {
+            log.error("통계 조회 실패", e);
+            stats.put("error", "통계 조회에 실패했습니다");
+            return ResponseEntity.internalServerError().body(stats);
+        }
+    }
+
+    @GetMapping("/api/stats/realtime")
+    public ResponseEntity<Map<String, Object>> getRealtimeStats(
+            @RequestParam(defaultValue = "1") Integer level,
+            @RequestParam(defaultValue = "1") Integer day,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        log.info("실시간 통계 조회 - 사용자: {}, Level: {}, Day: {}", username, level, day);
+
+        Map<String, Object> stats = new HashMap<>();
+
+        try {
+            Long userId = userService.getUserIdByUsername(username);
+
+            // 실시간 진행률 조회
+            long totalWords = wordService.getTotalWordsCount(level, day);
+            long totalSentences = sentenceService.getTotalSentencesCount(level, day);
+            long completedWords = wordService.getCompletedWordsCount(userId, level, day);
+            long completedSentences = sentenceService.getCompletedSentencesCount(userId, level, day);
+            long studiedWords = wordService.getStudiedWordsCount(userId, level, day);
+            long studiedSentences = sentenceService.getStudiedSentencesCount(userId, level, day);
+
+            // 진행률 계산
+            double wordProgress = totalWords > 0 ? (double) completedWords / totalWords * 100 : 0;
+            double sentenceProgress = totalSentences > 0 ? (double) completedSentences / totalSentences * 100 : 0;
+
+            stats.put("totalWords", totalWords);
+            stats.put("totalSentences", totalSentences);
+            stats.put("completedWords", completedWords);
+            stats.put("completedSentences", completedSentences);
+            stats.put("studiedWords", studiedWords);
+            stats.put("studiedSentences", studiedSentences);
+            stats.put("wordProgress", Math.round(wordProgress * 10) / 10.0);
+            stats.put("sentenceProgress", Math.round(sentenceProgress * 10) / 10.0);
+            stats.put("level", level);
+            stats.put("day", day);
+
+            log.info("실시간 통계 조회 완료 - 단어: {}/{}, 문장: {}/{}", completedWords, totalWords, completedSentences, totalSentences);
+
+        } catch (Exception e) {
+            log.error("실시간 통계 조회 실패", e);
+            stats.put("error", "통계 조회에 실패했습니다");
+        }
+
+        return ResponseEntity.ok(stats);
     }
 
     /**
@@ -242,14 +327,14 @@ public class MainContentController {
         try {
             var coinSettings = coinService.getCoinSettings();
             int wordCoins = coinSettings.getWordCoin() != null ? coinSettings.getWordCoin() : 1;
-            
+
             var result = coinService.addCurrentUserWordCoins();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("wordCoins", wordCoins);
             response.put("coinResult", result);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("단어 코인 지급 실패", e);
@@ -265,14 +350,14 @@ public class MainContentController {
         try {
             var coinSettings = coinService.getCoinSettings();
             int sentenceCoins = coinSettings.getSentenceCoin() != null ? coinSettings.getSentenceCoin() : 3;
-            
+
             var result = coinService.addCurrentUserSentenceCoins();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("sentenceCoins", sentenceCoins);
             response.put("coinResult", result);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("문장 코인 지급 실패", e);
@@ -288,15 +373,15 @@ public class MainContentController {
         try {
             var coinSettings = coinService.getCoinSettings();
             int streakBonus = coinSettings.getStreakBonus() != null ? coinSettings.getStreakBonus() : 5;
-            
+
             // 현재는 간단하게 보너스만 지급 (실제로는 연속 학습 조건 체크 필요)
             var result = coinService.addCurrentUserWordCoins(); // 임시로 단어 코인 메서드 사용
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("streakBonus", streakBonus);
             response.put("coinResult", result);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("보너스 코인 지급 실패", e);
