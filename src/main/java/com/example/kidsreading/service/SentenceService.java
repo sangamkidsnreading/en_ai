@@ -1,7 +1,4 @@
-Adding userId-based learning progress retrieval methods to SentenceService.
-```
 
-```java
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.SentenceDto;
@@ -87,98 +84,121 @@ public class SentenceService {
      * 완료된 문장 수 조회 (특정 레벨/Day) - String 타입 userId
      */
     public int getCompletedSentencesCountByUserId(String userId, Integer level, Integer day) {
-        return (int) userSentenceProgressRepository.countByUserIdAndSentence_DifficultyLevelAndSentence_DayNumberAndIsCompletedTrue(
-                Long.parseLong(userId), level, day
+        return (int) userSentenceProgressRepository.countByUserIdStringAndSentence_DifficultyLevelAndSentence_DayNumberAndIsCompletedTrue(
+                userId,
+                level,
+                day
         );
     }
 
     /**
-     * 전체 문장 수 조회
+     * 전체 문장 수 조회 (특정 레벨/Day)
      */
     public int getTotalSentencesCount(Integer level, Integer day) {
-        return sentenceRepository.countByDifficultyLevelAndDayNumberAndIsActive(level, day, true);
-    }
-
-    @Transactional(readOnly = false)
-    public int bulkUploadFromExcel(MultipartFile file) throws Exception {
-        int count = 0;
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(is)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
-            boolean isFirstRow = true;
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                if (isFirstRow) { // 헤더는 건너뜀
-                    isFirstRow = false;
-                    continue;
-                }
-                String english = getCellValue(row.getCell(0));
-                String korean = getCellValue(row.getCell(1));
-                String audioFile = getCellValue(row.getCell(2));
-                int level = getNumericCellValueSafely(row.getCell(3), 1);
-                int day = getNumericCellValueSafely(row.getCell(4), 1);
-
-                // S3 URL 생성 (오디오 파일명이 있는 경우)
-                String s3AudioUrl = null;
-                if (audioFile != null && !audioFile.trim().isEmpty()) {
-                    // S3 키 생성 (예: vocabulary/2025/07-08/sentences/1Day - We are happy.wav)
-                    String s3Key = s3Service.buildS3Key("sentences", audioFile);
-                    s3AudioUrl = s3Service.getS3Url(s3Key);
-                }
-
-                Sentence sentence = Sentence.builder()
-                        .englishText(english)
-                        .koreanTranslation(korean)
-                        .audioUrl(s3AudioUrl)
-                        .difficultyLevel(level)
-                        .dayNumber(day)
-                        .isActive(true)
-                        .build();
-                sentenceRepository.save(sentence);
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private String getCellValue(Cell cell) {
-        if (cell == null) return "";
-        if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue();
-        if (cell.getCellType() == CellType.NUMERIC) return String.valueOf((int) cell.getNumericCellValue());
-        return "";
-    }
-
-    private int getNumericCellValueSafely(Cell cell, int defaultValue) {
-        if (cell == null) return defaultValue;
-        if (cell.getCellType() == CellType.NUMERIC) {
-            return (int) cell.getNumericCellValue();
-        }
-        if (cell.getCellType() == CellType.STRING) {
-            try {
-                return Integer.parseInt(cell.getStringCellValue().trim());
-            } catch (NumberFormatException e) {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
+        return (int) sentenceRepository.countByDifficultyLevelAndDayNumberAndIsActiveTrue(level, day);
     }
 
     /**
-     * Sentence 엔티티를 SentenceDto로 변환
+     * Entity를 DTO로 변환
      */
     private SentenceDto convertToDto(Sentence sentence) {
         return SentenceDto.builder()
                 .id(sentence.getId())
-                .english(sentence.getEnglishText()) // englishText를 english로 매핑
-                .korean(sentence.getKoreanTranslation()) // koreanTranslation을 korean으로 매핑
+                .text(sentence.getText())
+                .meaning(sentence.getTranslation())
                 .level(sentence.getDifficultyLevel())
-                .dayNumber(sentence.getDayNumber())
+                .day(sentence.getDayNumber())
                 .audioUrl(sentence.getAudioUrl())
-                .translation(sentence.getKoreanTranslation())
-                .meaning(sentence.getKoreanTranslation())
                 .isActive(sentence.getIsActive())
                 .build();
     }
+
+    /**
+     * 엑셀 파일로부터 문장 데이터 일괄 업로드
+     */
+    @Transactional
+    public void uploadSentencesFromExcel(MultipartFile file) throws Exception {
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+
+            // 헤더 행 건너뛰기
+            if (rowIterator.hasNext()) {
+                rowIterator.next();
+            }
+
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+
+                if (isRowEmpty(row)) continue;
+
+                String text = getCellValueAsString(row.getCell(0));
+                String translation = getCellValueAsString(row.getCell(1));
+                Integer difficultyLevel = getCellValueAsInteger(row.getCell(2));
+                Integer dayNumber = getCellValueAsInteger(row.getCell(3));
+
+                if (text != null && !text.trim().isEmpty() && 
+                    difficultyLevel != null && dayNumber != null) {
+                    
+                    Sentence sentence = Sentence.builder()
+                            .text(text.trim())
+                            .translation(translation != null ? translation.trim() : "")
+                            .difficultyLevel(difficultyLevel)
+                            .dayNumber(dayNumber)
+                            .isActive(true)
+                            .build();
+
+                    sentenceRepository.save(sentence);
+                }
+            }
+        }
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+        for (int i = 0; i < 4; i++) {
+            Cell cell = row.getCell(i);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                String value = getCellValueAsString(cell);
+                if (value != null && !value.trim().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) return null;
+        
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((int) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return null;
+        }
+    }
+
+    private Integer getCellValueAsInteger(Cell cell) {
+        if (cell == null) return null;
+        
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return (int) cell.getNumericCellValue();
+            case STRING:
+                try {
+                    return Integer.parseInt(cell.getStringCellValue());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            default:
+                return null;
+        }
+    }
 }
-```Adding userId-based learning progress retrieval methods to SentenceService.
