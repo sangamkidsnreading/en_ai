@@ -1,55 +1,32 @@
-
 package com.example.kidsreading.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SentenceDto {
     private Long id;
-    private String english;
-    private String korean;
-    private Integer level;
+    private String englishText;
+    private String koreanTranslation;
+    private Integer difficultyLevel;
     private Integer dayNumber;
     private String audioUrl;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // 호환성을 위한 별칭 메서드들
-    public String getText() {
-        return this.english;
-    }
-
-    public void setText(String text) {
-        this.english = text;
-    }
-
-    public String getMeaning() {
-        return this.korean;
-    }
-
-    public void setMeaning(String meaning) {
-        this.korean = meaning;
-    }
-
-    public String getTranslation() {
-        return this.korean;
-    }
-
-    public void setTranslation(String translation) {
-        this.korean = translation;
-    }
-
-    public Integer getDay() {
-        return this.dayNumber;
-    }
-
-    public void setDay(Integer day) {
-        this.dayNumber = day;
-    }
+    // 호환성을 위한 필드들
+    private String english;
+    private String korean;
+    private Integer level;
+    private String text;
+    private String meaning;
+    private String translation;
 }

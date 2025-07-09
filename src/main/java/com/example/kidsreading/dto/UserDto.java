@@ -1,15 +1,18 @@
 
 package com.example.kidsreading.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import com.example.kidsreading.entity.User;
-import lombok.*;
+
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class UserDto {
     private Long id;
     private String username;

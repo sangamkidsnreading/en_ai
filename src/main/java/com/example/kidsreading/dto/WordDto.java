@@ -1,14 +1,17 @@
 
 package com.example.kidsreading.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class WordDto {
     private Long id;
     private String text;
@@ -20,21 +23,12 @@ public class WordDto {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // 호환성을 위한 별칭 메서드들
-    public String getEnglish() {
-        return this.text;
-    }
-
-    public void setEnglish(String english) {
-        this.text = english;
-    }
-
-    public String getKorean() {
-        return this.meaning;
-    }
-
-    public void setKorean(String korean) {
-        this.meaning = korean;
-    }
+    
+    // 호환성을 위한 필드들
+    private String english;
+    private String korean;
+    private Integer dayNumber;
+    private String phonetic;
+    private String translation;
+    private String word;
 }
