@@ -1171,68 +1171,88 @@ class EnhancedIntegratedLearningManager {
     }
 
     setupSidebarFilters() {
-        this.initializeLevelAndDaySelects();
+        this.loadLevelAndDayOptions();
         
         const levelSelect = document.getElementById('level-select');
         const daySelect = document.getElementById('day-select');
-        
         if (levelSelect) {
             levelSelect.addEventListener('change', (e) => {
                 this.currentLevel = Number(e.target.value);
-                this.currentDay = 1; // 레벨 변경 시 Day 1로 리셋
-                if (daySelect) {
-                    daySelect.value = 1;
-                }
                 this.loadLearningData();
                 this.updateHeader();
-                console.log(`📊 레벨 변경: Level ${this.currentLevel}, Day ${this.currentDay}`);
+                // 레벨이 변경되면 해당 레벨의 데이 옵션도 업데이트
+                this.loadDayOptions(this.currentLevel);
             });
         }
-        
         if (daySelect) {
             daySelect.addEventListener('change', (e) => {
                 this.currentDay = Number(e.target.value);
                 this.loadLearningData();
                 this.updateHeader();
-                console.log(`📊 Day 변경: Level ${this.currentLevel}, Day ${this.currentDay}`);
             });
         }
     }
 
-    initializeLevelAndDaySelects() {
-        const levelSelect = document.getElementById('level-select');
-        const daySelect = document.getElementById('day-select');
-        
-        // 레벨 선택 초기화 (1-5)
-        if (levelSelect) {
-            levelSelect.innerHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Level ${i}`;
-                if (i === this.currentLevel) {
-                    option.selected = true;
-                }
-                levelSelect.appendChild(option);
-            }
-        }
-        
-        // Day 선택 초기화 (1-50)
-        if (daySelect) {
-            daySelect.innerHTML = '';
-            for (let i = 1; i <= 50; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Day ${i}`;
-                if (i === this.currentDay) {
-                    option.selected = true;
-                }
-                daySelect.appendChild(option);
-            }
+    async loadLevelAndDayOptions() {
+        try {
+            // 레벨 옵션 로드
+            await this.loadLevelOptions();
+            // 현재 레벨의 데이 옵션 로드
+            await this.loadDayOptions(this.currentLevel);
+        } catch (error) {
+            console.error('레벨/데이 옵션 로드 실패:', error);
         }
     }
 
-    
+    async loadLevelOptions() {
+        try {
+            const response = await fetch('/api/sidebar/levels');
+            if (!response.ok) throw new Error('레벨 데이터 로드 실패');
+            const levels = await response.json();
+            
+            const levelSelect = document.getElementById('level-select');
+            if (levelSelect) {
+                levelSelect.innerHTML = '';
+                levels.forEach(level => {
+                    const option = document.createElement('option');
+                    option.value = level;
+                    option.textContent = `Level ${level}`;
+                    if (level === this.currentLevel) {
+                        option.selected = true;
+                    }
+                    levelSelect.appendChild(option);
+                });
+                console.log('✅ 레벨 옵션 로드 완료:', levels);
+            }
+        } catch (error) {
+            console.error('레벨 옵션 로드 실패:', error);
+        }
+    }
+
+    async loadDayOptions(level) {
+        try {
+            const response = await fetch(`/api/sidebar/days?level=${level}`);
+            if (!response.ok) throw new Error('데이 데이터 로드 실패');
+            const days = await response.json();
+            
+            const daySelect = document.getElementById('day-select');
+            if (daySelect) {
+                daySelect.innerHTML = '';
+                days.forEach(day => {
+                    const option = document.createElement('option');
+                    option.value = day;
+                    option.textContent = `Day ${day}`;
+                    if (day === this.currentDay) {
+                        option.selected = true;
+                    }
+                    daySelect.appendChild(option);
+                });
+                console.log('✅ 데이 옵션 로드 완료 (Level ' + level + '):', days);
+            }
+        } catch (error) {
+            console.error('데이 옵션 로드 실패:', error);
+        }
+    }
 
     updateHeader() {
         // 헤더의 Level/Day 텍스트 동적 변경
