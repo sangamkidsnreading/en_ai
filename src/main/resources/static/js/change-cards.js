@@ -1,3 +1,4 @@
+// Update data loading to force clear existing cards
 // 중복 선언 방지
 if (typeof window.CardChangeManager !== 'undefined') {
     console.log('🔄 기존 CardChangeManager 제거');
@@ -91,22 +92,31 @@ class CardChangeManager {
 
         try {
             console.log(`🔄 카드 로드 중 - Level: ${this.currentLevel}, Day: ${this.currentDay}`);
+            const level = this.currentLevel;
+            const day = this.currentDay;
 
-            const response = await fetch(`/api/sidebar/filter?level=${this.currentLevel}&day=${this.currentDay}`);
-            if (!response.ok) throw new Error('카드 로드 실패');
-
+            const response = await fetch(`/api/sidebar/filter?level=${level}&day=${day}`);
             const data = await response.json();
 
-            // 헤더 정보 업데이트
-            this.updateHeader(data);
+            console.log('📝 문장 데이터 로드됨:', data.sentences?.length || 0, '개');
+            console.log('📝 단어 데이터 로드됨:', data.words?.length || 0, '개');
+            console.log('📝 단어 데이터 상세:', data.words);
 
             // 향상된 통합 학습 관리자가 있으면 그것을 우선 사용
             if (window.enhancedIntegratedLearningManager) {
                 console.log('🔄 향상된 통합 학습 관리자에게 데이터 전달');
+
+                // 데이터가 없을 때도 빈 배열로 설정하여 카드 초기화
                 window.enhancedIntegratedLearningManager.words = data.words || [];
                 window.enhancedIntegratedLearningManager.sentences = data.sentences || [];
                 window.enhancedIntegratedLearningManager.currentLevel = this.currentLevel;
                 window.enhancedIntegratedLearningManager.currentDay = this.currentDay;
+
+                // 기존 카드 강제 제거 후 재렌더링
+                const wordsGrid = document.querySelector('.words-grid');
+                const sentencesGrid = document.querySelector('.sentences-grid');
+                if (wordsGrid) wordsGrid.innerHTML = '';
+                if (sentencesGrid) sentencesGrid.innerHTML = '';
 
                 // 카드 재렌더링
                 window.enhancedIntegratedLearningManager.renderWordsToHTML();
@@ -274,3 +284,4 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(initCardChangeManager, 1000);
     }
 });
+`

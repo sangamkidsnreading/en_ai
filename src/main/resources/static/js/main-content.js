@@ -108,9 +108,25 @@ class EnhancedIntegratedLearningManager {
     // 단어를 HTML로 렌더링
     renderWordsToHTML() {
         const wordsGrid = document.querySelector('.words-grid');
-        if (!wordsGrid || this.words.length === 0) return;
+        if (!wordsGrid) {
+            console.warn('⚠️ words-grid 요소를 찾을 수 없습니다.');
+            return;
+        }
 
         wordsGrid.innerHTML = '';
+
+        if (this.words.length === 0) {
+            wordsGrid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+                    <div style="font-size: 18px; margin-bottom: 8px;">이 레벨/Day에는 단어가 없습니다</div>
+                    <div style="font-size: 14px;">다른 레벨이나 Day를 선택해보세요!</div>
+                </div>
+            `;
+            hideLoadingSpinner();
+            console.log('📝 단어 데이터가 없어서 빈 상태를 표시합니다.');
+            return;
+        }
 
         this.words.forEach((word, index) => {
             const wordCard = document.createElement('div');
