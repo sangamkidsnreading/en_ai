@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,8 +48,16 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public RedirectView home() {
-        return new RedirectView("/login");
+    public String home(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "redirect:/student/kiriboca/index";
+        }
+        return "redirect:/login";
+    }
+
+    @GetMapping("")
+    public String homeWithoutSlash(Authentication authentication) {
+        return home(authentication);
     }
 
     @GetMapping("/dashboard")
