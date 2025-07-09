@@ -209,4 +209,3 @@ public class MainContentController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 }
-```This change involves modifying the `createSampleSentences` method in `MainContentController` to use `.text()` instead of `.english()` when building `SentenceDto` objects.
