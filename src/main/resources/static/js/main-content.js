@@ -457,36 +457,27 @@ class EnhancedIntegratedLearningManager {
                     await this.addWordCoins() : 
                     await this.addSentenceCoins();
 
-                if (coinResult) {
-                    this.coins = coinResult;
-                    this.updateCoinDisplay();
+                if (coinResult && coinResult.success) {
+                    // 코인 정보 업데이트
+                    if (coinResult.coinResult) {
+                        this.coins = coinResult.coinResult;
+                        this.updateCoinDisplay();
+                    }
                     
-                    // 실제 증가량 계산
+                    // learning_settings에서 가져온 실제 코인 수량 사용
                     let coinAmount = '+1';
                     let coinCount = 1;
+                    
                     if (type === 'word') {
-                        if (coinResult.wordCoins !== undefined && coinResult.wordCoins !== null) {
-                            coinAmount = `+${coinResult.wordCoins}`;
-                            coinCount = coinResult.wordCoins;
-                        } else if (coinResult.wordCoin !== undefined && coinResult.wordCoin !== null) {
-                            coinAmount = `+${coinResult.wordCoin}`;
-                            coinCount = coinResult.wordCoin;
-                        }
+                        coinCount = coinResult.wordCoins || 1;
+                        coinAmount = `+${coinCount}`;
                     } else if (type === 'sentence') {
-                        if (coinResult.sentenceCoins !== undefined && coinResult.sentenceCoins !== null) {
-                            coinAmount = `+${coinResult.sentenceCoins}`;
-                            coinCount = coinResult.sentenceCoins;
-                        } else if (coinResult.sentenceCoin !== undefined && coinResult.sentenceCoin !== null) {
-                            coinAmount = `+${coinResult.sentenceCoin}`;
-                            coinCount = coinResult.sentenceCoin;
-                        } else {
-                            coinAmount = '+3';
-                            coinCount = 3;
-                        }
+                        coinCount = coinResult.sentenceCoins || 3;
+                        coinAmount = `+${coinCount}`;
                     }
+                    
                     this.showCoinAnimation(coinAmount);
-                    console.log(`🪙 ${type} 코인 획득:`, coinResult);
-                    // 성공 메시지
+                    console.log(`🪙 ${type} 코인 획득 (설정값 기반):`, coinCount, '개');
                     /*this.showMessage(`"${text}" 학습 완료! 코인 ${coinCount}개 획득! 🪙`);*/
                 }
                 
@@ -581,7 +572,7 @@ class EnhancedIntegratedLearningManager {
     async addWordCoins() {
         console.log('addWordCoins called');
         try {
-            const response = await fetch('/api/coins/word', {
+            const response = await fetch('/learning/api/coins/word', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -601,7 +592,7 @@ class EnhancedIntegratedLearningManager {
     // 문장 완료 시 코인 추가
     async addSentenceCoins() {
         try {
-            const response = await fetch('/api/coins/sentence', {
+            const response = await fetch('/learning/api/coins/sentence', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -621,7 +612,7 @@ class EnhancedIntegratedLearningManager {
     // 연속 학습 보너스 추가
     async addStreakBonus() {
         try {
-            const response = await fetch('/api/coins/streak', {
+            const response = await fetch('/learning/api/coins/streak', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

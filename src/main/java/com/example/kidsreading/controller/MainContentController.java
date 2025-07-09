@@ -4,6 +4,7 @@ import com.example.kidsreading.dto.SentenceDto;
 import com.example.kidsreading.dto.WordDto;
 import com.example.kidsreading.service.SentenceService;
 import com.example.kidsreading.service.WordService;
+import com.example.kidsreading.service.CoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,7 @@ public class MainContentController {
 
     private final WordService wordService;
     private final SentenceService sentenceService;
+    private final CoinService coinService;
 
     /**
      * 메인 학습 페이지 렌더링
@@ -230,5 +232,75 @@ public class MainContentController {
         });
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * learning_settings 기반 단어 코인 지급
+     */
+    @PostMapping("/api/coins/word")
+    public ResponseEntity<Map<String, Object>> addWordCoins() {
+        try {
+            var coinSettings = coinService.getCoinSettings();
+            int wordCoins = coinSettings.getWordCoins() != null ? coinSettings.getWordCoins() : 1;
+            
+            var result = coinService.addCurrentUserWordCoins();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("wordCoins", wordCoins);
+            response.put("coinResult", result);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("단어 코인 지급 실패", e);
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
+    /**
+     * learning_settings 기반 문장 코인 지급
+     */
+    @PostMapping("/api/coins/sentence")
+    public ResponseEntity<Map<String, Object>> addSentenceCoins() {
+        try {
+            var coinSettings = coinService.getCoinSettings();
+            int sentenceCoins = coinSettings.getSentenceCoins() != null ? coinSettings.getSentenceCoins() : 3;
+            
+            var result = coinService.addCurrentUserSentenceCoins();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("sentenceCoins", sentenceCoins);
+            response.put("coinResult", result);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("문장 코인 지급 실패", e);
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
+    /**
+     * 연속 학습 보너스 코인 지급
+     */
+    @PostMapping("/api/coins/streak")
+    public ResponseEntity<Map<String, Object>> addStreakBonus() {
+        try {
+            var coinSettings = coinService.getCoinSettings();
+            int streakBonus = coinSettings.getStreakBonus() != null ? coinSettings.getStreakBonus() : 5;
+            
+            // 현재는 간단하게 보너스만 지급 (실제로는 연속 학습 조건 체크 필요)
+            var result = coinService.addCurrentUserWordCoins(); // 임시로 단어 코인 메서드 사용
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("streakBonus", streakBonus);
+            response.put("coinResult", result);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("보너스 코인 지급 실패", e);
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
+        }
     }
 }
