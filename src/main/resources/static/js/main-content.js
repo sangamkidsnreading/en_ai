@@ -1021,8 +1021,8 @@ class EnhancedIntegratedLearningManager {
             // 재생 중지 확인
             if (!this.isPlaying) break;
 
-            // 음성 재생 후 잠시 대기
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 음성 재생 후 잠시 대기 (단축됨)
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // 재생 중지 확인
             if (!this.isPlaying) break;
@@ -1064,8 +1064,8 @@ class EnhancedIntegratedLearningManager {
             // 재생 중지 확인
             if (!this.isPlaying) break;
 
-            // 음성 재생 후 잠시 대기
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // 음성 재생 후 잠시 대기 (단축됨)
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             // 재생 중지 확인
             if (!this.isPlaying) break;
