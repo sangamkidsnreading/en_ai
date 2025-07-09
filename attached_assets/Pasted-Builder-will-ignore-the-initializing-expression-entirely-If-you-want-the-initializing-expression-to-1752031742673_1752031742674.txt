@@ -1,0 +1,42 @@
+Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/UserLevels.java:[32,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/UserLevels.java:[35,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/UserLevels.java:[38,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceStatistics.java:[25,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceStatistics.java:[28,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceStatistics.java:[37,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/Word.java:[42,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/Sentence.java:[49,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[INFO] 24 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/S3Service.java:[89,13] cannot find symbol
+  symbol:   class HeadObjectRequest
+  location: class com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/S3Service.java:[89,51] cannot find symbol
+  symbol:   variable HeadObjectRequest
+  location: class com.example.kidsreading.service.S3Service
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.074 s
+[INFO] Finished at: 2025-07-09T03:28:48Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project kidsreading: Compilation failure: Compilation failure: 
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/S3Service.java:[89,13] cannot find symbol
+[ERROR]   symbol:   class HeadObjectRequest
+[ERROR]   location: class com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/S3Service.java:[89,51] cannot find symbol
+[ERROR]   symbol:   variable HeadObjectRequest
+[ERROR]   location: class com.example.kidsreading.service.S3Service
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
