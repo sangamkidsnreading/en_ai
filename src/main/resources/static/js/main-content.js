@@ -40,8 +40,14 @@ class EnhancedIntegratedLearningManager {
                 this.setupEvents();
                 this.eventListenersAdded = true;
             }
+            
             // sidebar 연동 필터 이벤트 추가
-            this.setupSidebarFilters();
+            try {
+                this.setupSidebarFilters();
+            } catch (sidebarError) {
+                console.warn('⚠️ 사이드바 필터 설정 실패:', sidebarError);
+            }
+            
             this.updateHeader();
 
             // UI 업데이트
@@ -57,7 +63,8 @@ class EnhancedIntegratedLearningManager {
 
         } catch (error) {
             console.error('❌ 초기화 실패:', error);
-            this.showError('데이터를 불러오는데 실패했습니다.');
+            console.error('❌ 오류 상세:', error.message, error.stack);
+            this.showError('데이터를 불러오는데 실패했습니다: ' + (error.message || '알 수 없는 오류'));
         }
     }
 
@@ -1204,6 +1211,39 @@ class EnhancedIntegratedLearningManager {
         }
 
         console.log('🔗 사이드바 필터 이벤트 설정 완료 (정적 옵션 사용)');
+    }
+
+    // 레벨 변경 핸들러
+    async handleLevelChange(event) {
+        const newLevel = parseInt(event.target.value);
+        if (newLevel !== this.currentLevel && !isNaN(newLevel)) {
+            console.log(`📊 레벨 변경: ${this.currentLevel} → ${newLevel}`);
+            this.currentLevel = newLevel;
+            this.currentDay = 1; // 레벨 변경 시 Day 1로 리셋
+
+            // Day 선택 박스도 업데이트
+            const daySelect = document.getElementById('day-select');
+            if (daySelect) {
+                daySelect.value = 1;
+            }
+
+            // 데이터 재로드
+            await this.loadLearningData();
+            this.updateHeader();
+        }
+    }
+
+    // Day 변경 핸들러
+    async handleDayChange(event) {
+        const newDay = parseInt(event.target.value);
+        if (newDay !== this.currentDay && !isNaN(newDay)) {
+            console.log(`📅 Day 변경: ${this.currentDay} → ${newDay}`);
+            this.currentDay = newDay;
+
+            // 데이터 재로드
+            await this.loadLearningData();
+            this.updateHeader();
+        }
     }
 
     updateHeader() {
