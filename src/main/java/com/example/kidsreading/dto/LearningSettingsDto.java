@@ -16,8 +16,6 @@ public class LearningSettingsDto {
     private Integer difficultyLevel;
     private Boolean enableAudio;
     private Boolean enableFeedback;
-
-    // 기존 필드들
     private Double audioSpeed;
     private Integer voiceSpeed;
     private Integer repeatCount;

@@ -1,4 +1,3 @@
-// ========== User.java (확장된 엔티티) ==========
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;

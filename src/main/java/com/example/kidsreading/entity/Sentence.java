@@ -49,11 +49,14 @@ public class Sentence {
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "audio_url")
+    private String audioUrl;
 
     @OneToMany(mappedBy = "sentence", cascade = CascadeType.ALL)
     private List<UserSentenceProgress> userProgresses;

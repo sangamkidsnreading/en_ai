@@ -47,6 +47,9 @@ public class Word {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "day_number")
+    private Integer dayNumber;
+
     @OneToMany(mappedBy = "word", cascade = CascadeType.ALL)
     private List<UserWordProgress> userProgresses;
 

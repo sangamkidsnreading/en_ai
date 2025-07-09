@@ -101,14 +101,5 @@ public class S3Service {
     public void deleteFile(String key) {
         s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
     }
-
-    private String buildS3Key(String type, String originalFileName) {
-        LocalDate today = LocalDate.now();
-        String year = String.valueOf(today.getYear());
-        String monthDay = String.format("%02d-%02d", today.getMonthValue(), today.getDayOfMonth());
-
-        // 파일명의 공백을 언더스코어로 변경하여 S3 키 생성
-        String encodedFileName = originalFileName.replaceAll("\\s+", "_");
-        return String.format("vocabulary/%s/%s/%s/%s", year, monthDay, type, encodedFileName);
-    }
 }
+`

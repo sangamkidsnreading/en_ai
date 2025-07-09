@@ -22,6 +22,8 @@ public class WordDto {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String english;
+    private String korean;
     private Integer dayNumber;
     private String phonetic;
     private String translation;
