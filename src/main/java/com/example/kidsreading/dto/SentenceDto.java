@@ -1,14 +1,9 @@
+
 package com.example.kidsreading.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Data
 @Builder
 @NoArgsConstructor
