@@ -1,3 +1,4 @@
+
 package com.example.kidsreading.service;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -97,9 +98,4 @@ public class S3Service {
             return false;
         }
     }
-
-    public void deleteFile(String key) {
-        s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
-    }
 }
-`
