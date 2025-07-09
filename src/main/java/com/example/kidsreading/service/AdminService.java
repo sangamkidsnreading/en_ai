@@ -742,7 +742,7 @@ public class AdminService {
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
             .id(sentence.getId())
-```text
+text
             .text(sentence.getEnglishText())
             .korean(sentence.getKoreanTranslation())
             .level(sentence.getDifficultyLevel())
