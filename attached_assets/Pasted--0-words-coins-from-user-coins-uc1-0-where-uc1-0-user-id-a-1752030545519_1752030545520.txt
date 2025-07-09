@@ -1,0 +1,146 @@
+_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+✅ 필터링 완료 - 단어: 0개, 문장: 0개
+2025-07-09 03:08:30 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 03:08:30 - Writing [{totalWords=0, stats={totalWords=10, completedSentences=0, totalSentences=5, totalCoins=0, coinsEarn (truncated)...]
+2025-07-09 03:08:30 - Completed 200 OK
+2025-07-09 03:08:33 - Securing GET /api/sidebar/filter?level=4&day=18
+2025-07-09 03:08:33 - Secured GET /api/sidebar/filter?level=4&day=18
+2025-07-09 03:08:33 - GET "/api/sidebar/filter?level=4&day=18", parameters={masked}
+2025-07-09 03:08:33 - Mapped to com.example.kidsreading.controller.SidebarController#filterCards(Integer, Integer, Authentication)
+2025-07-09 03:08:33 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.example.kidsreading.service.CustomUserDetailsService$CustomUserPrincipal@171cb4b8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+🔍 카드 필터링 요청 - Level: 4, Day: 1
+2025-07-09 03:08:33 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 03:08:33 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+📊 조회 결과 - 단어: 0개, 문장: 0개
+2025-07-09 03:08:34 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+✅ 필터링 완료 - 단어: 0개, 문장: 0개
+2025-07-09 03:08:34 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 03:08:34 - Writing [{totalWords=0, stats={totalWords=10, completedSentences=0, totalSentences=5, totalCoins=0, coinsEarn (truncated)...]
+2025-07-09 03:08:34 - Completed 200 OK
+^C2025-07-09 03:08:39 - Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-09 03:08:39 - Graceful shutdown complete
+2025-07-09 03:08:39 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-09 03:08:39 - HikariPool-1 - Shutdown initiated...
+2025-07-09 03:08:40 - HikariPool-1 - Shutdown completed.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  03:25 min
+[INFO] Finished at: 2025-07-09T03:08:40Z
+[INFO] ------------------------------------------------------------------------
