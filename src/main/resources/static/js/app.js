@@ -204,6 +204,29 @@ class KiribocaApp {
         }, 100);
     }
 
+    // 수동으로 admin.js 로드 시도
+    loadAdminScriptManually() {
+        console.log('🔄 수동으로 admin.js 스크립트 로드 시도');
+
+        const script = document.createElement('script');
+        script.src = '/js/admin.js';
+        script.onload = () => {
+            console.log('✅ admin.js 수동 로드 완료');
+            if (typeof window.initAdminDashboard === 'function') {
+                window.initAdminDashboard();
+                console.log('✅ AdminDashboard 수동 초기화 완료');
+            } else {
+                console.error('❌ admin.js 로드되었지만 초기화 함수가 없습니다.');
+            }
+        };
+        script.onerror = () => {
+            console.error('❌ admin.js 수동 로드 실패');
+            console.log('💡 페이지를 새로고침하거나 개발자에게 문의하세요.');
+        };
+
+        document.head.appendChild(script);
+    }
+
     // 프로필 이벤트 설정
     setupProfileEvents() {
         // 토글 스위치 기능
@@ -763,6 +786,45 @@ class KiribocaApp {
         }
 
         this.currentPage = page;
+        // 관리자 페이지로 전환된 경우 AdminDashboard 초기화
+        if (page === 'admin') {
+            console.log('🔧 관리자 페이지 진입 - AdminDashboard 초기화 예약');
+
+            // 더 견고한 admin.js 로드 확인 및 초기화
+            const initAdminWithRetry = (attempt = 1, maxAttempts = 5) => {
+                console.log(`🔧 AdminDashboard 초기화 시도 #${attempt}`);
+
+                if (typeof window.initAdminDashboard === 'function') {
+                    try {
+                        window.initAdminDashboard();
+                        console.log('✅ AdminDashboard 초기화 완료');
+                        return;
+                    } catch (error) {
+                        console.error('❌ AdminDashboard 초기화 중 오류:', error);
+                    }
+                }
+
+                if (attempt < maxAttempts) {
+                    console.log(`🔄 admin.js 로드 재시도 중... (${attempt}/${maxAttempts})`);
+                    setTimeout(() => {
+                        initAdminWithRetry(attempt + 1, maxAttempts);
+                    }, 500 * attempt); // 점진적 지연
+                } else {
+                    console.error('❌ admin.js 로드 최종 실패');
+                    console.log('🔍 현재 window 객체의 admin 관련 속성들:',
+                        Object.keys(window).filter(key => 
+                            key.toLowerCase().includes('admin') || 
+                            key.includes('Admin')
+                        ));
+
+                    // 수동 스크립트 로드 시도
+                    this.loadAdminScriptManually();
+                }
+            };
+
+            // 즉시 시도하고, 실패하면 재시도
+            setTimeout(() => initAdminWithRetry(), 100);
+        }
     }
 
     // 텍스트 읽기 (TTS)

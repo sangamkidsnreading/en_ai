@@ -2570,13 +2570,25 @@ window.adminDashboard = null;
 window.initAdminDashboard = function() {
     console.log('🔧 AdminDashboard 초기화 함수 호출됨');
 
-    // 기존 인스턴스가 있다면 제거
-    if (window.adminDashboard) {
-        window.adminDashboard = null;
+    try {
+        // 기존 인스턴스가 있다면 제거
+        if (window.adminDashboard) {
+            console.log('🔄 기존 AdminDashboard 인스턴스 제거');
+            window.adminDashboard = null;
+        }
+
+        // 새 인스턴스 생성
+        console.log('🔧 새 AdminDashboard 인스턴스 생성');
+        window.adminDashboard = new AdminDashboard();
+        
+        console.log('✅ AdminDashboard 초기화 성공');
+        return window.adminDashboard;
+    } catch (error) {
+        console.error('❌ AdminDashboard 초기화 중 오류:', error);
+        throw error;
     }
-
-    // 새 인스턴스 생성
-    window.adminDashboard = new AdminDashboard();
-
-    return window.adminDashboard;
 };
+
+// 스크립트 로드 완료 시 전역 함수 등록 확인
+console.log('📝 admin.js 스크립트 로드 완료');
+console.log('✅ initAdminDashboard 함수 등록됨:', typeof window.initAdminDashboard === 'function');
