@@ -2164,6 +2164,24 @@ class EnhancedIntegratedLearningManager {
         this.showMessage(message);
     }
 
+    // 메시지 표시 (토스트 대신 간단한 알림)
+    showMessage(message) {
+        console.log('📢', message);
+        
+        // 간단한 상태 표시
+        const headerSubtitle = document.querySelector('.header-left p');
+        if (headerSubtitle) {
+            const originalText = headerSubtitle.textContent;
+            headerSubtitle.textContent = message;
+            headerSubtitle.style.color = '#34e5c2';
+            
+            setTimeout(() => {
+                headerSubtitle.textContent = originalText;
+                headerSubtitle.style.color = '';
+            }, 3000);
+        }
+    }
+
     // 정리 메서드
     cleanup() {
         try {
