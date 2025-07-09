@@ -325,7 +325,15 @@ public class AdminService {
 
             // S3에 파일 업로드
             String s3Key = s3Service.uploadFile(file, "words");
-            String s3Url = s3Service.getS3Url(s3Key);
+            
+            // S3 URL 생성 (직접 URL 구성)
+            String s3Url = String.format("https://%s.s3.ap-northeast-2.amazonaws.com/%s", 
+                    "kidsnreading-sounds", s3Key);
+
+            // 파일이 실제로 업로드되었는지 확인
+            if (!s3Service.fileExists(s3Key)) {
+                throw new RuntimeException("S3 파일 업로드 검증 실패");
+            }
 
             // 데이터베이스 업데이트
             Word word = wordRepository.findById(wordId)

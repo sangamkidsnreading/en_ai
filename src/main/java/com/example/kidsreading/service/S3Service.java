@@ -44,9 +44,16 @@ public class S3Service {
         String year = String.valueOf(today.getYear());
         String monthDay = String.format("%02d-%02d", today.getMonthValue(), today.getDayOfMonth());
 
-        // Create folder structure: vocabulary/YYYY/MM-DD/words or vocabulary/YYYY/MM-DD/sentences
+        // Create folder structure: vocabulary/YYYY/MM-DD/words or sentences
         String folderType = "words".equals(type) ? "words" : "sentences";
-        return String.format("vocabulary/%s/%s/%s/%s", year, monthDay, folderType, fileName);
+
+        // 파일명이 확장자를 포함하지 않는 경우 .mp3 추가
+        String finalFileName = fileName;
+        if (!fileName.contains(".")) {
+            finalFileName = fileName + ".mp3";
+        }
+
+        return String.format("vocabulary/%s/%s/%s/%s", year, monthDay, folderType, finalFileName);
     }
 
     public String uploadFile(MultipartFile file, String type) throws IOException {
@@ -85,21 +92,23 @@ public class S3Service {
         return key;
     }
 
-    public String getS3Url(String key) {
-        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, "ap-northeast-2", key);
-    }
-
-    public boolean fileExists(String key) {
+    public boolean fileExists(String s3Key) {
         try {
             HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
                     .bucket(bucket)
-                    .key(key)
+                    .key(s3Key)
                     .build();
             s3Client.headObject(headObjectRequest);
             return true;
         } catch (Exception e) {
+            log.debug("S3 파일이 존재하지 않음: key={}", s3Key);
             return false;
         }
+    }
+
+    public String getS3Url(String s3Key) {
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, 
+                s3Client.serviceClientConfiguration().region().id(), s3Key);
     }
 
     public void deleteFile(String key) {
