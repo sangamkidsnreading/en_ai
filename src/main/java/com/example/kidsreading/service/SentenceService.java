@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.SentenceDto;
@@ -141,7 +140,7 @@ public class SentenceService {
 
                 if (text != null && !text.trim().isEmpty() && 
                     difficultyLevel != null && dayNumber != null) {
-                    
+
                     Sentence sentence = Sentence.builder()
                             .text(text.trim())
                             .translation(translation != null ? translation.trim() : "")
@@ -172,7 +171,7 @@ public class SentenceService {
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
-        
+
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue();
@@ -187,7 +186,7 @@ public class SentenceService {
 
     private Integer getCellValueAsInteger(Cell cell) {
         if (cell == null) return null;
-        
+
         switch (cell.getCellType()) {
             case NUMERIC:
                 return (int) cell.getNumericCellValue();

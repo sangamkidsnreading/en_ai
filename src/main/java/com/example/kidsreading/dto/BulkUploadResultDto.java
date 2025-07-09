@@ -15,3 +15,17 @@ public class BulkUploadResultDto {
     private List<String> errors;
     private String message;
 }
+package com.example.kidsreading.dto;
+
+import lombok.*;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BulkUploadResultDto {
+    private Integer totalCount;
+    private Integer successCount;
+    private Integer errorCount;
+}
