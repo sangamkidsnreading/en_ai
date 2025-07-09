@@ -46,11 +46,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     List<Word> findByLevelAndIsActiveTrueOrderByDayAsc(Integer level);
 
-    @Query("SELECT DISTINCT w.level FROM Word w WHERE w.isActive = true ORDER BY w.level")
-    List<Integer> findDistinctLevelsByIsActiveTrueOrderByLevel();
-
-    @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
-    List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(@Param("level") Integer level);
+    
 
     int countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
 }

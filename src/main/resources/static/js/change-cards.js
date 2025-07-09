@@ -74,7 +74,7 @@ class CardChangeManager {
         }
     }
 
-    async initializeLevelOptions() {
+    initializeLevelOptions() {
         // 정적으로 1-10 레벨이 이미 HTML에 설정되어 있으므로 
         // 현재 레벨만 선택된 상태로 설정
         const levelSelect = document.getElementById('level-select');

@@ -333,7 +333,7 @@ class EnhancedIntegratedLearningManager {
             const handleCardClick = (e) => {
                 // 이미 처리된 이벤트는 무시
                 if (e.defaultPrevented) return;
-                
+
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -430,7 +430,7 @@ class EnhancedIntegratedLearningManager {
             const coinResult = type === 'word' ? 
                 await this.addWordCoins() : 
                 await this.addSentenceCoins();
-            
+
                 if (coinResult) {
                     this.coins = coinResult;
                     this.updateCoinDisplay();
@@ -905,25 +905,25 @@ class EnhancedIntegratedLearningManager {
     // 학습 중지 메서드
     stopLearning() {
         this.isPlaying = false;
-        
+
         // 현재 재생 중인 오디오 중지
         if (this.currentPlayback) {
             this.currentPlayback.pause();
             this.currentPlayback = null;
         }
-        
+
         // 음성 합성 중지
         if ('speechSynthesis' in window) {
             speechSynthesis.cancel();
         }
-        
+
         // 모든 카드 스타일 초기화
         const allCards = document.querySelectorAll('.word-card, .sentence-card');
         allCards.forEach(card => {
             card.style.background = '';
             card.style.borderColor = '';
         });
-        
+
         this.showMessage('학습이 중지되었습니다! ⏹️');
     }
 
@@ -1112,23 +1112,23 @@ class EnhancedIntegratedLearningManager {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
             utterance.rate = 0.8;
-                
+
                 utterance.onend = () => {
                     resolve();
                 };
-                
+
                 utterance.onerror = () => {
                     resolve();
                 };
-                
+
                 utterance.onpause = () => {
                     resolve();
                 };
-                
+
                 utterance.oncancel = () => {
                     resolve();
                 };
-                
+
             speechSynthesis.speak(utterance);
             } else {
                 resolve();
@@ -1154,104 +1154,40 @@ class EnhancedIntegratedLearningManager {
         try {
             // 재생 중지
             this.stopLearning();
-            
+
             // 이벤트 리스너 플래그 초기화
             this.eventListenersAdded = false;
             this.isInitialized = false;
-            
+
             // MutationObserver 정리
             if (this.observer) {
                 this.observer.disconnect();
             }
-            
+
             console.log('🧹 향상된 통합 학습 관리자 정리 완료');
         } catch (error) {
             console.error('❌ 정리 중 오류:', error);
         }
     }
 
+    // sidebar 연동 필터 이벤트 추가 (정적 옵션 사용)
     setupSidebarFilters() {
-        this.loadLevelAndDayOptions();
-        
         const levelSelect = document.getElementById('level-select');
         const daySelect = document.getElementById('day-select');
+
         if (levelSelect) {
-            levelSelect.addEventListener('change', (e) => {
-                this.currentLevel = Number(e.target.value);
-                this.loadLearningData();
-                this.updateHeader();
-                // 레벨이 변경되면 해당 레벨의 데이 옵션도 업데이트
-                this.loadDayOptions(this.currentLevel);
-            });
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            levelSelect.removeEventListener('change', this.handleLevelChange);
+            levelSelect.addEventListener('change', this.handleLevelChange.bind(this));
         }
+
         if (daySelect) {
-            daySelect.addEventListener('change', (e) => {
-                this.currentDay = Number(e.target.value);
-                this.loadLearningData();
-                this.updateHeader();
-            });
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            daySelect.removeEventListener('change', this.handleDayChange);
+            daySelect.addEventListener('change', this.handleDayChange.bind(this));
         }
-    }
 
-    async loadLevelAndDayOptions() {
-        try {
-            // 레벨 옵션 로드
-            await this.loadLevelOptions();
-            // 현재 레벨의 데이 옵션 로드
-            await this.loadDayOptions(this.currentLevel);
-        } catch (error) {
-            console.error('레벨/데이 옵션 로드 실패:', error);
-        }
-    }
-
-    async loadLevelOptions() {
-        try {
-            const response = await fetch('/api/sidebar/levels');
-            if (!response.ok) throw new Error('레벨 데이터 로드 실패');
-            const levels = await response.json();
-            
-            const levelSelect = document.getElementById('level-select');
-            if (levelSelect) {
-                levelSelect.innerHTML = '';
-                levels.forEach(level => {
-                    const option = document.createElement('option');
-                    option.value = level;
-                    option.textContent = `Level ${level}`;
-                    if (level === this.currentLevel) {
-                        option.selected = true;
-                    }
-                    levelSelect.appendChild(option);
-                });
-                console.log('✅ 레벨 옵션 로드 완료:', levels);
-            }
-        } catch (error) {
-            console.error('레벨 옵션 로드 실패:', error);
-        }
-    }
-
-    async loadDayOptions(level) {
-        try {
-            const response = await fetch(`/api/sidebar/days?level=${level}`);
-            if (!response.ok) throw new Error('데이 데이터 로드 실패');
-            const days = await response.json();
-            
-            const daySelect = document.getElementById('day-select');
-            if (daySelect) {
-                daySelect.innerHTML = '';
-                days.forEach(day => {
-                    const option = document.createElement('option');
-                    option.value = day;
-                    option.textContent = `Day ${day}`;
-                    if (day === this.currentDay) {
-                        option.selected = true;
-                    }
-                    daySelect.appendChild(option);
-                });
-                console.log('✅ 데이 옵션 로드 완료 (Level ' + level + '):', days);
-            }
-        } catch (error) {
-            console.error('데이 옵션 로드 실패:', error);
-        }
+        console.log('🔗 사이드바 필터 이벤트 설정 완료 (정적 옵션 사용)');
     }
 
     updateHeader() {
