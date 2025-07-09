@@ -1,0 +1,110 @@
+NFO] 
+[INFO] ----------------------< com.example:kidsreading >-----------------------
+[INFO] Building kidsreading 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.3:run (default-cli) > test-compile @ kidsreading >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ kidsreading ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 121 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ kidsreading ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 64 source files with javac [debug parameters release 17] to target/classes
+[INFO] /home/runner/workspace/src/main/java/com/example/kidsreading/config/SecurityConfig.java: /home/runner/workspace/src/main/java/com/example/kidsreading/config/SecurityConfig.java uses or overrides a deprecated API.
+[INFO] /home/runner/workspace/src/main/java/com/example/kidsreading/config/SecurityConfig.java: Recompile with -Xlint:deprecation for details.
+[INFO] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java: /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java uses unchecked or unsafe operations.
+[INFO] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java: Recompile with -Xlint:unchecked for details.
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceLearningSession.java:[37,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceLearningSession.java:[40,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceLearningSession.java:[43,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceLearningSession.java:[46,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/SentenceLearningSession.java:[49,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/UserSentenceProgress.java:[29,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/UserSentenceProgress.java:[36,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[INFO] 7 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/config/AdminInitializer.java:[117,39] cannot find symbol
+  symbol:   variable USER
+  location: class com.example.kidsreading.entity.User.Role
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/CustomUserDetailsService.java:[31,35] cannot find symbol
+  symbol:   method findByUsernameOrEmail(java.lang.String,java.lang.String)
+  location: variable userRepository of type com.example.kidsreading.repository.UserRepository
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[227,41] cannot find symbol
+  symbol:   method getEnglish()
+  location: variable sentenceDto of type com.example.kidsreading.dto.SentenceDto
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[246,48] cannot find symbol
+  symbol:   method getEnglish()
+  location: variable sentenceDto of type com.example.kidsreading.dto.SentenceDto
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[385,30] cannot find symbol
+  symbol:   method deleteFile(java.lang.String)
+  location: variable s3Service of type com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[410,30] cannot find symbol
+  symbol:   method deleteFile(java.lang.String)
+  location: variable s3Service of type com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[653,13] cannot find symbol
+  symbol:   method english(java.lang.String)
+  location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/SentenceService.java:[162,17] cannot find symbol
+  symbol:   method english(java.lang.String)
+  location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[107,17] cannot find symbol
+  symbol:   method english(java.lang.String)
+  location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/SidebarController.java:[137,29] cannot find symbol
+  symbol:   method getEnglish()
+  location: variable sentence of type com.example.kidsreading.dto.SentenceDto
+[INFO] 10 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.527 s
+[INFO] Finished at: 2025-07-09T03:53:04Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project kidsreading: Compilation failure: Compilation failure: 
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/config/AdminInitializer.java:[117,39] cannot find symbol
+[ERROR]   symbol:   variable USER
+[ERROR]   location: class com.example.kidsreading.entity.User.Role
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/CustomUserDetailsService.java:[31,35] cannot find symbol
+[ERROR]   symbol:   method findByUsernameOrEmail(java.lang.String,java.lang.String)
+[ERROR]   location: variable userRepository of type com.example.kidsreading.repository.UserRepository
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[227,41] cannot find symbol
+[ERROR]   symbol:   method getEnglish()
+[ERROR]   location: variable sentenceDto of type com.example.kidsreading.dto.SentenceDto
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[246,48] cannot find symbol
+[ERROR]   symbol:   method getEnglish()
+[ERROR]   location: variable sentenceDto of type com.example.kidsreading.dto.SentenceDto
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[385,30] cannot find symbol
+[ERROR]   symbol:   method deleteFile(java.lang.String)
+[ERROR]   location: variable s3Service of type com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[410,30] cannot find symbol
+[ERROR]   symbol:   method deleteFile(java.lang.String)
+[ERROR]   location: variable s3Service of type com.example.kidsreading.service.S3Service
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/AdminService.java:[653,13] cannot find symbol
+[ERROR]   symbol:   method english(java.lang.String)
+[ERROR]   location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/service/SentenceService.java:[162,17] cannot find symbol
+[ERROR]   symbol:   method english(java.lang.String)
+[ERROR]   location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[107,17] cannot find symbol
+[ERROR]   symbol:   method english(java.lang.String)
+[ERROR]   location: class com.example.kidsreading.dto.SentenceDto.SentenceDtoBuilder
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/SidebarController.java:[137,29] cannot find symbol
+[ERROR]   symbol:   method getEnglish()
+[ERROR]   location: variable sentence of type com.example.kidsreading.dto.SentenceDto
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
