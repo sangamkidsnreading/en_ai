@@ -20,9 +20,5 @@ args = "./mvnw spring-boot:run"
 localPort = 8080
 externalPort = 80
 
-[[ports]]
-localPort = 35729
-externalPort = 3000
-
 [deployment]
 run = ["sh", "-c", "mvn spring-boot:run"]
