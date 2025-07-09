@@ -883,7 +883,7 @@ class AdminDashboard {
             return;
         }
         wordList.innerHTML = words.map(function(word) {
-            const audioIcon = word.audioUrl ? '🔊' : '🔇';
+            const audioIcon = word.audioUrl ? '' : '🔇';
             const audioClass = word.audioUrl ? 'word-audio' : 'word-audio-missing';
             return '<div class="word-item" data-word-id="' + word.id + '" data-word-day="' + (word.day || 1) + '">' +
                 '<input type="checkbox" class="word-checkbox" data-word-id="' + word.id + '">' +
@@ -1287,7 +1287,7 @@ class AdminDashboard {
 
         sentenceList.innerHTML = uniqueSentences.map(function(sentence) {
             const koreanText = sentence.translation || sentence.korean || '';
-            const audioIcon = sentence.audioUrl ? '🔊' : '🔇';
+            const audioIcon = sentence.audioUrl ? '' : '🔇';
             const audioClass = sentence.audioUrl ? 'sentence-audio' : 'sentence-audio-missing';
 
             return '<div class="sentence-item" data-sentence-id="' + sentence.id + '">' +

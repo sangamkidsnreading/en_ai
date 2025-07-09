@@ -353,6 +353,7 @@ body {
     transition: color 0.2s;
 }
 
+/*
 .word-favorite:hover {
     color: #ff4d4f;
 }
@@ -377,7 +378,7 @@ body {
 .word-sound:hover {
     background-color: #ff7875;
     transform: scale(1.1);
-}
+}*/
 
 /* 문장 그리드 */
 .sentences-grid {
@@ -422,6 +423,7 @@ body {
     margin-top: 4px;
 }
 
+/*
 .sentence-sound {
     position: absolute;
     bottom: 8px;
@@ -442,7 +444,7 @@ body {
 .sentence-sound:hover {
     background-color: #ff7875;
     transform: scale(1.1);
-}
+}*/
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {

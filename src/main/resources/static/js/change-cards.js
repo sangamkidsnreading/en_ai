@@ -209,7 +209,7 @@ class CardChangeManager {
                 <div class="word-favorite">♡</div>
                 <div class="word-english">${word.text || 'Word'}</div>
                 <div class="word-korean">${word.meaning || '의미'}</div>
-                <div class="word-sound">🔊</div>
+                
             `;
 
             wordsGrid.appendChild(wordCard);
@@ -252,7 +252,6 @@ class CardChangeManager {
                     <div class="sentence-text">${englishText}</div>
                     ${koreanText ? `<div class="sentence-korean">${koreanText}</div>` : ''}
                 </div>
-                <div class="sentence-sound">🔊</div>
             `;
 
             sentencesGrid.appendChild(sentenceCard);
