@@ -55,11 +55,6 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("")
-    public String homeWithoutSlash(Authentication authentication) {
-        return home(authentication);
-    }
-
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         return "student/kiriboca/index";
