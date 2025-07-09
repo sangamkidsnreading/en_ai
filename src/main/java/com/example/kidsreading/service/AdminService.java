@@ -224,7 +224,7 @@ public class AdminService {
     public SentenceDto createSentence(SentenceDto sentenceDto) {
         try {
             Sentence sentence = Sentence.builder()
-                .englishText(sentenceDto.getEnglish())
+                .englishText(sentenceDto.getText())
                 .koreanTranslation(sentenceDto.getKorean())
                 .difficultyLevel(sentenceDto.getLevel())
                 .dayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : 1)
@@ -243,7 +243,7 @@ public class AdminService {
     public SentenceDto updateSentence(Long sentenceId, SentenceDto sentenceDto) {
         try {
             Sentence sentence = (Sentence)this.sentenceRepository.findById(sentenceId).orElseThrow(() -> new RuntimeException("문장을 찾을 수 없습니다."));
-            sentence.setEnglishText(sentenceDto.getEnglish());
+            sentence.setEnglishText(sentenceDto.getText());
             sentence.setKoreanTranslation(sentenceDto.getKorean());
             sentence.setDifficultyLevel(sentenceDto.getLevel());
             sentence.setDayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : sentence.getDayNumber());
@@ -650,7 +650,7 @@ public class AdminService {
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
             .id(sentence.getId())
-            .english(sentence.getEnglishText())
+            .text(sentence.getEnglishText())
             .korean(sentence.getKoreanTranslation())
             .level(sentence.getDifficultyLevel())
             .dayNumber(sentence.getDayNumber())

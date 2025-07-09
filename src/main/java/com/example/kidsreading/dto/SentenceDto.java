@@ -23,6 +23,7 @@ public class SentenceDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String korean;
+    private String english;
     private String meaning;
     private String phonetic;
     private String sentenceText;

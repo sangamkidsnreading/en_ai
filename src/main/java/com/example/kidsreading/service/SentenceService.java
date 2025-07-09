@@ -1,4 +1,3 @@
-// ========== SentenceService.java ==========
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.SentenceDto;

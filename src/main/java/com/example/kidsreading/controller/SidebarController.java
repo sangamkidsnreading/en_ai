@@ -134,7 +134,7 @@ public class SidebarController {
             List<SentenceDto> allSentences = sentenceService.getSentencesByLevelAndDay(level, day);
             List<SentenceDto> filteredSentences = allSentences.stream()
                 .filter(sentence -> 
-                    sentence.getEnglish().toLowerCase().contains(query.toLowerCase()) ||
+                    sentence.getText().toLowerCase().contains(query.toLowerCase()) ||
                     (sentence.getKorean() != null && sentence.getKorean().toLowerCase().contains(query.toLowerCase())))
                 .toList();
 

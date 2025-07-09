@@ -104,7 +104,7 @@ public class MainContentController {
         for (int i = 0; i < sentenceData.length; i++) {
             SentenceDto sentence = SentenceDto.builder()
                 .id((long) (i + 1))
-                .english(sentenceData[i])
+                .text(sentenceData[i])
                 .meaning(sentenceData[i] + " (한국어 의미)")
                 .level(level)
                 .day(day)
@@ -209,3 +209,4 @@ public class MainContentController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 }
+```This change involves modifying the `createSampleSentences` method in `MainContentController` to use `.text()` instead of `.english()` when building `SentenceDto` objects.

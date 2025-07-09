@@ -268,6 +268,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "ORDER BY YEAR(u.createdAt), MONTH(u.createdAt)")
     List<Object[]> getMonthlyRegistrationStats(@Param("since") LocalDateTime since);
 
+    /**
+     * 사용자명 또는 이메일로 사용자 조회
+     */
+    Optional<User> findByUsernameOrEmail(String username, String email);
+
     // ========== 사용자 관리용 ==========
 
     /**

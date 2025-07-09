@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.service;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +10,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,8 @@ public class S3Service {
     private final S3Client s3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    private static final Logger log = LoggerFactory.getLogger(S3Service.class);
 
     public S3Service(
         @Value("${cloud.aws.credentials.access-key}") String accessKey,
@@ -95,6 +98,20 @@ public class S3Service {
             s3Client.headObject(headObjectRequest);
             return true;
         } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void deleteFile(String key) {
+        s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
+    }
+
+    public boolean deleteFile(String key) {
+        try {
+            s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
+            return true;
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: " + key, e);
             return false;
         }
     }
