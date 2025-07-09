@@ -1,3 +1,7 @@
+Adding userId-based learning progress retrieval methods to SentenceService.
+```
+
+```java
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.SentenceDto;
@@ -69,15 +73,23 @@ public class SentenceService {
     }
 
     /**
-     * 완료된 문장 수 조회
+     * 완료된 문장 수 조회 (특정 레벨/Day) - Long 타입 userId
      */
     public int getCompletedSentencesCount(Long userId, Integer level, Integer day) {
-        return userSentenceProgressRepository
-                .countByUserIdAndSentence_DifficultyLevelAndSentence_DayNumberAndIsCompletedTrue(
-                        userId,
-                        level,
-                        day
-                );
+        return (int) userSentenceProgressRepository.countByUserIdAndSentence_DifficultyLevelAndSentence_DayNumberAndIsCompletedTrue(
+                userId,
+                level,
+                day
+        );
+    }
+
+    /**
+     * 완료된 문장 수 조회 (특정 레벨/Day) - String 타입 userId
+     */
+    public int getCompletedSentencesCountByUserId(String userId, Integer level, Integer day) {
+        return (int) userSentenceProgressRepository.countByUserIdAndSentence_DifficultyLevelAndSentence_DayNumberAndIsCompletedTrue(
+                Long.parseLong(userId), level, day
+        );
     }
 
     /**
@@ -169,3 +181,4 @@ public class SentenceService {
                 .build();
     }
 }
+```Adding userId-based learning progress retrieval methods to SentenceService.

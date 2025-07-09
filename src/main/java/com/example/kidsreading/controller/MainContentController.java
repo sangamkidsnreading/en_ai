@@ -176,15 +176,16 @@ public class MainContentController {
             @RequestParam(defaultValue = "1") Integer level,
             @RequestParam(defaultValue = "1") Integer day) {
 
-        Long userId = 1L; // 임시 사용자 ID
+        // 현재 사용자 ID 가져오기 (실제로는 인증에서 가져와야 함)
+        String currentUserId = coinService.getCurrentUserId();
+        
+        int completedWords = wordService.getCompletedWordsCountByUserId(currentUserId, level, day);
+        int totalWords = wordService.getTotalWordsCount(level, day);
 
-        int completedWords = wordService.getCompletedWordsCount(userId, level, day);
-        int totalWords = Math.max(wordService.getTotalWordsCount(level, day), 10); // 최소 10개
+        int completedSentences = sentenceService.getCompletedSentencesCountByUserId(currentUserId, level, day);
+        int totalSentences = sentenceService.getTotalSentencesCount(level, day);
 
-        int completedSentences = sentenceService.getCompletedSentencesCount(userId, level, day);
-        int totalSentences = Math.max(sentenceService.getTotalSentencesCount(level, day), 5); // 최소 5개
-
-        int coinsEarned = wordService.getCoinsEarned(userId, level, day);
+        int coinsEarned = wordService.getCoinsEarnedByUserId(currentUserId, level, day);
 
         return ResponseEntity.ok(Map.of(
                 "completedWords", completedWords,
@@ -192,6 +193,38 @@ public class MainContentController {
                 "completedSentences", completedSentences,
                 "totalSentences", totalSentences,
                 "coinsEarned", coinsEarned
+        ));
+    }
+
+    /**
+     * 실시간 학습 진행도 조회 API
+     */
+    @GetMapping("/api/progress/realtime")
+    public ResponseEntity<Map<String, Object>> getRealtimeProgress(
+            @RequestParam(defaultValue = "1") Integer level,
+            @RequestParam(defaultValue = "1") Integer day) {
+
+        String currentUserId = coinService.getCurrentUserId();
+        
+        int completedWords = wordService.getCompletedWordsCountByUserId(currentUserId, level, day);
+        int totalWords = wordService.getTotalWordsCount(level, day);
+
+        int completedSentences = sentenceService.getCompletedSentencesCountByUserId(currentUserId, level, day);
+        int totalSentences = sentenceService.getTotalSentencesCount(level, day);
+
+        // 진행률 계산
+        double wordProgress = totalWords > 0 ? (double) completedWords / totalWords * 100 : 0;
+        double sentenceProgress = totalSentences > 0 ? (double) completedSentences / totalSentences * 100 : 0;
+
+        return ResponseEntity.ok(Map.of(
+                "completedWords", completedWords,
+                "totalWords", totalWords,
+                "completedSentences", completedSentences,
+                "totalSentences", totalSentences,
+                "wordProgress", Math.round(wordProgress * 10) / 10.0,
+                "sentenceProgress", Math.round(sentenceProgress * 10) / 10.0,
+                "wordProgressText", completedWords + "/" + totalWords,
+                "sentenceProgressText", completedSentences + "/" + totalSentences
         ));
     }
 
