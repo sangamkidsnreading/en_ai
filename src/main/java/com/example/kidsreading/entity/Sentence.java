@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -37,9 +36,25 @@ public class Sentence {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // 호환성을 위한 메서드들
+    public String getEnglish() {
+        return this.englishText;
+    }
+
+    public void setEnglish(String english) {
+        this.englishText = english;
+    }
+
+    public String getKorean() {
+        return this.koreanTranslation;
+    }
+
+    public void setKorean(String korean) {
+        this.koreanTranslation = korean;
+    }
 
     // 호환성을 위한 별칭 메서드들
     public String getText() {
@@ -63,7 +78,7 @@ public class Sentence {
     }
 
     public void setTranslation(String translation) {
-        this.korean = translation;
+        this.korean = meaning;
     }
 
     public Integer getDay() {

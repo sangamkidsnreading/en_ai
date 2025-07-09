@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -39,25 +38,32 @@ public class Word {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 호환성을 위한 별칭 메서드들
-    public String getEnglish() {
+    // 호환성을 위한 메서드들
+    public String getText() {
         return this.text;
     }
 
-    public void setEnglish(String english) {
-        this.text = english;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public String getKorean() {
+    public String getMeaning() {
         return this.meaning;
     }
 
-    public void setKorean(String korean) {
-        this.meaning = korean;
+    public void setMeaning(String meaning) {
+        this.meaning = meaning;
+    }
+
+    public Integer getDay() {
+        return this.day;
+    }
+
+    public void setDay(Integer day) {
+        this.day = day;
     }
 
     @PrePersist
