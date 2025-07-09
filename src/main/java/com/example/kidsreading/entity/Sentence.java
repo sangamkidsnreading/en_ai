@@ -1,4 +1,3 @@
-// ========== Sentence.java (기존 엔티티 업데이트) ==========
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -54,9 +53,6 @@ public class Sentence {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Column(name = "audio_url")
-    private String audioUrl;
 
     @OneToMany(mappedBy = "sentence", cascade = CascadeType.ALL)
     private List<UserSentenceProgress> userProgresses;

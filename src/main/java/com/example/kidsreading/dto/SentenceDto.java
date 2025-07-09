@@ -22,11 +22,8 @@ public class SentenceDto {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String english;
     private String korean;
     private String meaning;
-    private String english;
-    private String korean;
     private String phonetic;
     private String sentenceText;
     private String sentenceTranslation;

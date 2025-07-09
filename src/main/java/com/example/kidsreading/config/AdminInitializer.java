@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,8 +34,7 @@ public class AdminInitializer implements CommandLineRunner {
             log.info("현재 데이터베이스의 사용자 수: {}", currentUserCount);
 
             // 테스트 데이터 생성
-            createDefaultAdmin();
-            createTestUser();
+            initializeAdminAndTestUser();
 
             // 최종 사용자 수 확인
             long finalUserCount = userRepository.count();
@@ -54,73 +54,81 @@ public class AdminInitializer implements CommandLineRunner {
         log.info("=== AdminInitializer 완료 ===");
     }
 
-    private void createDefaultAdmin() {
+    private void initializeAdminAndTestUser() {
+        System.out.println("=== 초기 관리자 계정 설정 시작 ===");
+
         String adminEmail = "admin@kidsreading.com";
 
         try {
-            if (userRepository.findByEmail(adminEmail).isEmpty()) {
-                log.info("관리자 계정 생성 시작: {}", adminEmail);
+            System.out.println("기존 관리자 계정 확인 중...");
 
-                User admin = User.builder()
-                        .username(adminEmail)
-                        .email(adminEmail)
-                        .password(passwordEncoder.encode("admin123!"))
-                        .name("관리자")
-                        .parentName("관리자")
-                        .phoneNumber("010-0000-0000")
-                        .groupName("admin")
-                        .role(User.Role.ADMIN)
-                        .isActive(true)
-                        .emailVerified(true)
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .build();
-
-                User savedAdmin = userRepository.save(admin);
-                userRepository.flush(); // 즉시 DB에 반영
-
-                log.info("✅ 관리자 계정이 생성되었습니다: {} (ID: {})", savedAdmin.getEmail(), savedAdmin.getId());
-            } else {
-                log.info("⚠️ 관리자 계정이 이미 존재합니다: {}", adminEmail);
+            Optional<User> existingAdmin = userRepository.findByEmail(adminEmail);
+            if (existingAdmin.isPresent()) {
+                User user = existingAdmin.get();
+                System.out.println("기존 관리자 발견: ID=" + user.getId() + ", Email=" + user.getEmail());
+                return;
             }
+
+            System.out.println("기존 관리자가 없습니다. 새로 생성합니다.");
         } catch (Exception e) {
-            log.error("❌ 관리자 계정 생성 실패: {}", adminEmail, e);
-            throw e;
+            System.err.println("기존 사용자 확인 중 오류: " + adminEmail);
+            e.printStackTrace();
         }
-    }
 
-    private void createTestUser() {
-        String testEmail = "happymega13579@gmail.com";
-
+        // 강제로 관리자 생성
         try {
-            if (userRepository.findByEmail(testEmail).isEmpty()) {
-                log.info("테스트 계정 생성 시작: {}", testEmail);
+            System.out.println("관리자 계정 생성 시작: " + adminEmail);
 
-                User testUser = User.builder()
-                        .username(testEmail)
-                        .email(testEmail)
-                        .password(passwordEncoder.encode("test123!"))
-                        .name("테스트 사용자")
-                        .parentName("테스트 부모")
-                        .phoneNumber("010-1234-5678")
-                        .groupName("group1")
-                        .role(User.Role.PARENT)
-                        .isActive(true)
-                        .emailVerified(true)
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .build();
+            User admin = new User();
+            admin.setUsername(adminEmail);
+            admin.setEmail(adminEmail);
+            admin.setPassword(passwordEncoder.encode("admin123!"));
+            admin.setName("관리자");
+            admin.setParentName("관리자");
+            admin.setPhoneNumber("010-0000-0000");
+            admin.setGroupName("admin");
+            admin.setRole(User.Role.ADMIN);
+            admin.setIsActive(true);
+            admin.setEmailVerified(true);
+            admin.setCreatedAt(LocalDateTime.now());
+            admin.setUpdatedAt(LocalDateTime.now());
 
-                User savedUser = userRepository.save(testUser);
-                userRepository.flush(); // 즉시 DB에 반영
+            User savedAdmin = userRepository.save(admin);
+            userRepository.flush(); // 즉시 DB에 반영
 
-                log.info("✅ 테스트 계정이 생성되었습니다: {} (ID: {})", savedUser.getEmail(), savedUser.getId());
-            } else {
-                log.info("⚠️ 테스트 계정이 이미 존재합니다: {}", testEmail);
-            }
+            System.out.println("✅ 관리자 계정이 생성되었습니다: " + savedAdmin.getEmail() + " (ID: " + savedAdmin.getId() + ")");
         } catch (Exception e) {
-            log.error("❌ 테스트 계정 생성 실패: {}", testEmail, e);
-            throw e;
+            System.err.println("❌ 관리자 계정 생성 실패: " + adminEmail);
+            e.printStackTrace();
         }
+
+        // 테스트 사용자도 생성
+        try {
+            System.out.println("테스트 사용자 생성 시작");
+
+            User testUser = new User();
+            testUser.setUsername("test@kidsreading.com");
+            testUser.setEmail("test@kidsreading.com");
+            testUser.setPassword(passwordEncoder.encode("test123!"));
+            testUser.setName("테스트 사용자");
+            testUser.setParentName("테스트 부모");
+            testUser.setPhoneNumber("010-1234-5678");
+            testUser.setGroupName("test");
+            testUser.setRole(User.Role.USER);
+            testUser.setIsActive(true);
+            testUser.setEmailVerified(true);
+            testUser.setCreatedAt(LocalDateTime.now());
+            testUser.setUpdatedAt(LocalDateTime.now());
+
+            User savedUser = userRepository.save(testUser);
+            userRepository.flush();
+
+            System.out.println("✅ 테스트 사용자가 생성되었습니다: " + savedUser.getEmail() + " (ID: " + savedUser.getId() + ")");
+        } catch (Exception e) {
+            System.err.println("❌ 테스트 사용자 생성 실패");
+            e.printStackTrace();
+        }
+
+        System.out.println("=== 초기 계정 설정 완료 ===");
     }
 }
