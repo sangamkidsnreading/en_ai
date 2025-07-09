@@ -403,7 +403,7 @@ public class AdminService {
 
             // 데이터베이스 업데이트
             Sentence sentence = sentenceRepository.findById(sentenceId)
-                .orElseThrow(() -> new RuntimeException("문장을 찾을 수 없습니다."));
+                .orElseThrow(() => new RuntimeException("문장을 찾을 수 없습니다."));
             sentence.setAudioUrl(s3Url);
             sentenceRepository.save(sentence);
 
@@ -733,4 +733,205 @@ public class AdminService {
 
             try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
                                 ZipEntry entry;
-                    while ((
+                    while ((entry = zipInputStream.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        String fileName = entry.getName();
+                        try {
+                            // 파일 이름에서 sentenceId 추출
+                            Long sentenceId = extractSentenceIdFromFileName(fileName);
+                            if (sentenceId == null) {
+                                errorFiles.add(fileName + ": 파일명에서 sentenceId를 추출할 수 없습니다.");
+                                errorCount++;
+                                continue;
+                            }
+
+                            // 임시 파일로 저장
+                            File tempFile = File.createTempFile("audio_", "_" + fileName);
+                            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                                byte[] buffer = new byte[4096];
+                                int len;
+                                while ((len = zipInputStream.read(buffer)) > 0) {
+                                    fos.write(buffer, 0, len);
+                                }
+                            }
+
+                            // S3 업로드
+                            String s3Key = s3Service.uploadFileWithOriginalName(tempFile, "sentences", fileName);
+                            String s3Url = s3Service.getS3Url(s3Key);
+
+                            // DB audioUrl 업데이트
+                            Sentence sentence = sentenceRepository.findById(sentenceId)
+                                    .orElseThrow(() -> new RuntimeException("sentenceId " + sentenceId + "에 해당하는 문장을 찾을 수 없습니다."));
+                            sentence.setAudioUrl(s3Url);
+                            sentenceRepository.save(sentence);
+
+                            successFiles.add(fileName);
+                            successCount++;
+                            tempFile.delete();
+
+                        } catch (Exception e) {
+                            errorFiles.add(fileName + ": " + e.getMessage());
+                            errorCount++;
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("문장 오디오 일괄 업로드 실패", e);
+            errorFiles.add("ZIP 파일 처리 실패: " + e.getMessage());
+            errorCount++;
+        }
+
+        result.put("successCount", successCount);
+        result.put("errorCount", errorCount);
+        result.put("successFiles", successFiles);
+        result.put("errorFiles", errorFiles);
+        return result;
+    }
+
+    // 헬퍼 메서드들
+    private String getCellString(Cell cell) {
+        if (cell == null) return null;
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                return String.valueOf((int) cell.getNumericCellValue());
+            default:
+                return null;
+        }
+    }
+
+    private String extractS3KeyFromUrl(String s3Url) {
+        if (s3Url == null || !s3Url.contains("amazonaws.com")) {
+            return null;
+        }
+        String[] parts = s3Url.split("amazonaws.com/");
+        return parts.length > 1 ? parts[1] : null;
+    }
+
+    private UserDto convertToUserDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().toString())
+                .isActive(user.getIsActive())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    private WordDto convertToWordDto(Word word) {
+        return WordDto.builder()
+                .id(word.getId())
+                .text(word.getText())
+                .meaning(word.getMeaning())
+                .level(word.getLevel())
+                .day(word.getDay())
+                .pronunciation(word.getPronunciation())
+                .audioUrl(word.getAudioUrl())
+                .isActive(word.getIsActive())
+                .createdAt(word.getCreatedAt())
+                .updatedAt(word.getUpdatedAt())
+                .build();
+    }
+
+    private SentenceDto convertToSentenceDto(Sentence sentence) {
+        return SentenceDto.builder()
+                .id(sentence.getId())
+                .englishText(sentence.getEnglishText())
+                .koreanTranslation(sentence.getKoreanTranslation())
+                .difficultyLevel(sentence.getDifficultyLevel())
+                .dayNumber(sentence.getDayNumber())
+                .audioUrl(sentence.getAudioUrl())
+                .isActive(sentence.getIsActive())
+                .createdAt(sentence.getCreatedAt())
+                .updatedAt(sentence.getUpdatedAt())
+                .build();
+    }
+
+    private LearningSettingsDto convertToLearningSettingsDto(LearningSettings settings) {
+        return LearningSettingsDto.builder()
+                .id(settings.getId())
+                .audioSpeed(settings.getAudioSpeed())
+                .voiceSpeed(settings.getVoiceSpeed())
+                .repeatCount(settings.getRepeatCount())
+                .wordCoin(settings.getWordCoin())
+                .sentenceCoin(settings.getSentenceCoin())
+                .streakBonus(settings.getStreakBonus())
+                .levelUpCoin(settings.getLevelUpCoin())
+                .maxLevel(settings.getMaxLevel())
+                .dailyWordGoal(settings.getDailyWordGoal())
+                .dailySentenceGoal(settings.getDailySentenceGoal())
+                .createdAt(settings.getCreatedAt())
+                .build();
+    }
+
+    private LearningSettings getDefaultSettings() {
+        return LearningSettings.builder()
+                .audioSpeed(1.0)
+                .voiceSpeed(1.0)
+                .repeatCount(3)
+                .wordCoin(10)
+                .sentenceCoin(20)
+                .streakBonus(50)
+                .levelUpCoin(100)
+                .maxLevel(10)
+                .dailyWordGoal(20)
+                .dailySentenceGoal(10)
+                .build();
+    }
+
+    private LearningSettingsDto getDefaultLearningSettingsDto() {
+        return LearningSettingsDto.builder()
+                .audioSpeed(1.0)
+                .voiceSpeed(1.0)
+                .repeatCount(3)
+                .wordCoin(10)
+                .sentenceCoin(20)
+                .streakBonus(50)
+                .levelUpCoin(100)
+                .maxLevel(10)
+                .dailyWordGoal(20)
+                .dailySentenceGoal(10)
+                .build();
+    }
+
+    // 파일명에서 sentenceId 추출하는 헬퍼 메서드
+    private Long extractSentenceIdFromFileName(String fileName) {
+        try {
+            // 파일명이 "123.mp3" 또는 "123_sentence.mp3" 형태라고 가정
+            String nameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
+            // "_"로 분리 시도
+            String[] parts = nameWithoutExtension.split("_");
+            // 숫자로만 이루어진 마지막 부분을 sentenceId로 사용
+            String idPart = parts[0]; // "_"가 없는 경우를 위해 기본적으로 첫 번째 부분 사용
+            if (parts.length > 1) {
+                 idPart = parts[0];
+            }
+            return Long.parseLong(idPart);
+        } catch (NumberFormatException e) {
+            // 파일 이름이 예상된 형식이 아닐 경우
+            return null;
+        }
+    }
+
+    // 생성자
+    public AdminService(UserRepository userRepository,
+                       WordRepository wordRepository,
+                       SentenceRepository sentenceRepository,
+                       LearningSettingsRepository learningSettingsRepository,
+                       UserWordProgressRepository userWordProgressRepository,
+                       UserSentenceProgressRepository userSentenceProgressRepository,
+                       S3Service s3Service) {
+        this.userRepository = userRepository;
+        this.wordRepository = wordRepository;
+        this.sentenceRepository = sentenceRepository;
+        this.learningSettingsRepository = learningSettingsRepository;
+        this.userWordProgressRepository = userWordProgressRepository;
+        this.userSentenceProgressRepository = userSentenceProgressRepository;
+        this.s3Service = s3Service;
+    }
+}
