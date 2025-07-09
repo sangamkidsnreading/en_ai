@@ -105,14 +105,4 @@ public class S3Service {
     public void deleteFile(String key) {
         s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
     }
-
-    public boolean deleteFile(String key) {
-        try {
-            s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
-            return true;
-        } catch (Exception e) {
-            log.error("S3 파일 삭제 실패: " + key, e);
-            return false;
-        }
-    }
 }
