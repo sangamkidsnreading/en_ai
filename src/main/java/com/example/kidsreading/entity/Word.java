@@ -1,4 +1,3 @@
-// ========== Word.java (기존 엔티티 업데이트) ==========
 package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
@@ -13,9 +12,9 @@ import java.util.List;
 @Table(name = "words")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Word {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

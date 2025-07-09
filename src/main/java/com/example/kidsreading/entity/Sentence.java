@@ -11,9 +11,9 @@ import java.util.List;
 @Table(name = "sentences")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Sentence {
 
     @Id

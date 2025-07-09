@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "learning_settings")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class LearningSettings {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
