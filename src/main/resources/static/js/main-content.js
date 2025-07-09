@@ -445,52 +445,57 @@ class EnhancedIntegratedLearningManager {
         await this.addCoinAfterAudio('word', wordText);
     }
 
-    // 음성 재생 완료 후 코인 추가
+    // 음성 재생 완료 후 코인 추가 (비동기 처리로 속도 향상)
     async addCoinAfterAudio(type, text) {
         console.log('addCoinAfterAudio called', type, text);
-        try {
-            // 코인 추가 API 호출
-            const coinResult = type === 'word' ? 
-                await this.addWordCoins() : 
-                await this.addSentenceCoins();
+        
+        // 코인 API 호출을 비동기로 처리 (음성 재생 속도에 영향 없도록)
+        Promise.resolve().then(async () => {
+            try {
+                // 코인 추가 API 호출
+                const coinResult = type === 'word' ? 
+                    await this.addWordCoins() : 
+                    await this.addSentenceCoins();
 
                 if (coinResult) {
                     this.coins = coinResult;
                     this.updateCoinDisplay();
-                // 실제 증가량 계산
-                let coinAmount = '+1';
-                let coinCount = 1;
-                if (type === 'word') {
-                    if (coinResult.wordCoins !== undefined && coinResult.wordCoins !== null) {
-                        coinAmount = `+${coinResult.wordCoins}`;
-                        coinCount = coinResult.wordCoins;
-                    } else if (coinResult.wordCoin !== undefined && coinResult.wordCoin !== null) {
-                        coinAmount = `+${coinResult.wordCoin}`;
-                        coinCount = coinResult.wordCoin;
+                    
+                    // 실제 증가량 계산
+                    let coinAmount = '+1';
+                    let coinCount = 1;
+                    if (type === 'word') {
+                        if (coinResult.wordCoins !== undefined && coinResult.wordCoins !== null) {
+                            coinAmount = `+${coinResult.wordCoins}`;
+                            coinCount = coinResult.wordCoins;
+                        } else if (coinResult.wordCoin !== undefined && coinResult.wordCoin !== null) {
+                            coinAmount = `+${coinResult.wordCoin}`;
+                            coinCount = coinResult.wordCoin;
+                        }
+                    } else if (type === 'sentence') {
+                        if (coinResult.sentenceCoins !== undefined && coinResult.sentenceCoins !== null) {
+                            coinAmount = `+${coinResult.sentenceCoins}`;
+                            coinCount = coinResult.sentenceCoins;
+                        } else if (coinResult.sentenceCoin !== undefined && coinResult.sentenceCoin !== null) {
+                            coinAmount = `+${coinResult.sentenceCoin}`;
+                            coinCount = coinResult.sentenceCoin;
+                        } else {
+                            coinAmount = '+3';
+                            coinCount = 3;
+                        }
                     }
-                } else if (type === 'sentence') {
-                    if (coinResult.sentenceCoins !== undefined && coinResult.sentenceCoins !== null) {
-                        coinAmount = `+${coinResult.sentenceCoins}`;
-                        coinCount = coinResult.sentenceCoins;
-                    } else if (coinResult.sentenceCoin !== undefined && coinResult.sentenceCoin !== null) {
-                        coinAmount = `+${coinResult.sentenceCoin}`;
-                        coinCount = coinResult.sentenceCoin;
-                    } else {
-                        coinAmount = '+3';
-                        coinCount = 3;
-                    }
+                    this.showCoinAnimation(coinAmount);
+                    console.log(`🪙 ${type} 코인 획득:`, coinResult);
+                    // 성공 메시지
+                    this.showMessage(`"${text}" 학습 완료! 코인 ${coinCount}개 획득! 🪙`);
                 }
-                this.showCoinAnimation(coinAmount);
-                console.log(`🪙 ${type} 코인 획득:`, coinResult);
-                // 성공 메시지
-                this.showMessage(`"${text}" 학습 완료! 코인 ${coinCount}개 획득! 🪙`);
-                }
+                
+                // 통계 새로고침도 비동기로 처리
+                this.refreshStats();
             } catch (error) {
                 console.error('❌ 코인 추가 실패:', error);
-        }
-
-        // 통계 새로고침
-        await this.refreshStats();
+            }
+        });
     }
 
     // 문장 클릭 처리 - 코인 시스템 통합

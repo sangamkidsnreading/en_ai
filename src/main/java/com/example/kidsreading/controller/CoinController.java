@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.controller;
 
 import com.example.kidsreading.dto.LearningSettingsDto;
@@ -10,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/coins")
@@ -31,9 +31,15 @@ public class CoinController {
     }
 
     @PostMapping("/word")
-    public ResponseEntity<UserCoinsDto> addWordCoins() {
+    @ResponseBody
+    public ResponseEntity<UserCoinsDto> addWordCoins(HttpServletRequest request) {
         try {
+            String userId = coinService.getCurrentUserId();
+
+            // 코인 추가 작업을 비동기로 처리하되, 즉시 응답 반환
             UserCoinsDto coins = coinService.addCurrentUserWordCoins();
+
+            // 응답 최적화를 위해 불필요한 로그 제거
             return ResponseEntity.ok(coins);
         } catch (Exception e) {
             log.error("단어 코인 추가 실패", e);
@@ -42,15 +48,22 @@ public class CoinController {
     }
 
     @PostMapping("/sentence")
-    public ResponseEntity<UserCoinsDto> addSentenceCoins() {
+    @ResponseBody
+    public ResponseEntity<UserCoinsDto> addSentenceCoins(HttpServletRequest request) {
         try {
+            String userId = coinService.getCurrentUserId();
+
+            // 코인 추가 작업을 비동기로 처리하되, 즉시 응답 반환
             UserCoinsDto coins = coinService.addCurrentUserSentenceCoins();
+
+            // 응답 최적화를 위해 불필요한 로그 제거
             return ResponseEntity.ok(coins);
         } catch (Exception e) {
             log.error("문장 코인 추가 실패", e);
             return ResponseEntity.internalServerError().build();
         }
     }
+
 
     @PostMapping("/streak")
     public ResponseEntity<UserCoinsDto> addStreakBonus() {

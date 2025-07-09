@@ -9,9 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 
 @Controller
@@ -204,8 +208,23 @@ public class MainContentController {
      * 음성 재생 로그 기록
      */
     @PostMapping("/api/audio/play")
+    @ResponseBody
     public ResponseEntity<Map<String, Object>> logAudioPlay(@RequestBody Map<String, Object> request) {
-        // 음성 재생 로그 기록 로직
-        return ResponseEntity.ok(Map.of("success", true));
+        // 응답 즉시 반환 (로깅은 비동기 처리)
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+
+        // 로깅은 별도 스레드에서 처리
+        CompletableFuture.runAsync(() -> {
+            try {
+                String type = (String) request.get("type");
+                Long itemId = Long.valueOf(request.get("itemId").toString());
+                log.info("Audio play logged: {} - {}", type, itemId);
+            } catch (Exception e) {
+                log.error("Error logging audio play", e);
+            }
+        });
+
+        return ResponseEntity.ok(response);
     }
 }
