@@ -1,0 +1,3058 @@
+    where
+        id=?
+2025-07-09 04:30:23 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:23 - Writing [com.example.kidsreading.dto.UserCoinsDto@19ebfad2]
+2025-07-09 04:30:23 - Completed 200 OK
+2025-07-09 04:30:24 - Securing GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:30:24 - Secured GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:30:24 - GET "/learning/api/stats/today?level=1&day=1", parameters={masked}
+2025-07-09 04:30:24 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:30:24 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:24 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:25 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:30:25 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:30:25 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:26 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:26 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=6}]
+2025-07-09 04:30:26 - Completed 200 OK
+2025-07-09 04:30:26 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:43 - Securing GET /learning/api/sentences?level=8&day=1
+2025-07-09 04:30:43 - Securing GET /learning/api/stats/today?level=8&day=1
+2025-07-09 04:30:43 - Secured GET /learning/api/sentences?level=8&day=1
+2025-07-09 04:30:43 - Secured GET /learning/api/stats/today?level=8&day=1
+2025-07-09 04:30:43 - GET "/learning/api/sentences?level=8&day=1", parameters={masked}
+2025-07-09 04:30:43 - GET "/learning/api/stats/today?level=8&day=1", parameters={masked}
+2025-07-09 04:30:43 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:30:43 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:30:43 - Securing GET /learning/api/words?level=8&day=1
+2025-07-09 04:30:43 - Secured GET /learning/api/words?level=8&day=1
+2025-07-09 04:30:43 - GET "/learning/api/words?level=8&day=1", parameters={masked}
+2025-07-09 04:30:43 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:30:43 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:43 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:30:43 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:43 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:43 - Writing [[]]
+2025-07-09 04:30:43 - Completed 200 OK
+2025-07-09 04:30:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:43 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:43 - Level 8 Day 1 단어 조회 완료: 0개
+2025-07-09 04:30:44 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:44 - Writing [[]]
+2025-07-09 04:30:44 - Completed 200 OK
+2025-07-09 04:30:44 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:44 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:30:44 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:30:45 - Securing GET /learning/api/words?level=8&day=4
+2025-07-09 04:30:45 - Secured GET /learning/api/words?level=8&day=4
+2025-07-09 04:30:45 - GET "/learning/api/words?level=8&day=4", parameters={masked}
+2025-07-09 04:30:45 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:30:45 - Securing GET /learning/api/sentences?level=8&day=4
+2025-07-09 04:30:45 - Secured GET /learning/api/sentences?level=8&day=4
+2025-07-09 04:30:45 - GET "/learning/api/sentences?level=8&day=4", parameters={masked}
+2025-07-09 04:30:45 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:30:45 - Securing GET /learning/api/stats/today?level=8&day=4
+2025-07-09 04:30:45 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:30:45 - Secured GET /learning/api/stats/today?level=8&day=4
+2025-07-09 04:30:45 - GET "/learning/api/stats/today?level=8&day=4", parameters={masked}
+2025-07-09 04:30:45 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:30:45 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:45 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:45 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:45 - Writing [[]]
+2025-07-09 04:30:45 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:45 - Completed 200 OK
+2025-07-09 04:30:45 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:45 - Level 8 Day 4 단어 조회 완료: 0개
+2025-07-09 04:30:45 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:45 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:45 - Writing [[]]
+2025-07-09 04:30:45 - Completed 200 OK
+2025-07-09 04:30:45 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:45 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:45 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:30:45 - Completed 200 OK
+2025-07-09 04:30:45 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:45 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:30:46 - Securing GET /api/coins/user
+2025-07-09 04:30:46 - Secured GET /api/coins/user
+2025-07-09 04:30:46 - GET "/api/coins/user", parameters={}
+2025-07-09 04:30:46 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:30:46 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:46 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:30:46 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:30:46 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:46 - Writing [com.example.kidsreading.dto.UserCoinsDto@41bd53e3]
+2025-07-09 04:30:46 - Completed 200 OK
+2025-07-09 04:30:46 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:47 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:47 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:30:47 - Completed 200 OK
+2025-07-09 04:30:47 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:47 - Securing GET /api/coins/user
+2025-07-09 04:30:47 - Secured GET /api/coins/user
+2025-07-09 04:30:47 - GET "/api/coins/user", parameters={}
+2025-07-09 04:30:47 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:30:47 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:47 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:30:47 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:47 - Writing [com.example.kidsreading.dto.UserCoinsDto@1f3c5850]
+2025-07-09 04:30:47 - Completed 200 OK
+2025-07-09 04:30:47 - Securing GET /learning/api/words?level=1&day=1
+2025-07-09 04:30:47 - Secured GET /learning/api/words?level=1&day=1
+2025-07-09 04:30:47 - GET "/learning/api/words?level=1&day=1", parameters={masked}
+2025-07-09 04:30:47 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:30:47 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:47 - Securing GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:30:47 - Secured GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:30:47 - GET "/learning/api/stats/today?level=1&day=1", parameters={masked}
+2025-07-09 04:30:47 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:30:47 - Securing GET /learning/api/sentences?level=1&day=1
+2025-07-09 04:30:47 - Secured GET /learning/api/sentences?level=1&day=1
+2025-07-09 04:30:47 - GET "/learning/api/sentences?level=1&day=1", parameters={masked}
+2025-07-09 04:30:47 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:30:48 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:48 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:30:48 - Level 1 Day 1 단어 조회 완료: 10개
+2025-07-09 04:30:48 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:48 - Writing [[WordDto(id=283, text=am, meaning=~이다, pronunciation=null, level=1, day=1, audioUrl=/audio/words/1Da (truncated)...]
+2025-07-09 04:30:48 - Completed 200 OK
+2025-07-09 04:30:48 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:48 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:48 - Writing [[SentenceDto(id=196, text=null, sentence=null, translation=우리는 행복하다, pronunciation=null, level=1, da (truncated)...]
+2025-07-09 04:30:48 - Completed 200 OK
+2025-07-09 04:30:48 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:48 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:49 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:30:49 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:30:49 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:50 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:50 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=6}]
+2025-07-09 04:30:50 - Completed 200 OK
+2025-07-09 04:30:50 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:50 - Securing GET /api/coins/user
+2025-07-09 04:30:50 - Secured GET /api/coins/user
+2025-07-09 04:30:50 - GET "/api/coins/user", parameters={}
+2025-07-09 04:30:50 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:30:50 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:50 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:30:51 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:51 - Writing [com.example.kidsreading.dto.UserCoinsDto@18052be5]
+2025-07-09 04:30:51 - Completed 200 OK
+2025-07-09 04:30:51 - Securing GET /learning/api/words?level=1&day=3
+2025-07-09 04:30:51 - Secured GET /learning/api/words?level=1&day=3
+2025-07-09 04:30:51 - GET "/learning/api/words?level=1&day=3", parameters={masked}
+2025-07-09 04:30:51 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:30:51 - Securing GET /learning/api/sentences?level=1&day=3
+2025-07-09 04:30:51 - Secured GET /learning/api/sentences?level=1&day=3
+2025-07-09 04:30:51 - GET "/learning/api/sentences?level=1&day=3", parameters={masked}
+2025-07-09 04:30:51 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:30:51 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:30:51 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:30:51 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:30:51 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:30:51 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:51 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:30:51 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:51 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:30:51 - Level 1 Day 3 단어 조회 완료: 6개
+2025-07-09 04:30:51 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:51 - Writing [[]]
+2025-07-09 04:30:51 - Completed 200 OK
+2025-07-09 04:30:51 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:51 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:51 - Writing [[WordDto(id=464, text=bag, meaning=가방, pronunciation=null, level=1, day=3, audioUrl=https://kidsnrea (truncated)...]
+2025-07-09 04:30:51 - Completed 200 OK
+2025-07-09 04:30:51 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:51 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:30:52 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:30:52 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:30:53 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:53 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:30:53 - Completed 200 OK
+2025-07-09 04:30:53 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:53 - Securing GET /api/coins/user
+2025-07-09 04:30:53 - Secured GET /api/coins/user
+2025-07-09 04:30:53 - GET "/api/coins/user", parameters={}
+2025-07-09 04:30:53 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:30:53 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:53 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:30:54 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:54 - Writing [com.example.kidsreading.dto.UserCoinsDto@647a9c64]
+2025-07-09 04:30:54 - Completed 200 OK
+2025-07-09 04:30:59 - Securing POST /learning/api/audio/play
+2025-07-09 04:30:59 - Secured POST /learning/api/audio/play
+2025-07-09 04:30:59 - POST "/learning/api/audio/play", parameters={}
+2025-07-09 04:30:59 - Mapped to com.example.kidsreading.controller.MainContentController#logAudioPlay(Map)
+2025-07-09 04:30:59 - Read "application/json;charset=UTF-8" to [{type=word, itemId=464}]
+2025-07-09 04:30:59 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:30:59 - Writing [{success=true}]
+2025-07-09 04:30:59 - Completed 200 OK
+2025-07-09 04:30:59 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:30:59 - Securing POST /api/coins/word
+2025-07-09 04:30:59 - Secured POST /api/coins/word
+2025-07-09 04:30:59 - POST "/api/coins/word", parameters={}
+2025-07-09 04:30:59 - Mapped to com.example.kidsreading.controller.CoinController#addWordCoins()
+2025-07-09 04:31:00 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:00 - 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+2025-07-09 04:31:00 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:31:00 - 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+Hibernate: 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+2025-07-09 04:31:00 - 사용자 admin@kidsreading.com에게 단어 학습 코인 1 추가
+2025-07-09 04:31:00 - 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+Hibernate: 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+2025-07-09 04:31:01 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:01 - Writing [com.example.kidsreading.dto.UserCoinsDto@3a223df9]
+2025-07-09 04:31:01 - Completed 200 OK
+2025-07-09 04:31:01 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:01 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:01 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:31:01 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:31:01 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:01 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:31:02 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:31:02 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:31:03 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:03 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:03 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:31:03 - Completed 200 OK
+2025-07-09 04:31:03 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:04 - Securing POST /api/coins/word
+2025-07-09 04:31:04 - Secured POST /api/coins/word
+2025-07-09 04:31:04 - POST "/api/coins/word", parameters={}
+2025-07-09 04:31:04 - Mapped to com.example.kidsreading.controller.CoinController#addWordCoins()
+2025-07-09 04:31:04 - Securing POST /learning/api/audio/play
+2025-07-09 04:31:04 - Secured POST /learning/api/audio/play
+2025-07-09 04:31:04 - POST "/learning/api/audio/play", parameters={}
+2025-07-09 04:31:04 - Mapped to com.example.kidsreading.controller.MainContentController#logAudioPlay(Map)
+2025-07-09 04:31:04 - Read "application/json;charset=UTF-8" to [{type=word, itemId=466}]
+2025-07-09 04:31:04 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:04 - Writing [{success=true}]
+2025-07-09 04:31:04 - Completed 200 OK
+2025-07-09 04:31:04 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:04 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:04 - 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+2025-07-09 04:31:04 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:31:04 - 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+Hibernate: 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+2025-07-09 04:31:05 - 사용자 admin@kidsreading.com에게 단어 학습 코인 1 추가
+2025-07-09 04:31:05 - 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+Hibernate: 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+2025-07-09 04:31:05 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:05 - Writing [com.example.kidsreading.dto.UserCoinsDto@1789f344]
+2025-07-09 04:31:05 - Completed 200 OK
+2025-07-09 04:31:05 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:05 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:05 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:31:05 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:31:05 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:06 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:31:06 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:31:07 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:31:07 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:07 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:07 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:31:07 - Completed 200 OK
+2025-07-09 04:31:07 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:23 - Securing POST /api/coins/word
+2025-07-09 04:31:23 - Securing POST /learning/api/audio/play
+2025-07-09 04:31:23 - Secured POST /api/coins/word
+2025-07-09 04:31:23 - Secured POST /learning/api/audio/play
+2025-07-09 04:31:23 - POST "/api/coins/word", parameters={}
+2025-07-09 04:31:23 - POST "/learning/api/audio/play", parameters={}
+2025-07-09 04:31:23 - Mapped to com.example.kidsreading.controller.CoinController#addWordCoins()
+2025-07-09 04:31:23 - Mapped to com.example.kidsreading.controller.MainContentController#logAudioPlay(Map)
+2025-07-09 04:31:23 - Read "application/json;charset=UTF-8" to [{type=word, itemId=466}]
+2025-07-09 04:31:23 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:23 - Writing [{success=true}]
+2025-07-09 04:31:23 - Completed 200 OK
+2025-07-09 04:31:23 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:23 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:31:23 - 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+2025-07-09 04:31:23 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:31:24 - 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+Hibernate: 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+2025-07-09 04:31:24 - 사용자 admin@kidsreading.com에게 단어 학습 코인 1 추가
+2025-07-09 04:31:24 - 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+Hibernate: 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+2025-07-09 04:31:24 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:24 - Writing [com.example.kidsreading.dto.UserCoinsDto@592de5b3]
+2025-07-09 04:31:24 - Completed 200 OK
+2025-07-09 04:31:24 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:24 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:31:24 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:31:24 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:31:24 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:25 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:31:25 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:31:26 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:31:26 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:31:27 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:31:27 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:31:27 - Completed 200 OK
+2025-07-09 04:31:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/index
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/index
+2025-07-09 04:33:27 - GET "/student/kiriboca/index", parameters={}
+2025-07-09 04:33:27 - Mapped to com.example.kidsreading.controller.AuthController#kiribocaIndex()
+2025-07-09 04:33:27 - Selected 'text/html' given [text/html, application/xhtml+xml, image/avif, image/webp, image/apng, application/xml;q=0.9, */*;q=0.8, application/signed-exchange;v=b3;q=0.7]
+2025-07-09 04:33:27 - Completed 200 OK
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/css/main.css
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/css/main.css
+2025-07-09 04:33:27 - GET "/student/kiriboca/css/main.css", parameters={}
+2025-07-09 04:33:27 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:27 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/css/sidebar.css
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/css/sidebar.css
+2025-07-09 04:33:27 - GET "/student/kiriboca/css/sidebar.css", parameters={}
+2025-07-09 04:33:27 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:27 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/css/dashboard.css
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/css/dashboard.css
+2025-07-09 04:33:27 - GET "/student/kiriboca/css/dashboard.css", parameters={}
+2025-07-09 04:33:27 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:27 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/css/profile.css
+2025-07-09 04:33:27 - Securing GET /student/kiriboca/css/admin.css
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/css/profile.css
+2025-07-09 04:33:27 - GET "/student/kiriboca/css/profile.css", parameters={}
+2025-07-09 04:33:27 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:27 - Secured GET /student/kiriboca/css/admin.css
+2025-07-09 04:33:27 - GET "/student/kiriboca/css/admin.css", parameters={}
+2025-07-09 04:33:27 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:27 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:27 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:27 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:28 - Securing GET /js/dark-mode.js?v=1.0.2
+2025-07-09 04:33:28 - Securing GET /js/change-cards.js?v=1.0.2
+2025-07-09 04:33:28 - Secured GET /js/change-cards.js?v=1.0.2
+2025-07-09 04:33:28 - Secured GET /js/dark-mode.js?v=1.0.2
+2025-07-09 04:33:28 - GET "/js/change-cards.js?v=1.0.2", parameters={masked}
+2025-07-09 04:33:28 - GET "/js/dark-mode.js?v=1.0.2", parameters={masked}
+2025-07-09 04:33:28 - Mapped to ResourceHttpRequestHandler [classpath [static/js/]]
+2025-07-09 04:33:28 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:28 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:28 - Securing GET /js/main-content.js?v=1.0.2
+2025-07-09 04:33:28 - Mapped to ResourceHttpRequestHandler [classpath [static/js/]]
+2025-07-09 04:33:28 - Secured GET /js/main-content.js?v=1.0.2
+2025-07-09 04:33:28 - GET "/js/main-content.js?v=1.0.2", parameters={masked}
+2025-07-09 04:33:28 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:28 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:28 - Mapped to ResourceHttpRequestHandler [classpath [static/js/]]
+2025-07-09 04:33:28 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:28 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:28 - Securing GET /js/admin.js?v=1.0.2
+2025-07-09 04:33:28 - Secured GET /js/admin.js?v=1.0.2
+2025-07-09 04:33:28 - GET "/js/admin.js?v=1.0.2", parameters={masked}
+2025-07-09 04:33:28 - Mapped to ResourceHttpRequestHandler [classpath [static/js/]]
+2025-07-09 04:33:28 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:28 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:28 - Securing GET /api/sidebar/levels
+2025-07-09 04:33:28 - Secured GET /api/sidebar/levels
+2025-07-09 04:33:28 - GET "/api/sidebar/levels", parameters={}
+2025-07-09 04:33:28 - Mapped to com.example.kidsreading.controller.SidebarController#getAvailableLevels()
+2025-07-09 04:33:28 - 
+    select
+        distinct w1_0.level 
+    from
+        words w1_0 
+    where
+        w1_0.is_active=true 
+    order by
+        w1_0.level
+Hibernate: 
+    select
+        distinct w1_0.level 
+    from
+        words w1_0 
+    where
+        w1_0.is_active=true 
+    order by
+        w1_0.level
+2025-07-09 04:33:29 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:29 - Writing [[1, 2, 5]]
+2025-07-09 04:33:29 - Completed 200 OK
+2025-07-09 04:33:29 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:29 - Securing GET /learning/api/words?level=1&day=1
+2025-07-09 04:33:29 - Securing GET /learning/api/sentences?level=1&day=1
+2025-07-09 04:33:29 - Secured GET /learning/api/words?level=1&day=1
+2025-07-09 04:33:29 - GET "/learning/api/words?level=1&day=1", parameters={masked}
+2025-07-09 04:33:29 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:33:29 - Secured GET /learning/api/sentences?level=1&day=1
+2025-07-09 04:33:29 - GET "/learning/api/sentences?level=1&day=1", parameters={masked}
+2025-07-09 04:33:29 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:33:29 - Securing GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:33:29 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:33:29 - Secured GET /learning/api/stats/today?level=1&day=1
+2025-07-09 04:33:29 - GET "/learning/api/stats/today?level=1&day=1", parameters={masked}
+2025-07-09 04:33:29 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:33:29 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:33:29 - Level 1 Day 1 단어 조회 완료: 10개
+2025-07-09 04:33:30 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:30 - Writing [[WordDto(id=283, text=am, meaning=~이다, pronunciation=null, level=1, day=1, audioUrl=/audio/words/1Da (truncated)...]
+2025-07-09 04:33:30 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:30 - Completed 200 OK
+2025-07-09 04:33:30 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:30 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:30 - Writing [[SentenceDto(id=196, text=null, sentence=null, translation=우리는 행복하다, pronunciation=null, level=1, da (truncated)...]
+2025-07-09 04:33:30 - Completed 200 OK
+2025-07-09 04:33:30 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:30 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:33:30 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:33:31 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:33:31 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:32 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:32 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=6}]
+2025-07-09 04:33:32 - Completed 200 OK
+2025-07-09 04:33:32 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:32 - Securing GET /api/coins/user
+2025-07-09 04:33:32 - Secured GET /api/coins/user
+2025-07-09 04:33:32 - GET "/api/coins/user", parameters={}
+2025-07-09 04:33:32 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:33:32 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:32 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:33:32 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:32 - Writing [com.example.kidsreading.dto.UserCoinsDto@4c04e042]
+2025-07-09 04:33:32 - Completed 200 OK
+2025-07-09 04:33:40 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:33:40 - Securing GET /learning/api/sentences?level=1&day=3
+2025-07-09 04:33:40 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:33:40 - Secured GET /learning/api/sentences?level=1&day=3
+2025-07-09 04:33:40 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:33:40 - GET "/learning/api/sentences?level=1&day=3", parameters={masked}
+2025-07-09 04:33:40 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:33:40 - Mapped to com.example.kidsreading.controller.MainContentController#getSentences(Integer, Integer)
+2025-07-09 04:33:40 - Securing GET /learning/api/words?level=1&day=3
+2025-07-09 04:33:40 - Secured GET /learning/api/words?level=1&day=3
+2025-07-09 04:33:40 - GET "/learning/api/words?level=1&day=3", parameters={masked}
+2025-07-09 04:33:40 - Mapped to com.example.kidsreading.controller.MainContentController#getWords(Integer, Integer)
+2025-07-09 04:33:40 - 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.audio_url,
+        s1_0.category_id,
+        s1_0.created_at,
+        s1_0.day_number,
+        s1_0.difficulty_level,
+        s1_0.english_text,
+        s1_0.is_active,
+        s1_0.korean_translation,
+        s1_0.phonetic,
+        s1_0.pronunciation,
+        s1_0.updated_at 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active
+2025-07-09 04:33:40 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:41 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:41 - Writing [[]]
+2025-07-09 04:33:41 - Completed 200 OK
+2025-07-09 04:33:41 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:41 - 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        w1_0.id,
+        w1_0.audio_url,
+        w1_0.created_at,
+        w1_0.day,
+        w1_0.day_number,
+        w1_0.is_active,
+        w1_0.level,
+        w1_0.meaning,
+        w1_0.pronunciation,
+        w1_0.text,
+        w1_0.updated_at 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:33:41 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:33:41 - Level 1 Day 3 단어 조회 완료: 6개
+2025-07-09 04:33:41 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:41 - Writing [[WordDto(id=464, text=bag, meaning=가방, pronunciation=null, level=1, day=3, audioUrl=https://kidsnrea (truncated)...]
+2025-07-09 04:33:41 - Completed 200 OK
+2025-07-09 04:33:41 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:41 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:33:42 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:33:42 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:43 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:43 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:33:43 - Completed 200 OK
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - Securing GET /api/coins/user
+2025-07-09 04:33:43 - Secured GET /api/coins/user
+2025-07-09 04:33:43 - GET "/api/coins/user", parameters={}
+2025-07-09 04:33:43 - Mapped to com.example.kidsreading.controller.CoinController#getCurrentUserCoins()
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:33:43 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:43 - Writing [com.example.kidsreading.dto.UserCoinsDto@33956b0d]
+2025-07-09 04:33:43 - Completed 200 OK
+2025-07-09 04:33:43 - Securing GET /student/kiriboca/css/main.css
+2025-07-09 04:33:43 - Securing GET /student/kiriboca/css/dashboard.css
+2025-07-09 04:33:43 - Secured GET /student/kiriboca/css/dashboard.css
+2025-07-09 04:33:43 - Secured GET /student/kiriboca/css/main.css
+2025-07-09 04:33:43 - GET "/student/kiriboca/css/dashboard.css", parameters={}
+2025-07-09 04:33:43 - GET "/student/kiriboca/css/main.css", parameters={}
+2025-07-09 04:33:43 - Securing GET /student/kiriboca/css/admin.css
+2025-07-09 04:33:43 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:43 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:43 - Secured GET /student/kiriboca/css/admin.css
+2025-07-09 04:33:43 - GET "/student/kiriboca/css/admin.css", parameters={}
+2025-07-09 04:33:43 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:43 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:43 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - Securing GET /student/kiriboca/css/sidebar.css
+2025-07-09 04:33:43 - Securing GET /student/kiriboca/css/profile.css
+2025-07-09 04:33:43 - Secured GET /student/kiriboca/css/sidebar.css
+2025-07-09 04:33:43 - GET "/student/kiriboca/css/sidebar.css", parameters={}
+2025-07-09 04:33:43 - Secured GET /student/kiriboca/css/profile.css
+2025-07-09 04:33:43 - GET "/student/kiriboca/css/profile.css", parameters={}
+2025-07-09 04:33:43 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:43 - Mapped to ResourceHttpRequestHandler [classpath [static/student/kiriboca/css/]]
+2025-07-09 04:33:43 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:43 - Completed 304 NOT_MODIFIED
+2025-07-09 04:33:43 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:47 - Securing GET /favicon.ico
+2025-07-09 04:33:47 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:47 - Secured GET /favicon.ico
+2025-07-09 04:33:47 - GET "/favicon.ico", parameters={}
+2025-07-09 04:33:47 - Mapped to ResourceHttpRequestHandler [classpath [static/], classpath [public/], URL [file:uploads/], ServletContext [/]]
+2025-07-09 04:33:47 - Resource not found
+2025-07-09 04:33:47 - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico.]
+2025-07-09 04:33:47 - Completed 404 NOT_FOUND
+2025-07-09 04:33:47 - Securing GET /error
+2025-07-09 04:33:47 - Secured GET /error
+2025-07-09 04:33:47 - "ERROR" dispatch for GET "/error", parameters={}
+2025-07-09 04:33:47 - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2025-07-09 04:33:47 - Using 'application/json;q=0.8', given [image/avif, image/webp, image/apng, image/svg+xml, image/*, */*;q=0.8] and supported [application/json, application/*+json]
+2025-07-09 04:33:47 - Writing [{timestamp=Wed Jul 09 04:33:47 GMT 2025, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
+2025-07-09 04:33:47 - Exiting from "ERROR" dispatch, status 404
+2025-07-09 04:33:47 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:51 - Securing POST /api/coins/word
+2025-07-09 04:33:51 - Secured POST /api/coins/word
+2025-07-09 04:33:51 - POST "/api/coins/word", parameters={}
+2025-07-09 04:33:51 - Mapped to com.example.kidsreading.controller.CoinController#addWordCoins()
+2025-07-09 04:33:51 - Securing POST /learning/api/audio/play
+2025-07-09 04:33:51 - Secured POST /learning/api/audio/play
+2025-07-09 04:33:51 - POST "/learning/api/audio/play", parameters={}
+2025-07-09 04:33:51 - Mapped to com.example.kidsreading.controller.MainContentController#logAudioPlay(Map)
+2025-07-09 04:33:51 - Read "application/json;charset=UTF-8" to [{type=word, itemId=466}]
+2025-07-09 04:33:51 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:51 - Writing [{success=true}]
+2025-07-09 04:33:51 - Completed 200 OK
+2025-07-09 04:33:51 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:51 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
+2025-07-09 04:33:51 - 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ls1_0.id,
+        ls1_0.audio_speed,
+        ls1_0.auto_play,
+        ls1_0.created_at,
+        ls1_0.daily_goal,
+        ls1_0.daily_sentence_goal,
+        ls1_0.daily_word_goal,
+        ls1_0.dark_mode,
+        ls1_0.difficulty_level,
+        ls1_0.enable_audio,
+        ls1_0.enable_feedback,
+        ls1_0.level_up_coin,
+        ls1_0.max_level,
+        ls1_0.max_sentences_per_day,
+        ls1_0.max_words_per_day,
+        ls1_0.repeat_count,
+        ls1_0.sentence_coin,
+        ls1_0.sentence_coins,
+        ls1_0.sound_effects,
+        ls1_0.streak_bonus,
+        ls1_0.updated_at,
+        ls1_0.voice_enabled,
+        ls1_0.voice_language,
+        ls1_0.voice_speed,
+        ls1_0.word_coin,
+        ls1_0.word_coins 
+    from
+        learning_settings ls1_0 
+    order by
+        ls1_0.created_at desc 
+    fetch
+        first ? rows only
+2025-07-09 04:33:51 - 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+Hibernate: 
+    select
+        uc1_0.id,
+        uc1_0.coins_earned,
+        uc1_0.created_at,
+        uc1_0.daily_coins,
+        uc1_0.date,
+        uc1_0.last_updated,
+        uc1_0.sentence_coins,
+        uc1_0.streak_bonus,
+        uc1_0.total_coins,
+        uc1_0.total_daily_coins,
+        uc1_0.user_id,
+        uc1_0.words_coins 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=? 
+        and uc1_0.date=?
+2025-07-09 04:33:51 - 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+Hibernate: 
+    select
+        sum(uc1_0.total_coins) 
+    from
+        user_coins uc1_0 
+    where
+        uc1_0.user_id=?
+2025-07-09 04:33:52 - 사용자 admin@kidsreading.com에게 단어 학습 코인 1 추가
+2025-07-09 04:33:52 - 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+Hibernate: 
+    update
+        user_coins 
+    set
+        coins_earned=?,
+        created_at=?,
+        daily_coins=?,
+        date=?,
+        last_updated=?,
+        sentence_coins=?,
+        streak_bonus=?,
+        total_coins=?,
+        total_daily_coins=?,
+        user_id=?,
+        words_coins=? 
+    where
+        id=?
+2025-07-09 04:33:52 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:52 - Writing [com.example.kidsreading.dto.UserCoinsDto@420f035d]
+2025-07-09 04:33:52 - Completed 200 OK
+2025-07-09 04:33:52 - Securing GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:33:52 - Secured GET /learning/api/stats/today?level=1&day=3
+2025-07-09 04:33:52 - GET "/learning/api/stats/today?level=1&day=3", parameters={masked}
+2025-07-09 04:33:52 - Mapped to com.example.kidsreading.controller.MainContentController#getTodayStats(Integer, Integer)
+2025-07-09 04:33:52 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:53 - 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+Hibernate: 
+    select
+        count(w1_0.id) 
+    from
+        words w1_0 
+    where
+        w1_0.level=? 
+        and w1_0.day=? 
+        and w1_0.is_active
+2025-07-09 04:33:53 - 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+Hibernate: 
+    select
+        count(usp1_0.id) 
+    from
+        user_sentence_progress usp1_0 
+    left join
+        sentences s1_0 
+            on s1_0.id=usp1_0.sentence_id 
+    where
+        usp1_0.user_id=? 
+        and s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and usp1_0.is_completed
+2025-07-09 04:33:53 - 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sentences s1_0 
+    where
+        s1_0.difficulty_level=? 
+        and s1_0.day_number=? 
+        and s1_0.is_active=?
+2025-07-09 04:33:54 - 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+Hibernate: 
+    select
+        count(uwp1_0.id) 
+    from
+        user_word_progress uwp1_0 
+    join
+        words w1_0 
+            on uwp1_0.word_id=w1_0.id 
+    where
+        uwp1_0.user_id=? 
+        and w1_0.level=? 
+        and w1_0.day=? 
+        and uwp1_0.is_completed=true 
+        and w1_0.is_active=true
+2025-07-09 04:33:54 - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-07-09 04:33:54 - Writing [{totalWords=10, completedSentences=0, completedWords=0, coinsEarned=0, totalSentences=5}]
+2025-07-09 04:33:54 - Completed 200 OK
+2025-07-09 04:33:54 - Retrieved SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=CustomUserDetailsService.CustomUserPrincipal(user=com.example.kidsreading.entity.User@35a4a43e), Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=106.248.71.139, SessionId=null], Granted Authorities=[ROLE_ADMIN]]]
