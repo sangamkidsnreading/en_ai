@@ -69,8 +69,66 @@ public class WordService {
     /**
      * 사용자의 단어 학습 진행상황 조회
      */
-    public List<UserWordProgress> getUserWordProgress(String userId, Integer level, Integer day) {
-        return userWordProgressRepository.findByUserIdAndLevelAndDay(userId, level, day);
+    public List<UserWordProgress> getUserWordProgress(Long userId, Integer level, Integer day) {
+        return userWordProgressRepository.findByUserIdAndLevel(userId, level);
+    }
+
+    /**
+     * 단어 학습 진행상황 업데이트
+     */
+    @Transactional
+    public void updateWordProgress(Long userId, Long wordId, Boolean isCompleted) {
+        UserWordProgress progress = userWordProgressRepository
+                .findByUserIdAndWordId(userId, wordId)
+                .orElse(UserWordProgress.builder()
+                        .userId(userId)
+                        .wordId(wordId)
+                        .isCompleted(false)
+                        .build());
+
+        progress.setIsCompleted(isCompleted);
+        userWordProgressRepository.save(progress);
+    }
+
+    /**
+     * 완료된 단어 수 조회
+     */
+    public int getCompletedWordsCount(Long userId, Integer level, Integer day) {
+        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
+    }
+
+    /**
+     * 전체 단어 수 조회
+     */
+    public int getTotalWordsCount(Integer level, Integer day) {
+        return wordRepository.countByLevelAndDayAndIsActiveTrue(level, day);
+    }
+
+    /**
+     * 획득한 코인 수 계산
+     */
+    public int getCoinsEarned(Long userId, Integer level, Integer day) {
+        int completedWords = getCompletedWordsCount(userId, level, day);
+        return completedWords * 10; // 단어 하나당 10코인
+    }
+
+    /**
+     * 단어 즐겨찾기 토글
+     */
+    @Transactional
+    public boolean toggleWordFavorite(Long userId, Long wordId) {
+        UserWordProgress progress = userWordProgressRepository
+                .findByUserIdAndWordId(userId, wordId)
+                .orElse(UserWordProgress.builder()
+                        .userId(userId)
+                        .wordId(wordId)
+                        .isFavorite(false)
+                        .build());
+
+        progress.setIsFavorite(!progress.getIsFavorite());
+        userWordProgressRepository.save(progress);
+
+        return progress.getIsFavorite();
     }
 
     /**
