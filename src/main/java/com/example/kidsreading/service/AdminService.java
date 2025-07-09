@@ -749,7 +749,7 @@ public class AdminService {
                         Sentence sentence = sentenceOpt.get();
 
                         // S3에 업로드
-                        S3에 업로드 로직 추가 및 bulkUploadSentenceAudio 수정.```java
+                        S3에 업로드 로직 추가 및```java
                         String s3Key = s3Service.uploadFileWithOriginalName(new ByteArrayInputStream(audioData), "sentences", fileName);
                         String s3Url = s3Service.getS3Url(s3Key);
 
@@ -809,12 +809,21 @@ public class AdminService {
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
                 .id(sentence.getId())
-                .english(sentence.getEnglishText())
-                .korean(sentence.getKoreanTranslation())
-                .level(sentence.getDifficultyLevel())
+                .englishText(sentence.getEnglishText())
+                .koreanTranslation(sentence.getKoreanTranslation())
+                .difficultyLevel(sentence.getDifficultyLevel())
                 .dayNumber(sentence.getDayNumber())
                 .audioUrl(sentence.getAudioUrl())
                 .isActive(sentence.getIsActive())
+                .createdAt(sentence.getCreatedAt())
+                .updatedAt(sentence.getUpdatedAt())
+                // 호환성을 위한 필드들
+                .english(sentence.getEnglishText())
+                .korean(sentence.getKoreanTranslation())
+                .level(sentence.getDifficultyLevel())
+                .text(sentence.getEnglishText())
+                .meaning(sentence.getKoreanTranslation())
+                .translation(sentence.getKoreanTranslation())
                 .build();
     }
 
