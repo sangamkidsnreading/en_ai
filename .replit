@@ -5,20 +5,16 @@ modules = ["java-graalvm22.3"]
 channel = "stable-24_05"
 
 [workflows]
+runButton = "Spring Boot App"
 
-[workflows.workflow]
+[[workflows.workflow]]
 name = "Spring Boot App"
-author = "agent"
+author = 44520774
+mode = "sequential"
 
-[workflows.workflow.metadata]
-
-[workflows.workflow.tasks]
-
-[workflows.workflow.tasks.workflow]
-name = "Spring Boot App"
-steps = [
-  "mvn spring-boot:run",
-]
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./mvnw spring-boot:run"
 
 [[ports]]
 localPort = 8080
@@ -26,8 +22,3 @@ externalPort = 80
 
 [deployment]
 run = ["sh", "-c", "mvn spring-boot:run"]
-
-[[workflows.workflow.ports]]
-localPort = 8080
-externalPort = 80
-exposeLocalhost = true
