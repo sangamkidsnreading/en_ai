@@ -745,4 +745,68 @@ public class AdminService {
 
         try {
             // ZIP 파일 검증
-            if (!file.getOriginalFilename().toLowerCase().endsWith
+            if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
+                result.put("successCount", 0);
+                result.put("errorCount", 1);
+                result.put("errorFiles", List.of("ZIP 파일만 업로드 가능합니다."));
+                return result;
+            }
+
+            try (ZipInputStream zis = new ZipInputStream(file.getInputStream())) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        String fileName = entry.getName();
+                        try {
+                            // 임시 파일로 저장
+                            File tempFile = File.createTempFile("audio_", "_" + fileName);
+                            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                                byte[] buffer = new byte[4096];
+                                int len;
+                                while ((len = zis.read(buffer)) > 0) {
+                                    fos.write(buffer, 0, len);
+                                }
+                            }
+
+                            // S3 업로드
+                            String s3Key = s3Service.uploadFileWithOriginalName(tempFile, "sentences", fileName);
+                            String s3Url = s3Service.getS3Url(s3Key);
+
+                            // DB audioUrl 업데이트 (파일명 매칭)
+                            List<Sentence> sentences = sentenceRepository.findByIsActiveTrue();
+                             for (Sentence sentence : sentences) {
+                                if (sentence.getAudioUrl() != null && (sentence.getAudioUrl().endsWith("/" + fileName) || sentence.getAudioUrl().equals(fileName))) {
+                                    sentence.setAudioUrl(s3Url);
+                                    sentenceRepository.save(sentence);
+                                }
+                            }
+
+                            successFiles.add(fileName);
+                            successCount++;
+                            tempFile.delete();
+                        } catch (Exception e) {
+                            errorFiles.add(fileName + ": " + e.getMessage());
+                            errorCount++;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                errorFiles.add("ZIP 해제 실패: " + e.getMessage());
+                errorCount++;
+            }
+
+            result.put("successCount", successCount);
+            result.put("errorCount", errorCount);
+            result.put("successFiles", successFiles);
+            result.put("errorFiles", errorFiles);
+        }
+ catch (Exception e) {
+            log.error("문장 오디오 일괄 업로드 실패", e);
+            result.put("successCount", 0);
+            result.put("errorCount", 1);
+            result.put("errorFiles", List.of("파일 처리 중 오류 발생: " + e.getMessage()));
+        }
+
+return result;
+    }
+}
