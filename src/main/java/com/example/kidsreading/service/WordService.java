@@ -51,6 +51,7 @@ public class WordService {
 
     public List<Integer> getAvailableDaysByLevel(Integer level) {
         return wordRepository.findDistinctDaysByLevelAndIsActiveTrueOrderByDay(level);
+    }ordRepository.findDistinctDaysByLevelAndIsActiveTrueOrderByDay(level);
     }
 
     /**
@@ -130,6 +131,9 @@ public class WordService {
                 .day(word.getDay())
                 .audioUrl(word.getAudioUrl())
                 .isActive(word.getIsActive())
+                .build();
+    }
+}e())
                 .createdAt(word.getCreatedAt())
                 .english(word.getText()) // 호환성을 위한 매핑
                 .korean(word.getMeaning()) // 호환성을 위한 매핑
