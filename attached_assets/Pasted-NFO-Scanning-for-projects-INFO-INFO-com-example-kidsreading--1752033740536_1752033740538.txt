@@ -1,0 +1,137 @@
+NFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.example:kidsreading >-----------------------
+[INFO] Building kidsreading 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.3:run (default-cli) > test-compile @ kidsreading >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ kidsreading ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 121 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ kidsreading ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 64 source files with javac [debug parameters release 17] to target/classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,39] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,61] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,73] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,95] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,104] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,112] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,125] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,136] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,152] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,164] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,1] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,37] '{' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,42] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,48] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,1] enum constant expected here
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,15] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,27] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[8,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[8,14] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,12] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,17] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[11,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[11,31] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[12,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[12,22] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,42] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[105,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[105,28] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[106,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[106,15] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[108,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[108,27] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[109,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[109,31] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[110,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[110,22] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[200,2] reached end of file while parsing
+[INFO] 51 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.482 s
+[INFO] Finished at: 2025-07-09T04:01:17Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project kidsreading: Compilation failure: Compilation failure: 
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,9] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,39] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,61] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,73] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,95] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,104] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,112] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,125] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,136] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,152] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/controller/MainContentController.java:[212,164] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,1] class, interface, enum, or record expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,37] '{' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,42] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[1,48] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[2,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[4,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,1] enum constant expected here
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,15] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[7,27] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[8,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[8,14] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,12] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[10,17] ',', '}', or ';' expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[11,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[11,31] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[12,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[12,22] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,1] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,2] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,3] illegal character: '`'
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[103,42] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[105,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[105,28] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[106,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[106,15] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[108,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[108,27] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[109,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[109,31] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[110,1] illegal start of type
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[110,22] <identifier> expected
+[ERROR] /home/runner/workspace/src/main/java/com/example/kidsreading/entity/User.java:[200,2] reached end of file while parsing
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
