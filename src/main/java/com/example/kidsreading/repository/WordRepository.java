@@ -15,6 +15,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
     List<Word> findByIsActiveTrue();
+    
+    List<Integer> findDistinctLevelsByIsActiveTrueOrderByLevel();
+    List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(Integer level);
 
     List<Word> findByLevelAndIsActiveTrue(Integer level);
 

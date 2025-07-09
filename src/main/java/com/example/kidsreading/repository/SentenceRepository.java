@@ -20,6 +20,10 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     List<Sentence> findByDifficultyLevelAndIsActiveTrue(Integer difficultyLevel);
 
+    List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
+    List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
+    List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
+
     @Query("SELECT s FROM Sentence s WHERE s.isActive = true AND (LOWER(s.englishText) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(s.koreanTranslation) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Sentence> searchByQuery(@Param("query") String query);
 

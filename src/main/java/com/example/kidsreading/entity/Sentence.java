@@ -39,50 +39,58 @@ public class Sentence {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 호환성을 위한 메서드들
+    // 호환성을 위한 getter 메서드들
     public String getEnglish() {
         return this.englishText;
-    }
-
-    public void setEnglish(String english) {
-        this.englishText = english;
     }
 
     public String getKorean() {
         return this.koreanTranslation;
     }
 
-    public void setKorean(String korean) {
-        this.koreanTranslation = korean;
+    public Integer getLevel() {
+        return this.difficultyLevel;
     }
 
-    // 호환성을 위한 별칭 메서드들
     public String getText() {
-        return this.english;
-    }
-
-    public void setText(String text) {
-        this.english = text;
+        return this.englishText;
     }
 
     public String getMeaning() {
-        return this.korean;
-    }
-
-    public void setMeaning(String meaning) {
-        this.korean = meaning;
+        return this.koreanTranslation;
     }
 
     public String getTranslation() {
-        return this.korean;
-    }
-
-    public void setTranslation(String translation) {
-        this.korean = meaning;
+        return this.koreanTranslation;
     }
 
     public Integer getDay() {
         return this.dayNumber;
+    }
+
+    // 호환성을 위한 setter 메서드들
+    public void setEnglish(String english) {
+        this.englishText = english;
+    }
+
+    public void setKorean(String korean) {
+        this.koreanTranslation = korean;
+    }
+
+    public void setLevel(Integer level) {
+        this.difficultyLevel = level;
+    }
+
+    public void setText(String text) {
+        this.englishText = text;
+    }
+
+    public void setMeaning(String meaning) {
+        this.koreanTranslation = meaning;
+    }
+
+    public void setTranslation(String translation) {
+        this.koreanTranslation = translation;
     }
 
     public void setDay(Integer day) {

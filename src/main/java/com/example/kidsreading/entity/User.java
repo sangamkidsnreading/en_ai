@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -38,11 +39,15 @@ public class User {
     private Boolean emailVerified = false;
 
     private LocalDateTime createdAt;
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
     private LocalDateTime lastLogin;
 
     public enum Role {
-        ADMIN, STUDENT, USER
+        ADMIN, STUDENT, PARENT
     }
 
     @PrePersist

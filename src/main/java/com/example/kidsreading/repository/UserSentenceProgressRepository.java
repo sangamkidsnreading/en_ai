@@ -59,4 +59,8 @@ public interface UserSentenceProgressRepository extends JpaRepository<UserSenten
             Integer difficultyLevel,
             Integer dayNumber
     );
+    long countByUserIdAndIsLearned(Long userId, Boolean isLearned);
+
+    Optional<UserSentenceProgress> findByUserIdAndSentenceId(Long userId, Long sentenceId);
+    long countByLastStudiedAtBetween(LocalDateTime start, LocalDateTime end);
 }

@@ -26,4 +26,13 @@ public class SentenceDto {
     private String text;
     private String meaning;
     private String translation;
+    
+    // 빌더 호환성을 위한 메서드
+    public Integer getDay() {
+        return this.dayNumber;
+    }
+    
+    public void setDay(Integer day) {
+        this.dayNumber = day;
+    }
 }
