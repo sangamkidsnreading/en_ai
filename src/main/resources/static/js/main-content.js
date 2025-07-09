@@ -157,10 +157,14 @@ class EnhancedIntegratedLearningManager {
             document.querySelectorAll('.word-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.visibility = 'visible';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+                card.style.height = 'auto';
+                card.style.width = 'auto';
             });
             // 동적 렌더링 후 반드시 이벤트 재설정
             this.setupWordCardEvents();
-        }, 0);
+        }, 100);
         hideLoadingSpinner();
         console.log(`📝 ${this.words.length}개의 단어 카드가 렌더링되었습니다.`);
     }
@@ -215,10 +219,14 @@ class EnhancedIntegratedLearningManager {
             document.querySelectorAll('.sentence-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.visibility = 'visible';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+                card.style.height = 'auto';
+                card.style.width = 'auto';
             });
             // 동적 렌더링 후 반드시 이벤트 재설정
             this.setupSentenceCardEvents();
-        }, 0);
+        }, 100);
         hideLoadingSpinner();
         console.log(`📝 ${this.sentences.length}개의 문장 카드가 동적으로 렌더링되었습니다.`);
     }

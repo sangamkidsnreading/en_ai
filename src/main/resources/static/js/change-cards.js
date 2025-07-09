@@ -123,6 +123,16 @@ class CardChangeManager {
                 window.enhancedIntegratedLearningManager.renderSentencesToHTML();
                 window.enhancedIntegratedLearningManager.updateUI();
 
+                // 카드 가시성 강제 복구
+                setTimeout(() => {
+                    document.querySelectorAll('.word-card, .sentence-card').forEach(card => {
+                        card.style.display = 'block';
+                        card.style.visibility = 'visible';
+                        card.style.opacity = '1';
+                        card.style.transform = 'none';
+                    });
+                }, 200);
+
                 // 이벤트 재설정 (새로운 카드가 로드되었으므로 리셋)
                 window.enhancedIntegratedLearningManager.eventListenersAdded = false;
                 window.enhancedIntegratedLearningManager.setupEvents();
