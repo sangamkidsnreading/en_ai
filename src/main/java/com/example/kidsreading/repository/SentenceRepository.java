@@ -15,14 +15,10 @@ import java.util.List;
 
 @Repository
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
-
+    
     List<Sentence> findByIsActiveTrue();
 
     List<Sentence> findByDifficultyLevelAndIsActiveTrue(Integer difficultyLevel);
-
-    List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
-    List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
-    List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
 
     @Query("SELECT s FROM Sentence s WHERE s.isActive = true AND (LOWER(s.englishText) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(s.koreanTranslation) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Sentence> searchByQuery(@Param("query") String query);
@@ -46,5 +42,13 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
 
     List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
 
-    long countByDifficultyLevelAndDayNumberAndIsActiveTrue(Integer difficultyLevel, Integer dayNumber);
+    List<Sentence> findByIsActiveTrueOrderByDifficultyLevelAscDayNumberAsc();
+
+    List<Sentence> findByDayNumberAndIsActiveTrueOrderByDifficultyLevelAsc(Integer dayNumber);
+
+    List<Sentence> findByDifficultyLevelAndIsActiveTrueOrderByDayNumberAsc(Integer difficultyLevel);
+    
+    List<Sentence> findByCategoryIdAndIsActiveTrue(Long categoryId);
+    
+    List<Sentence> findByCategoryIdAndDifficultyLevelAndIsActiveTrue(Long categoryId, Integer difficultyLevel);
 }

@@ -2,7 +2,11 @@ package com.example.kidsreading.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.List;
+
+
 
 @Entity
 @Table(name = "words")
@@ -17,63 +21,50 @@ public class Word {
     private Long id;
 
     @Column(nullable = false)
-    private String text;
+    private String text;  // 영단어 텍스트
 
     @Column(nullable = false)
-    private String meaning;
+    private String meaning;  // 단어의 의미
 
-    private String pronunciation;
-
-    @Column(nullable = false)
-    private Integer level;
+    private String pronunciation;  // 발음 표기
 
     @Column(nullable = false)
-    private Integer day;
+    private Integer level;  // 레벨
+
+    @Column(nullable = false)
+    private Integer day;  // 일차
 
     @Column(name = "audio_url")
-    private String audioUrl;
+    private String audioUrl;  // 오디오 파일 URL
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 호환성을 위한 메서드들
-    public String getText() {
-        return this.text;
-    }
+    @Column(name = "day_number")
+    private Integer dayNumber;
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getMeaning() {
-        return this.meaning;
-    }
-
-    public void setMeaning(String meaning) {
-        this.meaning = meaning;
-    }
-
-    public Integer getDay() {
-        return this.day;
-    }
-
-    public void setDay(Integer day) {
-        this.day = day;
-    }
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL)
+    private List<UserWordProgress> userProgresses;
 
     @PrePersist
-    public void prePersist() {
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.isActive = true;
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getText() {
+        return this.text;
     }
 }

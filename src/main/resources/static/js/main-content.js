@@ -20,7 +20,7 @@ class EnhancedIntegratedLearningManager {
         this.isPlaying = false;
         this.currentPlayback = null;
         this.observer = null;
-
+        this.isLoading = true; // 데이터 로딩 플래그 추가
         this.init();
     }
 
@@ -77,6 +77,8 @@ class EnhancedIntegratedLearningManager {
     // 학습 데이터 로드
     async loadLearningData() {
         try {
+            this.isLoading = true;
+            this.updateUI(); // 로딩 중 표시
             const [wordsResponse, sentencesResponse, statsResponse] = await Promise.all([
                 this.fetchWords(),
                 this.fetchSentences(),
@@ -86,6 +88,10 @@ class EnhancedIntegratedLearningManager {
             this.words = wordsResponse;
             this.sentences = sentencesResponse;
             this.stats = statsResponse;
+            // 동적 완료 Set 동기화
+            this.completedWords = new Set(statsResponse.completedWordIds || []);
+            this.completedSentences = new Set(statsResponse.completedSentenceIds || []);
+            this.isLoading = false;
 
             console.log('📚 데이터 로드 완료:', {
                 words: this.words.length,
@@ -101,6 +107,7 @@ class EnhancedIntegratedLearningManager {
             this.renderSentencesToHTML();
 
         } catch (error) {
+            this.isLoading = false;
             console.error('데이터 로드 실패:', error);
             this.stats = {
                 completedWords: 0,
@@ -253,7 +260,7 @@ class EnhancedIntegratedLearningManager {
 
     async fetchStats() {
         try {
-            const response = await fetch(`/learning/api/stats/today?level=${this.currentLevel}&day=${this.currentDay}`);
+            const response = await fetch(`/learning/api/stats/realtime`, { credentials: 'include' });
             if (!response.ok) throw new Error('통계 데이터 로드 실패');
             return await response.json();
         } catch (error) {
@@ -263,7 +270,9 @@ class EnhancedIntegratedLearningManager {
                 totalWords: 1,
                 completedSentences: 0,
                 totalSentences: 0,
-                coinsEarned: 0
+                coinsEarned: 0,
+                completedWordIds: [],
+                completedSentenceIds: []
             };
         }
     }
@@ -305,23 +314,25 @@ class EnhancedIntegratedLearningManager {
     // 단어 카드 이벤트 설정
     setupWordCardEvents() {
         document.querySelectorAll('.word-card').forEach(card => {
+            // 기존 이벤트 제거 (cloneNode로 교체)
+            const newCard = card.cloneNode(true);
+            card.parentNode.replaceChild(newCard, card);
             // 카드 전체 클릭 이벤트
-            card.addEventListener('click', (e) => {
+            newCard.addEventListener('click', (e) => {
                 // 사운드 버튼 클릭은 무시
                 if (e.target.closest('.word-sound')) {
                     return false;
                 }
-                this.handleWordClick(card);
+                this.handleWordClick(newCard);
             });
-
             // 사운드 버튼 클릭 이벤트
-            const soundBtn = card.querySelector('.word-sound');
+            const soundBtn = newCard.querySelector('.word-sound');
             if (soundBtn) {
                 soundBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
-                    this.playWordAudio(card);
+                    this.playWordAudio(newCard);
                     return false;
                 }, { capture: true, passive: false });
             }
@@ -426,32 +437,22 @@ class EnhancedIntegratedLearningManager {
         });
     }
 
-    // 단어 클릭 처리 - 코인 시스템 통합 + 진행상황 업데이트
+    // 단어 클릭 처리 - 코인 시스템 통합
     async handleWordClick(card) {
         const wordId = card.getAttribute('data-word-id');
         const wordText = card.querySelector('.word-english')?.textContent;
-
         if (!wordText) return;
-
         console.log('🔤 단어 클릭:', wordText);
-
+        // DB 업데이트/통계 갱신은 기다리지 않고 바로 실행
+        this.updateWordProgress(wordId, true);
+        updateRealtimeStats();
+        this.refreshStats();
         // 시각적 피드백
         this.highlightCard(card);
-
-        // 실제 오디오 파일 또는 TTS 음성 재생
+        // 음성 재생을 바로 시작
         await this.playWordAudio(card);
-
-        // 진행상황 업데이트 (학습 완료로 처리)
-        if (wordId) {
-            await this.updateWordProgress(wordId, true);
-        }
-
         // 음성 재생 완료 후 코인 추가
         await this.addCoinAfterAudio('word', wordText);
-
-        // 실시간 통계 새로고침
-        await this.fetchRealtimeStats();
-        this.updateUI();
     }
 
     // 음성 재생 완료 후 코인 추가 (비동기 처리로 속도 향상)
@@ -498,32 +499,22 @@ class EnhancedIntegratedLearningManager {
         });
     }
 
-    // 문장 클릭 처리 - 코인 시스템 통합 + 진행상황 업데이트
+    // 문장 클릭 처리 - 코인 시스템 통합
     async handleSentenceClick(card) {
         const sentenceId = card.getAttribute('data-sentence-id');
         const sentenceText = card.querySelector('.sentence-text')?.textContent;
-
         if (!sentenceText) return;
-
         console.log('📝 문장 클릭:', sentenceText.substring(0, 30) + '...');
-
+        // DB 업데이트/통계 갱신은 기다리지 않고 바로 실행
+        this.updateSentenceProgress(sentenceId, true);
+        updateRealtimeStats();
+        this.refreshStats();
         // 시각적 피드백
         this.highlightCard(card);
-
-        // 실제 오디오 파일 또는 TTS 음성 재생
+        // 음성 재생을 바로 시작
         await this.playSentenceAudio(card);
-
-        // 진행상황 업데이트 (학습 완료로 처리)
-        if (sentenceId) {
-            await this.updateSentenceProgress(sentenceId, true);
-        }
-
         // 음성 재생 완료 후 코인 추가
         await this.addCoinAfterAudio('sentence', sentenceText.substring(0, 20) + '...');
-
-        // 실시간 통계 새로고침
-        await this.fetchRealtimeStats();
-        this.updateUI();
     }
 
     // 완료도 체크 후 보너스 지급
@@ -977,15 +968,27 @@ class EnhancedIntegratedLearningManager {
     }
 
     // 학습 시작 메서드들
-    startWordsLearning() {
+    async startWordsLearning() {
         this.isPlaying = true;
+        // 모든 단어 진행상황 업데이트 (비동기)
+        for (const word of this.words) {
+            this.updateWordProgress(word.id, true);
+        }
+        updateRealtimeStats();
+        this.refreshStats();
         /*this.showMessage('단어 학습을 시작합니다! 📚');*/
         this.playAllWords();
     }
 
-    startSentencesLearning() {
+    async startSentencesLearning() {
         this.isPlaying = true;
-        /*this.showMessage('문장 학습을 시작합니다! 📝');*/
+        // 모든 문장 진행상황 업데이트 (비동기)
+        for (const sentence of this.sentences) {
+            this.updateSentenceProgress(sentence.id, true);
+        }
+        updateRealtimeStats();
+        this.refreshStats();
+        /*this.showMessage('문장 학습을 시작합니다! ✏️');*/
         this.playAllSentences();
     }
 
@@ -1141,110 +1144,41 @@ class EnhancedIntegratedLearningManager {
     async refreshStats() {
         try {
             this.stats = await this.fetchStats();
-            await this.fetchRealtimeStats(); // 실시간 통계도 함께 조회
             this.updateUI();
         } catch (error) {
             console.error('통계 새로고침 실패:', error);
         }
     }
 
-    // 실시간 통계 조회
-    async fetchRealtimeStats() {
-        try {
-            const response = await fetch(`/learning/api/stats/realtime?level=${this.currentLevel}&day=${this.currentDay}`);
-            if (!response.ok) throw new Error('실시간 통계 데이터 로드 실패');
-            const realtimeStats = await response.json();
-            
-            console.log('📊 실시간 통계 로드됨:', realtimeStats);
-            
-            // 기존 stats에 실시간 데이터 병합
-            this.stats = { ...this.stats, ...realtimeStats };
-            
-            return realtimeStats;
-        } catch (error) {
-            console.error('실시간 통계 API 호출 실패:', error);
-            return {};
-        }
-    }
-
     // UI 업데이트
     updateUI() {
+        if (this.isLoading) {
+            this.updateElement('.section-card:first-child .section-subtitle', '단어 로딩 중...');
+            this.updateElement('.section-card:last-child .section-subtitle', '문장 로딩 중...');
+            return;
+        }
         const {
             completedWords = 0,
             totalWords = 1,
             completedSentences = 0,
             totalSentences = 0,
-            studiedWords = 0,
-            studiedSentences = 0,
-            wordProgress = 0,
-            sentenceProgress = 0,
             coinsEarned = 0
         } = this.stats;
 
-        // 헤더 정보 업데이트 (실시간 데이터 사용)
-        this.updateElement('.header-left p', `오늘 학습: 단어 ${studiedWords}개, 문장 ${studiedSentences}개`);
+        // 헤더 정보 업데이트
+        this.updateElement('.header-left p', `오늘 학습: 단어 ${this.completedWords.size}개, 문장 ${this.completedSentences.size}개`);
 
-        // 섹션 부제목 업데이트 (실시간 데이터 사용)
+        // 섹션 부제목 업데이트
         this.updateElement('.section-card:first-child .section-subtitle',
-            `오늘의 단어 ${totalWords}개를 학습해보세요! (${completedWords}/${totalWords})`);
+            `오늘의 단어 ${this.words.length}개를 학습해보세요! (${this.completedWords.size}/${this.words.length})`);
         this.updateElement('.section-card:last-child .section-subtitle',
-            `오늘의 문장 ${totalSentences}개를 학습해보세요! (${completedSentences}/${totalSentences})`);
+            `오늘의 문장 ${this.sentences.length}개를 학습해보세요! (${this.completedSentences.size}/${this.sentences.length})`);
 
-        // 진행률 표시 (실시간 진행률 사용)
-        const wordProgressElement = document.querySelector('.word-progress-bar');
-        const sentenceProgressElement = document.querySelector('.sentence-progress-bar');
-        
-        if (wordProgressElement) {
-            wordProgressElement.style.width = `${wordProgress}%`;
-        }
-        
-        if (sentenceProgressElement) {
-            sentenceProgressElement.style.width = `${sentenceProgress}%`;
-        }
+        // 진행률 계산
+        const wordProgress = this.words.length > 0 ? (this.completedWords.size / this.words.length) * 100 : 0;
+        const sentenceProgress = this.sentences.length > 0 ? (this.completedSentences.size / this.sentences.length) * 100 : 0;
 
-        console.log(`📊 실시간 진행률 - 단어: ${wordProgress}%, 문장: ${sentenceProgress}%`);
-        console.log(`📊 실시간 학습 현황 - 완료 단어: ${completedWords}/${totalWords}, 완료 문장: ${completedSentences}/${totalSentences}`);
-    }
-
-    // 진행상황 업데이트 메서드들
-    async updateWordProgress(wordId, isCompleted) {
-        try {
-            const response = await fetch('/learning/api/progress/word', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ wordId, isCompleted })
-            });
-
-            if (!response.ok) throw new Error('단어 진행상황 업데이트 실패');
-
-            const result = await response.json();
-            console.log('✅ 단어 진행상황 업데이트 완료:', result);
-            return result;
-
-        } catch (error) {
-            console.error('❌ 단어 진행상황 업데이트 실패:', error);
-            return null;
-        }
-    }
-
-    async updateSentenceProgress(sentenceId, isCompleted) {
-        try {
-            const response = await fetch('/learning/api/progress/sentence', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sentenceId, isCompleted })
-            });
-
-            if (!response.ok) throw new Error('문장 진행상황 업데이트 실패');
-
-            const result = await response.json();
-            console.log('✅ 문장 진행상황 업데이트 완료:', result);
-            return result;
-
-        } catch (error) {
-            console.error('❌ 문장 진행상황 업데이트 실패:', error);
-            return null;
-        }
+        console.log(`📊 진행률 - 단어: ${wordProgress.toFixed(1)}%, 문장: ${sentenceProgress.toFixed(1)}%`);
     }
 
     // 유틸리티 메서드들
@@ -1409,6 +1343,40 @@ function initEnhancedIntegratedLearningManager() {
         }
     }, 100);
 }
+
+// 실시간 통계 가져와서 UI에 반영
+async function updateRealtimeStats() {
+    try {
+        const res = await fetch('/learning/api/stats/realtime', { credentials: 'include' });
+        if (!res.ok) throw new Error('통계 API 오류');
+        const data = await res.json();
+        // 헤더 및 섹션 카드 모두 동기화
+        document.querySelectorAll('.words-count').forEach(el => el.textContent = data.todayWords);
+        document.querySelectorAll('.words-total').forEach(el => el.textContent = data.totalWords);
+        document.querySelectorAll('.sentences-count').forEach(el => el.textContent = data.todaySentences);
+        document.querySelectorAll('.sentences-total').forEach(el => el.textContent = data.totalSentences);
+        document.querySelectorAll('.words-today').forEach(el => el.textContent = data.todayWords);
+        document.querySelectorAll('.sentences-today').forEach(el => el.textContent = data.todaySentences);
+    } catch (e) {
+        console.warn('실시간 통계 갱신 실패:', e);
+    }
+}
+
+// 카드 클릭/Start 버튼 클릭 시에도 updateRealtimeStats 호출
+function setupSectionCardAndStartButtonEvents() {
+    document.querySelectorAll('.section-card, .start-button').forEach(el => {
+        el.addEventListener('click', () => {
+            updateRealtimeStats();
+        });
+    });
+}
+
+// 초기화 시 통계 갱신
+window.addEventListener('DOMContentLoaded', () => {
+    updateRealtimeStats();
+    setupSectionCardAndStartButtonEvents();
+});
+// 학습 완료/시작 등 주요 액션 후에도 updateRealtimeStats() 호출 필요
 
 // 전역 로딩 스피너 표시 함수 추가
 function showLoadingSpinner() {

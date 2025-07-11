@@ -62,6 +62,9 @@ public class UserSentenceProgress {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "email")
+    private String email;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;

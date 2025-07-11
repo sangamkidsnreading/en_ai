@@ -1,5 +1,3 @@
-// Applying the provided changes to fix syntax errors and improve error handling in AdminService.java
-
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
@@ -17,7 +15,6 @@ import com.example.kidsreading.entity.Sentence;
 import com.example.kidsreading.entity.User;
 import com.example.kidsreading.entity.Word;
 import com.example.kidsreading.entity.User.Role;
-import com.example.kidsreading.exception.AdminException;
 import com.example.kidsreading.repository.LearningSettingsRepository;
 import com.example.kidsreading.repository.SentenceRepository;
 import com.example.kidsreading.repository.UserRepository;
@@ -45,11 +42,6 @@ import java.util.zip.ZipInputStream;
 import java.io.IOException;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.kidsreading.service.S3Service;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Optional;
-import java.time.LocalDate;
-import org.apache.poi.ss.usermodel.DateUtil;
 
 @Service
 public class AdminService {
@@ -230,69 +222,37 @@ public class AdminService {
     }
 
     public SentenceDto createSentence(SentenceDto sentenceDto) {
-        // DTO에서 값 가져오기 (다양한 필드명 호환)
-        String englishText = sentenceDto.getEnglishText() != null ? sentenceDto.getEnglishText() : 
-                            sentenceDto.getEnglish() != null ? sentenceDto.getEnglish() : sentenceDto.getText();
-        String koreanTranslation = sentenceDto.getKoreanTranslation() != null ? sentenceDto.getKoreanTranslation() : 
-                                  sentenceDto.getKorean() != null ? sentenceDto.getKorean() : 
-                                  sentenceDto.getMeaning() != null ? sentenceDto.getMeaning() : sentenceDto.getTranslation();
-        Integer difficultyLevel = sentenceDto.getDifficultyLevel() != null ? sentenceDto.getDifficultyLevel() : sentenceDto.getLevel();
-
-        Sentence sentence = Sentence.builder()
-                .englishText(englishText)
-                .koreanTranslation(koreanTranslation)
-                .difficultyLevel(difficultyLevel)
-                .dayNumber(sentenceDto.getDayNumber())
-                .audioUrl(sentenceDto.getAudioUrl())
-                .isActive(sentenceDto.getIsActive() != null ? sentenceDto.getIsActive() : true)
+        try {
+            Sentence sentence = Sentence.builder()
+                .englishText(sentenceDto.getEnglish())
+                .koreanTranslation(sentenceDto.getKorean())
+                .difficultyLevel(sentenceDto.getLevel())
+                .dayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : 1)
+                .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-
-        Sentence savedSentence = sentenceRepository.save(sentence);
-        return convertToSentenceDto(savedSentence);
+            Sentence savedSentence = (Sentence)this.sentenceRepository.save(sentence);
+            return this.convertToSentenceDto(savedSentence);
+        } catch (Exception e) {
+            log.error("문장 생성 실패", e);
+            throw new RuntimeException("문장 생성에 실패했습니다.");
+        }
     }
 
     public SentenceDto updateSentence(Long sentenceId, SentenceDto sentenceDto) {
-        Sentence sentence = sentenceRepository.findById(sentenceId)
-                .orElseThrow(() -> new AdminException("문장을 찾을 수 없습니다. ID: " + sentenceId));
-
-        // DTO에서 값 가져오기 (다양한 필드명 호환)
-        if (sentenceDto.getEnglishText() != null || sentenceDto.getEnglish() != null || sentenceDto.getText() != null) {
-            String englishText = sentenceDto.getEnglishText() != null ? sentenceDto.getEnglishText() : 
-                                sentenceDto.getEnglish() != null ? sentenceDto.getEnglish() : sentenceDto.getText();
-            sentence.setEnglishText(englishText);
+        try {
+            Sentence sentence = (Sentence)this.sentenceRepository.findById(sentenceId).orElseThrow(() -> new RuntimeException("문장을 찾을 수 없습니다."));
+            sentence.setEnglishText(sentenceDto.getEnglish());
+            sentence.setKoreanTranslation(sentenceDto.getKorean());
+            sentence.setDifficultyLevel(sentenceDto.getLevel());
+            sentence.setDayNumber(sentenceDto.getDayNumber() != null ? sentenceDto.getDayNumber() : sentence.getDayNumber());
+            Sentence savedSentence = (Sentence)this.sentenceRepository.save(sentence);
+            return this.convertToSentenceDto(savedSentence);
+        } catch (Exception e) {
+            log.error("문장 수정 실패", e);
+            throw new RuntimeException("문장 수정에 실패했습니다.");
         }
-
-        if (sentenceDto.getKoreanTranslation() != null || sentenceDto.getKorean() != null || 
-            sentenceDto.getMeaning() != null || sentenceDto.getTranslation() != null) {
-            String koreanTranslation = sentenceDto.getKoreanTranslation() != null ? sentenceDto.getKoreanTranslation() : 
-                                      sentenceDto.getKorean() != null ? sentenceDto.getKorean() : 
-                                      sentenceDto.getMeaning() != null ? sentenceDto.getMeaning() : sentenceDto.getTranslation();
-            sentence.setKoreanTranslation(koreanTranslation);
-        }
-
-        if (sentenceDto.getDifficultyLevel() != null || sentenceDto.getLevel() != null) {
-            Integer difficultyLevel = sentenceDto.getDifficultyLevel() != null ? sentenceDto.getDifficultyLevel() : sentenceDto.getLevel();
-            sentence.setDifficultyLevel(difficultyLevel);
-        }
-
-        if (sentenceDto.getDayNumber() != null) {
-            sentence.setDayNumber(sentenceDto.getDayNumber());
-        }
-
-        if (sentenceDto.getAudioUrl() != null) {
-            sentence.setAudioUrl(sentenceDto.getAudioUrl());
-        }
-
-        if (sentenceDto.getIsActive() != null) {
-            sentence.setIsActive(sentenceDto.getIsActive());
-        }
-
-        sentence.setUpdatedAt(LocalDateTime.now());
-
-        Sentence updatedSentence = sentenceRepository.save(sentence);
-        return convertToSentenceDto(updatedSentence);
     }
 
     public void deleteSentence(Long sentenceId) {
@@ -516,21 +476,13 @@ public class AdminService {
                     if (row.getCell(3) != null) {
                         String levelStr = getCellString(row.getCell(3));
                         if (levelStr != null && !levelStr.isEmpty()) {
-                            try { 
-                                level = (int) Double.parseDouble(levelStr); 
-                            } catch (Exception ignore) {
-                                // ignore parsing error
-                            }
+                            try { level = (int) Double.parseDouble(levelStr); } catch (Exception ignore) {}
                         }
                     }
                     if (row.getCell(4) != null) {
                         String dayStr = getCellString(row.getCell(4));
                         if (dayStr != null && !dayStr.isEmpty()) {
-                            try { 
-                                day = (int) Double.parseDouble(dayStr); 
-                            } catch (Exception ignore) {
-                                // ignore parsing error
-                            }
+                            try { day = (int) Double.parseDouble(dayStr); } catch (Exception ignore) {}
                         }
                     }
 
@@ -625,21 +577,13 @@ public class AdminService {
                     if (row.getCell(3) != null) {
                         String levelStr = getCellString(row.getCell(3));
                         if (levelStr != null && !levelStr.isEmpty()) {
-                            try { 
-                                level = (int) Double.parseDouble(levelStr); 
-                            } catch (Exception ignore) {
-                                // ignore parsing error
-                            }
+                            try { level = (int) Double.parseDouble(levelStr); } catch (Exception ignore) {}
                         }
                     }
                     if (row.getCell(4) != null) {
                         String dayStr = getCellString(row.getCell(4));
                         if (dayStr != null && !dayStr.isEmpty()) {
-                            try { 
-                                day = (int) Double.parseDouble(dayStr); 
-                            } catch (Exception ignore) {
-                                // ignore parsing error
-                            }
+                            try { day = (int) Double.parseDouble(dayStr); } catch (Exception ignore) {}
                         }
                     }
 
@@ -739,363 +683,199 @@ public class AdminService {
     }
 
     public Map<String, Object> bulkUploadSentenceAudio(MultipartFile file) {
+        log.info("문장 음원 일괄 업로드: filename={}", file.getOriginalFilename());
         Map<String, Object> result = new HashMap<>();
+        int successCount = 0, errorCount = 0;
         List<String> successFiles = new ArrayList<>();
         List<String> errorFiles = new ArrayList<>();
-        int successCount = 0;
-        int errorCount = 0;
 
-        try {
-            // ZIP 파일 검증
-            if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
-                result.put("successCount", 0);
-                result.put("errorCount", 1);
-                result.put("errorFiles", List.of("ZIP 파일만 업로드 가능합니다."));
-                return result;
-            }
-
-            try (ZipInputStream zis = new ZipInputStream(file.getInputStream())) {
-                ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    if (!entry.isDirectory()) {
-                        String fileName = entry.getName();
-                        try {
-                            // 임시 파일로 저장
-                            File tempFile = File.createTempFile("audio_", "_" + fileName);
-                            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                                byte[] buffer = new byte[4096];
-                                int len;
-                                while ((len = zis.read(buffer)) > 0) {
-                                    fos.write(buffer, 0, len);
-                                }
+        try (ZipInputStream zis = new ZipInputStream(file.getInputStream())) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    String fileName = entry.getName();
+                    try {
+                        // 임시 파일로 저장
+                        File tempFile = File.createTempFile("audio_", null);
+                        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                            byte[] buffer = new byte[4096];
+                            int len;
+                            while ((len = zis.read(buffer)) > 0) {
+                                fos.write(buffer, 0, len);
                             }
-
-                            // S3 업로드
-                            String s3Key = s3Service.uploadFileWithOriginalName(tempFile, "sentences", fileName);
-                            String s3Url = s3Service.getS3Url(s3Key);
-
-                            // DB audioUrl 업데이트 (파일명 매칭)
-                            List<Sentence> sentences = sentenceRepository.findByIsActiveTrue();
-                             for (Sentence sentence : sentences) {
-                                if (sentence.getAudioUrl() != null && (sentence.getAudioUrl().endsWith("/" + fileName) || sentence.getAudioUrl().equals(fileName))) {
-                                    sentence.setAudioUrl(s3Url);
-                                    sentenceRepository.save(sentence);
-                                }
-                            }
-
-                            successFiles.add(fileName);
-                            successCount++;
-                            tempFile.delete();
-                        } catch (Exception e) {
-                            errorFiles.add(fileName + ": " + e.getMessage());
-                            errorCount++;
                         }
+                        // S3 업로드 (원래 파일명으로)
+                        s3Service.uploadFileWithOriginalName(tempFile, "sentences", fileName);
+                        successFiles.add(fileName);
+                        successCount++;
+                        tempFile.delete();
+                    } catch (Exception e) {
+                        errorFiles.add(fileName + ": " + e.getMessage());
+                        errorCount++;
                     }
                 }
-            } catch (Exception e) {
-                errorFiles.add("ZIP 해제 실패: " + e.getMessage());
-                errorCount++;
             }
-
-            result.put("successCount", successCount);
-            result.put("errorCount", errorCount);
-            result.put("successFiles", successFiles);
-            result.put("errorFiles", errorFiles);
-        }
- catch (Exception e) {
-            log.error("문장 오디오 일괄 업로드 실패", e);
-            result.put("successCount", 0);
-            result.put("errorCount", 1);
-            result.put("errorFiles", List.of("파일 처리 중 오류 발생: " + e.getMessage()));
+        } catch (Exception e) {
+            errorFiles.add("ZIP 해제 실패: " + e.getMessage());
+            errorCount++;
         }
 
-return result;
+        result.put("successCount", successCount);
+        result.put("errorCount", errorCount);
+        result.put("successFiles", successFiles);
+        result.put("errorFiles", errorFiles);
+        return result;
     }
 
-    // 누락된 메서드들 추가
     public List<Map<String, Object>> getUserProgress() {
-        try {
-            List<Map<String, Object>> progress = new ArrayList<>();
-            List<User> users = userRepository.findAll();
-            
-            for (User user : users) {
-                Map<String, Object> userProgress = new HashMap<>();
-                userProgress.put("userId", user.getId());
-                userProgress.put("username", user.getUsername());
-                userProgress.put("email", user.getEmail());
-                userProgress.put("name", user.getName());
-                
-                // 단어 진행률 계산
-                long totalWords = wordRepository.countByIsActiveTrue();
-                long studiedWords = userWordProgressRepository.countByUserIdAndIsLearned(user.getId(), true);
-                userProgress.put("totalWords", totalWords);
-                userProgress.put("studiedWords", studiedWords);
-                userProgress.put("wordProgress", totalWords > 0 ? (double) studiedWords / totalWords * 100 : 0);
-                
-                // 문장 진행률 계산
-                long totalSentences = sentenceRepository.countByIsActiveTrue();
-                long studiedSentences = userSentenceProgressRepository.countByUserIdAndIsLearned(user.getId(), true);
-                userProgress.put("totalSentences", totalSentences);
-                userProgress.put("studiedSentences", studiedSentences);
-                userProgress.put("sentenceProgress", totalSentences > 0 ? (double) studiedSentences / totalSentences * 100 : 0);
-                
-                progress.add(userProgress);
-            }
-            
-            return progress;
-        } catch (Exception e) {
-            log.error("사용자 진행률 조회 실패", e);
-            return new ArrayList<>();
-        }
+        return new ArrayList();
     }
 
     public List<Map<String, Object>> getWordStats() {
-        try {
-            List<Map<String, Object>> stats = new ArrayList<>();
-            List<Word> words = wordRepository.findByIsActiveTrue();
-            
-            for (Word word : words) {
-                Map<String, Object> wordStat = new HashMap<>();
-                wordStat.put("id", word.getId());
-                wordStat.put("text", word.getText());
-                wordStat.put("meaning", word.getMeaning());
-                wordStat.put("level", word.getLevel());
-                wordStat.put("day", word.getDay());
-                
-                // 학습 통계
-                long studiedCount = userWordProgressRepository.countByWordIdAndIsLearned(word.getId(), true);
-                wordStat.put("studiedCount", studiedCount);
-                
-                stats.add(wordStat);
-            }
-            
-            return stats;
-        } catch (Exception e) {
-            log.error("단어 통계 조회 실패", e);
-            return new ArrayList<>();
-        }
+        return new ArrayList();
     }
 
     public Map<String, Object> getDailyStats(String date) {
-        try {
-            Map<String, Object> stats = new HashMap<>();
-            
-            // 날짜 파싱 (예: "2024-01-01" 형식)
-            LocalDateTime startDate = LocalDateTime.parse(date + "T00:00:00");
-            LocalDateTime endDate = startDate.plusDays(1);
-            
-            // 해당 날짜의 학습 통계
-            long dailyWordStudies = userWordProgressRepository.countByLastStudiedAtBetween(startDate, endDate);
-            long dailySentenceStudies = userSentenceProgressRepository.countByLastStudiedAtBetween(startDate, endDate);
-            
-            stats.put("date", date);
-            stats.put("dailyWordStudies", dailyWordStudies);
-            stats.put("dailySentenceStudies", dailySentenceStudies);
-            stats.put("totalDailyStudies", dailyWordStudies + dailySentenceStudies);
-            
-            return stats;
-        } catch (Exception e) {
-            log.error("일일 통계 조회 실패", e);
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("date", date);
-            stats.put("dailyWordStudies", 0);
-            stats.put("dailySentenceStudies", 0);
-            stats.put("totalDailyStudies", 0);
-            return stats;
-        }
+        return new HashMap();
     }
 
-    public void normalizeExistingAudioFileNames() {
-        try {
-            log.info("기존 오디오 파일명 정규화 시작");
-            
-            // 단어 오디오 파일명 정규화
-            List<Word> words = wordRepository.findByIsActiveTrue();
-            for (Word word : words) {
-                if (word.getAudioUrl() != null && !word.getAudioUrl().isEmpty()) {
-                    String normalizedUrl = normalizeAudioUrl(word.getAudioUrl());
-                    if (!normalizedUrl.equals(word.getAudioUrl())) {
-                        word.setAudioUrl(normalizedUrl);
-                        wordRepository.save(word);
-                    }
-                }
-            }
-            
-            // 문장 오디오 파일명 정규화
-            List<Sentence> sentences = sentenceRepository.findByIsActiveTrue();
-            for (Sentence sentence : sentences) {
-                if (sentence.getAudioUrl() != null && !sentence.getAudioUrl().isEmpty()) {
-                    String normalizedUrl = normalizeAudioUrl(sentence.getAudioUrl());
-                    if (!normalizedUrl.equals(sentence.getAudioUrl())) {
-                        sentence.setAudioUrl(normalizedUrl);
-                        sentenceRepository.save(sentence);
-                    }
-                }
-            }
-            
-            log.info("기존 오디오 파일명 정규화 완료");
-        } catch (Exception e) {
-            log.error("오디오 파일명 정규화 실패", e);
-            throw new RuntimeException("오디오 파일명 정규화에 실패했습니다: " + e.getMessage());
-        }
-    }
-
-    private String normalizeAudioUrl(String url) {
-        if (url == null || url.isEmpty()) {
-            return url;
-        }
-        
-        // S3 URL이면 그대로 반환
-        if (url.startsWith("http")) {
-            return url;
-        }
-        
-        // 로컬 파일 경로 정규화
-        if (!url.startsWith("/")) {
-            url = "/" + url;
-        }
-        
-        return url;
-    }
-
-    // 변환 메서드들
     private UserDto convertToUserDto(User user) {
-        return UserDto.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .name(user.getName())
-            .role(user.getRole().name())
-            .isActive(user.getIsActive())
-            .createdAt(user.getCreatedAt())
-            .updatedAt(user.getUpdatedAt())
-            .build();
+        return UserDto.builder().id(user.getId()).username(user.getUsername()).email(user.getEmail()).name(user.getName()).role(user.getRole().name()).isActive(user.getIsActive()).build();
     }
 
     private WordDto convertToWordDto(Word word) {
-        return WordDto.builder()
-            .id(word.getId())
-            .text(word.getText())
-            .meaning(word.getMeaning())
-            .pronunciation(word.getPronunciation())
-            .level(word.getLevel())
-            .day(word.getDay())
-            .audioUrl(word.getAudioUrl())
-            .isActive(word.getIsActive())
-            .createdAt(word.getCreatedAt())
-            .updatedAt(word.getUpdatedAt())
-            // 호환성을 위한 필드들
-            .english(word.getText())
-            .korean(word.getMeaning())
-            .word(word.getText())
-            .translation(word.getMeaning())
-            .build();
+        return WordDto.builder().id(word.getId()).english(word.getText()).korean(word.getMeaning()).level(word.getLevel()).day(word.getDay()).pronunciation(word.getPronunciation()).audioUrl(word.getAudioUrl()).isActive(word.getIsActive()).build();
     }
 
     private SentenceDto convertToSentenceDto(Sentence sentence) {
         return SentenceDto.builder()
-            .id(sentence.getId())
-            .englishText(sentence.getEnglishText())
-            .koreanTranslation(sentence.getKoreanTranslation())
-            .difficultyLevel(sentence.getDifficultyLevel())
-            .dayNumber(sentence.getDayNumber())
-            .audioUrl(sentence.getAudioUrl())
-            .isActive(sentence.getIsActive())
-            .createdAt(sentence.getCreatedAt())
-            .updatedAt(sentence.getUpdatedAt())
-            // 호환성을 위한 필드들
-            .english(sentence.getEnglishText())
-            .korean(sentence.getKoreanTranslation())
-            .level(sentence.getDifficultyLevel())
-            .text(sentence.getEnglishText())
-            .meaning(sentence.getKoreanTranslation())
-            .translation(sentence.getKoreanTranslation())
-            .build();
+                .id(sentence.getId())
+                .text(sentence.getEnglishText())
+                .sentence(sentence.getEnglishText())
+                .english(sentence.getEnglishText())
+                .korean(sentence.getKoreanTranslation())
+                .translation(sentence.getKoreanTranslation())
+                .level(sentence.getDifficultyLevel())
+                .dayNumber(sentence.getDayNumber())
+                .audioUrl(sentence.getAudioUrl())
+                .isActive(sentence.getIsActive())
+                .createdAt(sentence.getCreatedAt())
+                .updatedAt(sentence.getUpdatedAt())
+                .phonetic(sentence.getPhonetic())
+                .pronunciation(sentence.getPronunciation())
+                .build();
     }
 
     private LearningSettingsDto convertToLearningSettingsDto(LearningSettings settings) {
-        return LearningSettingsDto.builder()
-            .id(settings.getId())
-            .audioSpeed(settings.getAudioSpeed())
-            .voiceSpeed(settings.getVoiceSpeed())
-            .repeatCount(settings.getRepeatCount())
-            .wordCoin(settings.getWordCoin())
-            .sentenceCoin(settings.getSentenceCoin())
-            .streakBonus(settings.getStreakBonus())
-            .levelUpCoin(settings.getLevelUpCoin())
-            .maxLevel(settings.getMaxLevel())
-            .dailyWordGoal(settings.getDailyWordGoal())
-            .dailySentenceGoal(settings.getDailySentenceGoal())
-            .createdAt(settings.getCreatedAt())
-            .updatedAt(settings.getUpdatedAt())
-            .build();
+        return LearningSettingsDto.builder().audioSpeed(settings.getAudioSpeed()).voiceSpeed(settings.getVoiceSpeed()).repeatCount(settings.getRepeatCount()).wordCoin(settings.getWordCoin()).sentenceCoin(settings.getSentenceCoin()).streakBonus(settings.getStreakBonus()).levelUpCoin(settings.getLevelUpCoin()).maxLevel(settings.getMaxLevel()).dailyWordGoal(settings.getDailyWordGoal()).dailySentenceGoal(settings.getDailySentenceGoal()).build();
     }
 
     private LearningSettings getDefaultSettings() {
-        return LearningSettings.builder()
-            .audioSpeed(1.0)
-            .voiceSpeed(1.0)
-            .repeatCount(3)
-            .wordCoin(10)
-            .sentenceCoin(20)
-            .streakBonus(5)
-            .levelUpCoin(100)
-            .maxLevel(10)
-            .dailyWordGoal(20)
-            .dailySentenceGoal(10)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
+        return LearningSettings.builder().audioSpeed(0.8).voiceSpeed(1).repeatCount(3).wordCoin(1).sentenceCoin(3).streakBonus(5).levelUpCoin(100).maxLevel(10).dailyWordGoal(10).dailySentenceGoal(5).build();
     }
 
     private LearningSettingsDto getDefaultLearningSettingsDto() {
-        return LearningSettingsDto.builder()
-            .audioSpeed(1.0)
-            .voiceSpeed(1.0)
-            .repeatCount(3)
-            .wordCoin(10)
-            .sentenceCoin(20)
-            .streakBonus(5)
-            .levelUpCoin(100)
-            .maxLevel(10)
-            .dailyWordGoal(20)
-            .dailySentenceGoal(10)
-            .build();
-    }
-
-    private String extractS3KeyFromUrl(String s3Url) {
-        if (s3Url == null || s3Url.isEmpty()) {
-            return null;
-        }
-        
-        // S3 URL 형태: https://bucket-name.s3.region.amazonaws.com/key
-        if (s3Url.contains("amazonaws.com/")) {
-            return s3Url.substring(s3Url.lastIndexOf("/") + 1);
-        }
-        
-        return s3Url;
+        return LearningSettingsDto.builder().audioSpeed(0.8).voiceSpeed(1).repeatCount(3).wordCoin(1).sentenceCoin(3).streakBonus(5).levelUpCoin(100).maxLevel(10).dailyWordGoal(10).dailySentenceGoal(5).build();
     }
 
     private String getCellString(Cell cell) {
         if (cell == null) {
             return null;
         }
-        
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue().trim();
+                return cell.getStringCellValue();
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue().toString();
-                } else {
-                    return String.valueOf((long) cell.getNumericCellValue());
                 }
+                return String.valueOf(cell.getNumericCellValue());
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
             default:
                 return null;
         }
+    }
+
+    // === 파일명 정규화 함수 추가 ===
+    private String normalizeAudioFileName(String originalFilename) {
+        String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String base = originalFilename.substring(0, originalFilename.lastIndexOf("."));
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("문장\\s*(\\d+)번").matcher(base);
+        if (m.find()) return "sentence" + m.group(1) + ext;
+        m = java.util.regex.Pattern.compile("(\\d+)번").matcher(base);
+        if (m.find()) return "no" + m.group(1) + ext;
+        return originalFilename;
+    }
+
+    private String extractS3KeyFromUrl(String s3Url) {
+        // S3 URL에서 키 추출: https://bucket.s3.region.amazonaws.com/key
+        String[] parts = s3Url.split("amazonaws.com/");
+        if (parts.length > 1) {
+            return parts[1];
+        }
+        return s3Url; // URL이 아닌 경우 그대로 반환
+    }
+
+    // === 기존 DB 데이터 정규화 메서드 추가 ===
+    @Transactional
+    public void normalizeExistingAudioFileNames() {
+        log.info("기존 오디오 파일명 정규화 시작");
+
+        // 단어 오디오 파일명 정규화
+        List<Word> words = wordRepository.findAll();
+        int wordUpdateCount = 0;
+        for (Word word : words) {
+            if (word.getAudioUrl() != null && !word.getAudioUrl().isEmpty()) {
+                String originalUrl = word.getAudioUrl();
+                String fileName = originalUrl.substring(originalUrl.lastIndexOf("/") + 1);
+                String normalizedFileName = normalizeAudioFileName(fileName);
+                String normalizedUrl = "/audio/words/" + normalizedFileName;
+
+                if (!originalUrl.equals(normalizedUrl)) {
+                    word.setAudioUrl(normalizedUrl);
+                    wordRepository.save(word);
+                    wordUpdateCount++;
+                    log.info("단어 오디오 파일명 정규화: {} -> {}", originalUrl, normalizedUrl);
+                }
+            }
+        }
+        log.info("단어 오디오 파일명 정규화 완료: {}개 업데이트", wordUpdateCount);
+
+        // 문장 오디오 URL 정규화
+        List<Sentence> sentences = sentenceRepository.findAll();
+        int sentenceUpdateCount = 0;
+
+        for (Sentence sentence : sentences) {
+            if (sentence.getAudioUrl() != null && !sentence.getAudioUrl().isEmpty()) {
+                String originalUrl = sentence.getAudioUrl();
+                // S3 URL에서 공백이 포함된 파일명을 언더스코어로 변경
+                if (originalUrl.contains(" ")) {
+                    String[] parts = originalUrl.split("/");
+                    if (parts.length > 0) {
+                        String fileName = parts[parts.length - 1];
+                        String encodedFileName = fileName.replaceAll("\\s+", "_");
+                        String newUrl = originalUrl.replace(fileName, encodedFileName);
+                        sentence.setAudioUrl(newUrl);
+                        sentenceRepository.save(sentence);
+                        sentenceUpdateCount++;
+                        log.info("문장 오디오 URL 수정: {} -> {}", originalUrl, newUrl);
+                    }
+                }
+            }
+        }
+
+        log.info("오디오 파일명 정규화 완료: 단어 {}개, 문장 {}개 업데이트", wordUpdateCount, sentenceUpdateCount);
+    }
+
+    @Generated
+    public AdminService(final UserRepository userRepository, final WordRepository wordRepository, final SentenceRepository sentenceRepository, final LearningSettingsRepository learningSettingsRepository, final UserWordProgressRepository userWordProgressRepository, final UserSentenceProgressRepository userSentenceProgressRepository, final S3Service s3Service) {
+        this.userRepository = userRepository;
+        this.wordRepository = wordRepository;
+        this.sentenceRepository = sentenceRepository;
+        this.learningSettingsRepository = learningSettingsRepository;
+        this.userWordProgressRepository = userWordProgressRepository;
+        this.userSentenceProgressRepository = userSentenceProgressRepository;
+        this.s3Service = s3Service;
     }
 }

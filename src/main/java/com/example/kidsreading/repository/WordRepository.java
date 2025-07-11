@@ -15,9 +15,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
     List<Word> findByIsActiveTrue();
-    
-    List<Integer> findDistinctLevelsByIsActiveTrueOrderByLevel();
-    List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(Integer level);
 
     List<Word> findByLevelAndIsActiveTrue(Integer level);
 
@@ -49,6 +46,19 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     List<Word> findByLevelAndIsActiveTrueOrderByDayAsc(Integer level);
 
-    // 레벨과 Day로 활성 단어 수 조회
+    
+
     int countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
+
+    /**
+     * 활성화된 단어들의 고유 레벨 목록 조회
+     */
+    @Query("SELECT DISTINCT w.level FROM Word w WHERE w.isActive = true ORDER BY w.level")
+    List<Integer> findDistinctLevelsByIsActiveTrueOrderByLevel();
+
+    /**
+     * 특정 레벨의 활성화된 단어들의 고유 날짜 목록 조회
+     */
+    @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
+    List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(@Param("level") Integer level);
 }

@@ -26,5 +26,6 @@ public class UserWordProgressDto {
     private Integer incorrectCount;
     private LocalDateTime lastStudied;
     private Boolean isCompleted;
+    private String userEmail;
 
 }

@@ -1,4 +1,3 @@
-
 package com.example.kidsreading.dto;
 
 import lombok.AllArgsConstructor;
@@ -24,11 +23,10 @@ public class WordDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 호환성을 위한 필드들
-    private String english;
-    private String korean;
     private Integer dayNumber;
     private String phonetic;
     private String translation;
     private String word;
+    private String english;  // Word.text에 매핑
+    private String korean;   // Word.meaning에 매핑
 }

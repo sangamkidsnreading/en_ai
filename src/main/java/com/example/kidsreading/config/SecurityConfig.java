@@ -68,7 +68,6 @@ public class SecurityConfig {
                         // 정적 리소스 허용 (모든 사용자) - JavaScript 파일 포함
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/images/**", "/uploads/**", "/audio/**").permitAll()
                         .requestMatchers("/static/**", "/webjars/**").permitAll() // 추가된 정적 리소스 경로
-                        .requestMatchers("/student/**", "/components/**").permitAll() // 키리보카 리소스 허용
                         .requestMatchers("/student/kiriboca/js/**").permitAll() // 키리보카 JS 파일 허용
                         .requestMatchers("/student/kiriboca/css/**").permitAll() // 키리보카 CSS 파일 허용
                         .requestMatchers("/error").permitAll()
@@ -98,6 +97,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/sidebar/**").permitAll()
                         .requestMatchers("/api/coins/**").permitAll()
                         .requestMatchers("/dashboard").authenticated()
+                        .requestMatchers("/student/kiriboca/**").authenticated() // <-- 이 줄 추가!
 
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()

@@ -159,22 +159,4 @@ public class UserService {
 
         log.info("비밀번호 변경 완료: {} (ID: {})", user.getEmail(), user.getId());
     }
-
-    @Transactional
-    public void updateUserProfile(String username, String name, String email) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + username));
-
-        user.setName(name);
-        user.setEmail(email);
-        userRepository.save(user);
-
-        log.info("사용자 프로필 업데이트 완료 - 사용자명: {}", username);
-    }
-
-    public Long getUserIdByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + username));
-        return user.getId();
-    }
 }

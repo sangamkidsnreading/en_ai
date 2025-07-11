@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import com.example.kidsreading.entity.User;
-import com.example.kidsreading.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +22,6 @@ public class WordService {
 
     private final WordRepository wordRepository;
     private final UserWordProgressRepository userWordProgressRepository;
-    private final UserRepository userRepository;
 
     /**
      * 특정 레벨과 날짜의 단어 목록 조회
@@ -98,19 +95,34 @@ public class WordService {
     }
 
     /**
-     * 단어 학습 진행상황 업데이트
+     * 단어 학습 진행상황 업데이트 (Upsert: insert or update)
      */
     @Transactional
-    public void updateWordProgress(Long userId, Long wordId, Boolean isCompleted) {
+    public void updateWordProgress(Long userId, Long wordId, Boolean isCompleted, String email) {
         UserWordProgress progress = userWordProgressRepository
                 .findByUserIdAndWordId(userId, wordId)
-                .orElse(UserWordProgress.builder()
-                        .userId(userId)
-                        .wordId(wordId)
-                        .isCompleted(false)
-                        .build());
+                .orElseGet(() -> {
+                    UserWordProgress newProgress = UserWordProgress.builder()
+                            .userId(userId)
+                            .wordId(wordId)
+                            .isCompleted(false)
+                            .createdAt(java.time.LocalDateTime.now())
+                            .email(email)
+                            .build();
+                    // 최초 학습 시각 기록
+                    newProgress.setFirstLearnedAt(java.time.LocalDateTime.now());
+                    return newProgress;
+                });
 
+        // 상태 갱신
         progress.setIsCompleted(isCompleted);
+        progress.setIsLearned(isCompleted != null && isCompleted);
+        progress.setLastLearnedAt(java.time.LocalDateTime.now());
+        progress.setUpdatedAt(java.time.LocalDateTime.now());
+        progress.setEmail(email);
+        if (progress.getFirstLearnedAt() == null) {
+            progress.setFirstLearnedAt(java.time.LocalDateTime.now());
+        }
         userWordProgressRepository.save(progress);
     }
 
@@ -153,43 +165,6 @@ public class WordService {
         userWordProgressRepository.save(progress);
 
         return progress.getIsFavorite();
-    }
-
-    public void updateUserWordProgress(Long userId, Long wordId, boolean isCompleted) {
-        UserWordProgress progress = userWordProgressRepository
-                .findByUserIdAndWordId(userId, wordId)
-                .orElse(UserWordProgress.builder()
-                        .userId(userId)
-                        .wordId(wordId)
-                        .build());
-
-        if (isCompleted) {
-            progress.addCorrectAttempt();
-            progress.setIsCompleted(true);
-        } else {
-            progress.addIncorrectAttempt();
-        }
-
-        userWordProgressRepository.save(progress);
-    }
-
-    // 통계 관련 메서드들 추가
-    public long countWordsByLevelAndDay(int level, int day) {
-        return wordRepository.countByLevelAndDayAndIsActiveTrue(level, day);
-    }
-
-    public long countCompletedWordsByUser(String username, int level, int day) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + username));
-        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(user.getId(), level, day);
-    }
-
-    public long countCompletedWordsByUserId(Long userId, int level, int day) {
-        return userWordProgressRepository.countCompletedWordsByUserAndLevelAndDay(userId, level, day);
-    }
-
-    public long countStudiedWordsByUserId(Long userId, int level, int day) {
-        return userWordProgressRepository.countStudiedWordsByUserAndLevelAndDay(userId, level, day);
     }
 
     /**
