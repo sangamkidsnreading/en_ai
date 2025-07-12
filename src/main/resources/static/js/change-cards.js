@@ -283,4 +283,3 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(initCardChangeManager, 1000);
     }
 });
-`

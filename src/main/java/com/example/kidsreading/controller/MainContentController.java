@@ -3,6 +3,7 @@ package com.example.kidsreading.controller;
 import com.example.kidsreading.dto.SentenceDto;
 import com.example.kidsreading.dto.WordDto;
 import com.example.kidsreading.dto.MainContentStatsDto;
+import com.example.kidsreading.dto.TodayProgressDto;
 import com.example.kidsreading.service.SentenceService;
 import com.example.kidsreading.service.WordService;
 import com.example.kidsreading.service.CoinService;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 
 @Controller
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/learning")
 public class MainContentController {
 
@@ -310,18 +312,11 @@ public class MainContentController {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }
     }
-}
 
-@RestController
-@RequestMapping("/learning/api")
-class MainContentStatsApiController {
-    private final MainContentService mainContentService;
-    public MainContentStatsApiController(MainContentService mainContentService) {
-        this.mainContentService = mainContentService;
+
+    @GetMapping("/api/progress/today")
+    public TodayProgressDto getTodayProgress(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
+        return mainContentService.getTodayProgress(user.getId());
     }
 
-    @GetMapping("/stats/realtime")
-    public MainContentStatsDto getStats(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
-        return mainContentService.getStats(user.getId());
-    }
 }

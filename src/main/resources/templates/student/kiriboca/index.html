@@ -11,6 +11,7 @@
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/dashboard.css}">
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/profile.css}">
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin-student-management.css}">
 
     <!-- 중복 로드 방지 스크립트 -->
     <script>
@@ -100,6 +101,10 @@
         /* 페이지 컨테이너 */
         .page-container {
             display: none;
+            width: 100%;
+            margin: 0;
+            padding: 20px 30px;
+            min-height: 100vh;
         }
 
         .page-container.active {
@@ -181,12 +186,17 @@
         <div id="admin-page" class="page-container">
             <div th:replace="~{student/kiriboca/components/admin :: admin-content}"></div>
         </div>
+
+        <!-- 학생 관리 페이지 (ADMIN, TEACHER 전용) -->
+        <div id="admin-student-management-page" class="page-container">
+            <div th:replace="~{student/kiriboca/components/admin-student-management :: adminStudentManagement}"></div>
+        </div>
     </div>
 </div>
 
 <!-- JavaScript -->
 <script th:inline="javascript">
-    // 키리보카 앱 클래스
+    <!-- 키리보카 앱 클래스 -->
     class KiribocaApp {
         constructor() {
             this.currentPage = 'learning';
@@ -194,8 +204,8 @@
             this.wordsLearned = 0;
             this.sentencesLearned = 0;
             this.totalCoins = 0;
-            this.learnedWords = new Set();
-            this.learnedSentences = new Set();
+            this.learnedWords = new Map(); // wordId -> {text, translation, time}
+            this.learnedSentences = new Map(); // sentenceId -> {text, translation, time}
             this.favoriteWords = new Set();
             this.init();
         }
@@ -213,6 +223,9 @@
 
                 // 로딩 완료
                 this.hideLoading();
+
+                // 오늘 학습 진행상황 불러오기
+                await this.fetchTodayProgress();
 
                 console.log('✅ 키리보카 앱 로드 완료');
             } catch (error) {
@@ -256,9 +269,10 @@
                     console.log('🔄 향상된 통합 학습 관리자가 있으므로 기본 학습 이벤트 스킵');
                 }
 
-                this.setupAdminEvents();
-                this.setupProfileEvents();
-                this.updateDisplay();
+                                 this.setupAdminEvents();
+                 this.setupProfileEvents();
+                 this.updateDisplay();
+                 this.updateLearnedLists();
             }, 100);
         }
 
@@ -332,13 +346,21 @@
                 });
             });
 
-            // Start 버튼 이벤트
-            const startButtons = document.querySelectorAll('.start-button');
-            startButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    this.handleStartLearning();
-                });
-            });
+                         // Start 버튼 이벤트
+             const wordsStartBtn = document.getElementById('words-start-btn');
+             const sentencesStartBtn = document.getElementById('sentences-start-btn');
+             
+             if (wordsStartBtn) {
+                 wordsStartBtn.addEventListener('click', () => {
+                     this.handleWordsStart();
+                 });
+             }
+             
+             if (sentencesStartBtn) {
+                 sentencesStartBtn.addEventListener('click', () => {
+                     this.handleSentencesStart();
+                 });
+             }
 
             // 검색 기능
             const searchInput = document.querySelector('.search-input');
@@ -497,61 +519,75 @@
             return titles[page] || page;
         }
 
-        // 단어 클릭 처리
-        handleWordClick(card) {
-            const wordId = card.dataset.word || Math.random().toString(36).substr(2, 9);
-            const wordText = card.querySelector('.word-english').textContent;
+                 // 단어 클릭 처리
+         handleWordClick(card) {
+             const wordId = card.dataset.word || Math.random().toString(36).substr(2, 9);
+             const wordText = card.querySelector('.word-english')?.textContent || 'Unknown Word';
+             const wordTranslation = card.querySelector('.word-korean')?.textContent || '';
 
-            // TTS 재생
-            this.speakText(wordText);
+             // TTS 재생
+             this.speakText(wordText);
 
-            // 시각적 피드백
-            card.style.transform = 'scale(1.05)';
-            setTimeout(() => {
-                card.style.transform = 'scale(1)';
-            }, 200);
+             // 시각적 피드백
+             card.style.transform = 'scale(1.05)';
+             setTimeout(() => {
+                 card.style.transform = 'scale(1)';
+             }, 200);
 
-            // 학습 완료 처리
-            if (!this.learnedWords.has(wordId)) {
-                this.learnedWords.add(wordId);
-                this.wordsLearned++;
-                this.totalCoins += 1;
+             // 학습 완료 처리
+             if (!this.learnedWords.has(wordId)) {
+                 const now = new Date();
+                 this.learnedWords.set(wordId, {
+                     text: wordText,
+                     translation: wordTranslation,
+                     time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                 });
+                 this.wordsLearned++;
+                 this.totalCoins += 1;
 
-                card.style.background = '#e6f7ff';
-                card.style.borderColor = '#91d5ff';
+                 card.style.background = '#e6f7ff';
+                 card.style.borderColor = '#91d5ff';
 
-                this.updateDisplay();
-                /*this.showToast('단어 학습 완료', `"${wordText}" 학습 완료! +1 코인`);*/
-            }
-        }
+                 this.updateDisplay();
+                 this.updateLearnedLists();
+                 this.showToast('단어 학습 완료', `"${wordText}" 학습 완료! +1 코인`);
+             }
+         }
 
-        // 문장 클릭 처리
-        handleSentenceClick(card) {
-            const sentenceId = card.dataset.sentence || Math.random().toString(36).substr(2, 9);
-            const sentenceText = card.querySelector('.sentence-text').textContent;
+                 // 문장 클릭 처리
+         handleSentenceClick(card) {
+             const sentenceId = card.dataset.sentence || Math.random().toString(36).substr(2, 9);
+             const sentenceText = card.querySelector('.sentence-text')?.textContent || 'Unknown Sentence';
+             const sentenceTranslation = card.querySelector('.sentence-translation')?.textContent || '';
 
-            // TTS 재생
-            this.speakText(sentenceText);
+             // TTS 재생
+             this.speakText(sentenceText);
 
-            // 시각적 피드백
-            card.style.transform = 'scale(1.02)';
-            setTimeout(() => {
-                card.style.transform = 'scale(1)';
-            }, 200);
+             // 시각적 피드백
+             card.style.transform = 'scale(1.02)';
+             setTimeout(() => {
+                 card.style.transform = 'scale(1)';
+             }, 200);
 
-            // 학습 완료 처리
-            if (!this.learnedSentences.has(sentenceId)) {
-                this.learnedSentences.add(sentenceId);
-                this.sentencesLearned++;
-                this.totalCoins += 3;
+             // 학습 완료 처리
+             if (!this.learnedSentences.has(sentenceId)) {
+                 const now = new Date();
+                 this.learnedSentences.set(sentenceId, {
+                     text: sentenceText,
+                     translation: sentenceTranslation,
+                     time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                 });
+                 this.sentencesLearned++;
+                 this.totalCoins += 3;
 
-                card.style.background = '#f6ffed';
-                card.style.borderColor = '#b7eb8f';
+                 card.style.background = '#f6ffed';
+                 card.style.borderColor = '#b7eb8f';
 
-                this.updateDisplay();
-                /*this.showToast('문장 학습 완료', `"${sentenceText}" 학습 완료! +3 코인`);*/
-            }
-        }
+                 this.updateDisplay();
+                 this.updateLearnedLists();
+                 this.showToast('문장 학습 완료', `"${sentenceText}" 학습 완료! +3 코인`);
+             }
+         }
 
         // 즐겨찾기 토글
         toggleWordFavorite(card) {
@@ -573,30 +609,133 @@
             }, 200);
         }
 
-        // 학습 시작
-        handleStartLearning() {
-            const wordCards = document.querySelectorAll('.word-card');
-            if (wordCards.length === 0) return;
+                 // 단어 학습 시작
+         handleWordsStart() {
+             const wordCards = document.querySelectorAll('.word-card');
+             if (wordCards.length === 0) {
+                 // 샘플 단어 카드 생성
+                 this.generateSampleWords();
+                 return;
+             }
 
-            let currentIndex = 0;
-            const totalCards = wordCards.length;
+             let currentIndex = 0;
+             const totalCards = wordCards.length;
 
-            const playNext = () => {
-                if (currentIndex >= totalCards) {
-                    this.showToast('학습 완료!', `${totalCards}개의 단어를 모두 학습했습니다.`);
-                    return;
-                }
+             const playNext = () => {
+                 if (currentIndex >= totalCards) {
+                     this.showToast('단어 학습 완료!', `${totalCards}개의 단어를 모두 학습했습니다.`);
+                     return;
+                 }
 
-                const card = wordCards[currentIndex];
-                this.handleWordClick(card);
-                currentIndex++;
+                 const card = wordCards[currentIndex];
+                 this.handleWordClick(card);
+                 currentIndex++;
 
-                setTimeout(playNext, 2000);
-            };
+                 setTimeout(playNext, 2000);
+             };
 
-            playNext();
-            this.showToast('자동 학습 시작', '모든 단어를 순차적으로 학습합니다.');
-        }
+             playNext();
+             this.showToast('단어 자동 학습 시작', '모든 단어를 순차적으로 학습합니다.');
+         }
+
+         // 문장 학습 시작
+         handleSentencesStart() {
+             const sentenceCards = document.querySelectorAll('.sentence-card');
+             if (sentenceCards.length === 0) {
+                 // 샘플 문장 카드 생성
+                 this.generateSampleSentences();
+                 return;
+             }
+
+             let currentIndex = 0;
+             const totalCards = sentenceCards.length;
+
+             const playNext = () => {
+                 if (currentIndex >= totalCards) {
+                     this.showToast('문장 학습 완료!', `${totalCards}개의 문장을 모두 학습했습니다.`);
+                     return;
+                 }
+
+                 const card = sentenceCards[currentIndex];
+                 this.handleSentenceClick(card);
+                 currentIndex++;
+
+                 setTimeout(playNext, 3000);
+             };
+
+             playNext();
+             this.showToast('문장 자동 학습 시작', '모든 문장을 순차적으로 학습합니다.');
+         }
+
+         // 샘플 단어 카드 생성
+         generateSampleWords() {
+             const wordsGrid = document.getElementById('words-grid');
+             if (!wordsGrid) return;
+
+             const sampleWords = [
+                 { english: 'apple', korean: '사과', audio: 'apple.mp3' },
+                 { english: 'banana', korean: '바나나', audio: 'banana.mp3' },
+                 { english: 'cat', korean: '고양이', audio: 'cat.mp3' },
+                 { english: 'dog', korean: '강아지', audio: 'dog.mp3' },
+                 { english: 'elephant', korean: '코끼리', audio: 'elephant.mp3' },
+                 { english: 'flower', korean: '꽃', audio: 'flower.mp3' },
+                 { english: 'garden', korean: '정원', audio: 'garden.mp3' },
+                 { english: 'house', korean: '집', audio: 'house.mp3' },
+                 { english: 'ice cream', korean: '아이스크림', audio: 'icecream.mp3' },
+                 { english: 'juice', korean: '주스', audio: 'juice.mp3' }
+             ];
+
+             const wordsHTML = sampleWords.map((word, index) => `
+                 <div class="word-card" data-word="word-${index}">
+                     <div class="word-content">
+                         <div class="word-english">${word.english}</div>
+                         <div class="word-korean">${word.korean}</div>
+                     </div>
+                     <div class="word-actions">
+                         <button class="word-favorite">♡</button>
+                         <button class="word-audio" onclick="window.kiribocaApp.speakText('${word.english}')">🔊</button>
+                     </div>
+                 </div>
+             `).join('');
+
+             wordsGrid.innerHTML = wordsHTML;
+
+             // 이벤트 리스너 다시 설정
+             this.setupLearningPageEvents();
+             this.showToast('샘플 단어 로드', '10개의 샘플 단어가 로드되었습니다.');
+         }
+
+         // 샘플 문장 카드 생성
+         generateSampleSentences() {
+             const sentencesGrid = document.getElementById('sentences-grid');
+             if (!sentencesGrid) return;
+
+             const sampleSentences = [
+                 { english: 'I like apples.', korean: '나는 사과를 좋아합니다.', audio: 'sentence1.mp3' },
+                 { english: 'The cat is sleeping.', korean: '고양이가 자고 있습니다.', audio: 'sentence2.mp3' },
+                 { english: 'This is my house.', korean: '이것은 내 집입니다.', audio: 'sentence3.mp3' },
+                 { english: 'I want ice cream.', korean: '아이스크림을 원합니다.', audio: 'sentence4.mp3' },
+                 { english: 'The flower is beautiful.', korean: '꽃이 아름답습니다.', audio: 'sentence5.mp3' }
+             ];
+
+             const sentencesHTML = sampleSentences.map((sentence, index) => `
+                 <div class="sentence-card" data-sentence="sentence-${index}">
+                     <div class="sentence-content">
+                         <div class="sentence-text">${sentence.english}</div>
+                         <div class="sentence-translation">${sentence.korean}</div>
+                     </div>
+                     <div class="sentence-actions">
+                         <button class="sentence-audio" onclick="window.kiribocaApp.speakText('${sentence.english}')">🔊</button>
+                     </div>
+                 </div>
+             `).join('');
+
+             sentencesGrid.innerHTML = sentencesHTML;
+
+             // 이벤트 리스너 다시 설정
+             this.setupLearningPageEvents();
+             this.showToast('샘플 문장 로드', '5개의 샘플 문장이 로드되었습니다.');
+         }
 
         // 검색 처리
         handleSearch(query) {
@@ -618,17 +757,129 @@
             }
         }
 
-        // 디스플레이 업데이트
-        updateDisplay() {
-            // 헤더 정보 업데이트
-            const wordsLearnedEl = document.getElementById('words-learned');
-            const sentencesLearnedEl = document.getElementById('sentences-learned');
-            const totalCoinsEl = document.getElementById('total-coins');
+                 // 디스플레이 업데이트
+         updateDisplay() {
+             // 헤더 정보 업데이트
+             const wordsLearnedEl = document.getElementById('words-learned');
+             const sentencesLearnedEl = document.getElementById('sentences-learned');
+             const totalCoinsEl = document.getElementById('total-coins');
 
-            if (wordsLearnedEl) wordsLearnedEl.textContent = this.wordsLearned;
-            if (sentencesLearnedEl) sentencesLearnedEl.textContent = this.sentencesLearned;
-            if (totalCoinsEl) totalCoinsEl.textContent = this.totalCoins;
-        }
+             if (wordsLearnedEl) wordsLearnedEl.textContent = this.wordsLearned;
+             if (sentencesLearnedEl) sentencesLearnedEl.textContent = this.sentencesLearned;
+             if (totalCoinsEl) totalCoinsEl.textContent = this.totalCoins;
+         }
+
+         // 학습한 항목 목록 업데이트
+         updateLearnedLists() {
+             this.updateWordsLearnedList();
+             this.updateSentencesLearnedList();
+         }
+
+         // 학습한 단어 목록 업데이트
+         updateWordsLearnedList() {
+             const wordsList = document.getElementById('words-learned-list');
+             const wordsCount = document.getElementById('words-learned-count');
+             
+             if (!wordsList) return;
+
+             // 카운트 업데이트
+             if (wordsCount) {
+                 wordsCount.textContent = `${this.wordsLearned}개`;
+             }
+
+             // 빈 상태 체크
+             if (this.wordsLearned === 0) {
+                 wordsList.innerHTML = `
+                     <div class="empty-state">
+                         <div class="empty-icon">📖</div>
+                         <p>아직 학습한 단어가 없습니다</p>
+                         <small>단어를 클릭하여 학습을 시작해보세요!</small>
+                     </div>
+                 `;
+                 return;
+             }
+
+             // 학습한 단어 목록 생성
+             const wordsHTML = Array.from(this.learnedWords.entries())
+                 .map(([wordId, wordData]) => `
+                     <div class="learned-item completed" data-word-id="${wordId}">
+                         <div class="learned-item-icon word">W</div>
+                         <div class="learned-item-content">
+                             <div class="learned-item-text">${wordData.text}</div>
+                             <div class="learned-item-translation">${wordData.translation}</div>
+                         </div>
+                         <div class="learned-item-time">${wordData.time}</div>
+                     </div>
+                 `).join('');
+
+             //wordsList.innerHTML = wordsHTML;
+
+             // 클릭 이벤트 추가
+             const learnedItems = wordsList.querySelectorAll('.learned-item');
+             learnedItems.forEach(item => {
+                 item.addEventListener('click', () => {
+                     const wordId = item.dataset.wordId;
+                     const wordData = this.learnedWords.get(wordId);
+                     if (wordData) {
+                         this.speakText(wordData.text);
+                         this.showToast('단어 재생', `"${wordData.text}" 발음을 재생합니다.`);
+                     }
+                 });
+             });
+         }
+
+         // 학습한 문장 목록 업데이트
+         updateSentencesLearnedList() {
+             const sentencesList = document.getElementById('sentences-learned-list');
+             const sentencesCount = document.getElementById('sentences-learned-count');
+             
+             if (!sentencesList) return;
+
+             // 카운트 업데이트
+             if (sentencesCount) {
+                 sentencesCount.textContent = `${this.sentencesLearned}개`;
+             }
+
+             // 빈 상태 체크
+             if (this.sentencesLearned === 0) {
+                 sentencesList.innerHTML = `
+                     <div class="empty-state">
+                         <div class="empty-icon">📄</div>
+                         <p>아직 학습한 문장이 없습니다</p>
+                         <small>문장을 클릭하여 학습을 시작해보세요!</small>
+                     </div>
+                 `;
+                 return;
+             }
+
+             // 학습한 문장 목록 생성
+             const sentencesHTML = Array.from(this.learnedSentences.entries())
+                 .map(([sentenceId, sentenceData]) => `
+                     <div class="learned-item completed" data-sentence-id="${sentenceId}">
+                         <div class="learned-item-icon sentence">S</div>
+                         <div class="learned-item-content">
+                             <div class="learned-item-text">${sentenceData.text}</div>
+                             <div class="learned-item-translation">${sentenceData.translation}</div>
+                         </div>
+                         <div class="learned-item-time">${sentenceData.time}</div>
+                     </div>
+                 `).join('');
+
+             sentencesList.innerHTML = sentencesHTML;
+
+             // 클릭 이벤트 추가
+             const learnedItems = sentencesList.querySelectorAll('.learned-item');
+             learnedItems.forEach(item => {
+                 item.addEventListener('click', () => {
+                     const sentenceId = item.dataset.sentenceId;
+                     const sentenceData = this.learnedSentences.get(sentenceId);
+                     if (sentenceData) {
+                         this.speakText(sentenceData.text);
+                         this.showToast('문장 재생', `"${sentenceData.text}" 발음을 재생합니다.`);
+                     }
+                 });
+             });
+         }
 
         // 토스트 알림 표시
         showToast(title, description) {
@@ -657,6 +908,8 @@
                 }, 300);
             }
         }
+
+ 
     }
 
     // 앱 초기화 (DOM 로드 완료 후)
@@ -675,9 +928,10 @@
 </script>
 <!-- JavaScript 파일들 (캐시 버스팅) - 한 번만 로드 -->
     <script th:src="@{/js/main-content.js?v=1.0.2}" defer></script>
-    <script th:src="@{/js/dashboard.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/change-cards.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/dark-mode.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/admin.js?v=1.0.2}" onload="console.log('✅ admin.js 로드 완료')" onerror="console.error('❌ admin.js 로드 실패')" defer></script>
+    <script th:src="@{/js/dashboard.js?v=1.0.2}" onload="console.log('✅ dashboard.js 로드 완료')" onerror="console.error('❌ dashboard.js 로드 실패')" defer></script>
+    <script th:src="@{/js/admin-student-management.js?v=1.0.2}" onload="console.log('✅ admin-student-management.js 로드 완료')" onerror="console.error('❌ admin-student-management.js 로드 실패')" defer></script>
 </body>
 </html>

@@ -40,6 +40,9 @@ import org.springframework.http.HttpStatus;
 import com.example.kidsreading.service.S3Service;
 import java.util.ArrayList;
 import com.example.kidsreading.service.SentenceService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @RestController
 @RequestMapping({"/api/admin"})
@@ -56,6 +59,9 @@ public class AdminController {
 
     @Autowired
     private SentenceService sentenceService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping({"/stats"})
     public ResponseEntity<AdminStatsDto> getAdminStats() {

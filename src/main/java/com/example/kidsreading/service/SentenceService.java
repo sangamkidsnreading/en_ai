@@ -63,6 +63,8 @@ public class SentenceService {
                             .userId(userId)
                             .sentenceId(sentenceId)
                             .isCompleted(false)
+                            .hasRecording(false) // ← 기본값 false로 명시!
+                            .isLearned(false) // ← 기본값 false로 명시!
                             .createdAt(java.time.LocalDateTime.now())
                             .email(email)
                             .build();
@@ -72,6 +74,15 @@ public class SentenceService {
         progress.setLastLearnedAt(java.time.LocalDateTime.now());
         progress.setUpdatedAt(java.time.LocalDateTime.now());
         progress.setEmail(email);
+
+        // 기존 progress에도 null일 경우 false로 보정
+        if (progress.getHasRecording() == null) {
+            progress.setHasRecording(false);
+        }
+        if (progress.getIsLearned() == null) {
+            progress.setIsLearned(false);
+        }
+
         userSentenceProgressRepository.save(progress);
     }
 

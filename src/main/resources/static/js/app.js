@@ -418,43 +418,6 @@ class KiribocaApp {
         console.log('📝 문장 카드 이벤트 설정 완료');
     }
 
-    // 단어 클릭 처리
-    async handleWordClick(card) {
-        const wordId = card.dataset.wordId;
-        const wordText = card.querySelector('.word-english').textContent;
-
-        // TTS 재생
-        this.speakText(wordText);
-
-        // 시각적 피드백
-        card.classList.add('playing');
-        this.currentPlayingId = wordId;
-
-        setTimeout(() => {
-            card.classList.remove('playing');
-            if (this.currentPlayingId === wordId) {
-                this.currentPlayingId = null;
-            }
-        }, 1000);
-
-        // 학습 완료 처리
-        if (!this.learnedWords.has(wordId)) {
-            this.learnedWords.add(wordId);
-            this.wordsLearned++;
-            this.totalCoins += 1;
-
-            // 학습 완료 표시
-            card.classList.add('learned');
-            const learnedCheck = card.querySelector('.learned-check');
-            if (learnedCheck) {
-                learnedCheck.classList.remove('hidden');
-            }
-
-            this.updateDisplay();
-            this.showToast('단어 학습 완료', `"${wordText}" 학습 완료! +1 코인`);
-        }
-    }
-
     // 문장 클릭 처리
     handleSentenceClick(card) {
         const sentenceId = card.dataset.sentenceId;

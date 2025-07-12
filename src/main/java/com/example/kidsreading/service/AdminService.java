@@ -42,6 +42,9 @@ import java.util.zip.ZipInputStream;
 import java.io.IOException;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.kidsreading.service.S3Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class AdminService {
@@ -54,6 +57,8 @@ public class AdminService {
     private final UserWordProgressRepository userWordProgressRepository;
     private final UserSentenceProgressRepository userSentenceProgressRepository;
     private final S3Service s3Service;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public AdminStatsDto getAdminStats() {
         try {
@@ -86,7 +91,14 @@ public class AdminService {
             } else if (this.userRepository.existsByEmail(userDto.getEmail())) {
                 throw new RuntimeException("이미 존재하는 이메일입니다: " + userDto.getEmail());
             } else {
-                User user = User.builder().username(userDto.getUsername()).email(userDto.getEmail()).name(userDto.getName()).password(userDto.getPassword()).role(Role.valueOf(userDto.getRole())).isActive(true).build();
+                User user = User.builder()
+                    .username(userDto.getUsername())
+                    .email(userDto.getEmail())
+                    .name(userDto.getName())
+                    .password(passwordEncoder.encode(userDto.getPassword()))
+                    .role(Role.valueOf(userDto.getRole()))
+                    .isActive(userDto.getIsActive() != null ? userDto.getIsActive() : true)
+                    .build();
                 User savedUser = (User)this.userRepository.save(user);
                 return this.convertToUserDto(savedUser);
             }
@@ -104,9 +116,11 @@ public class AdminService {
             user.setName(userDto.getName());
             user.setRole(Role.valueOf(userDto.getRole()));
             if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-                user.setPassword(userDto.getPassword());
+                user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             }
-
+            if (userDto.getIsActive() != null) {
+                user.setIsActive(userDto.getIsActive());
+            }
             User savedUser = (User)this.userRepository.save(user);
             return this.convertToUserDto(savedUser);
         } catch (Exception e) {

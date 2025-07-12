@@ -8,7 +8,11 @@
             <div class="logo-icon">키</div>
             <div>
                 <div class="logo-text">키리보카</div>
-                <div class="logo-subtitle">관리자</div>
+                <div class="logo-subtitle">
+                    <span th:if="${role == 'ADMIN'}">총관리자</span>
+                    <span th:if="${role == 'TEACHER'}">관리자</span>
+                    <span th:if="${role == 'STUDENT'}">학생</span>
+                </div>
             </div>
         </div>
 
@@ -115,15 +119,22 @@
             <span class="nav-text">프로필</span>
             <span class="nav-badge">3</span>
         </div>
-        <div class="nav-item" data-page="admin">
+        <!-- 총관리자 메뉴 -->
+        <div class="nav-item" data-page="admin" th:if="${role == 'ADMIN'}">
+            <span class="nav-icon">👑</span>
+            <span class="nav-text">총관리자</span>
+            <span class="nav-badge">4</span>
+        </div>
+        <!-- 관리자 메뉴 -->
+        <div class="nav-item" data-page="admin-student-management" th:if="${role == 'ADMIN' or role == 'TEACHER'}">
             <span class="nav-icon">⚙️</span>
             <span class="nav-text">관리자</span>
-            <span class="nav-badge">4</span>
+            <span class="nav-badge">5</span>
         </div>
         <div class="nav-item" data-page="logout">
             <span class="nav-icon">🚪</span>
             <span class="nav-text">로그아웃</span>
-            <span class="nav-badge">5</span>
+            <span class="nav-badge">6</span>
         </div>
     </nav>
 
@@ -132,10 +143,31 @@
         <div class="user-info">
             <div class="user-avatar">U</div>
             <div class="user-details">
-                <div class="user-name">관리자</div>
+                <div class="user-name" th:text="${role == 'ADMIN'} ? '총관리자' : (${role == 'TEACHER'} ? '관리자' : '학생')">관리자</div>
                 <div class="user-status">온라인</div>
             </div>
         </div>
     </div>
 </div>
 </html>
+
+<script>
+// sidebar.html 또는 별도 JS 파일에 아래 코드 추가
+
+document.getElementById('level-select').addEventListener('change', function(e) {
+    const newLevel = parseInt(e.target.value, 10);
+    if (window.enhancedIntegratedLearningManager) {
+        window.enhancedIntegratedLearningManager.currentLevel = newLevel;
+        window.enhancedIntegratedLearningManager.currentDay = 1; // Day도 1로 초기화(옵션)
+        window.enhancedIntegratedLearningManager.loadLearningData();
+    }
+});
+
+document.getElementById('day-select').addEventListener('change', function(e) {
+    const newDay = parseInt(e.target.value, 10);
+    if (window.enhancedIntegratedLearningManager) {
+        window.enhancedIntegratedLearningManager.currentDay = newDay;
+        window.enhancedIntegratedLearningManager.loadLearningData();
+    }
+});    
+</script>

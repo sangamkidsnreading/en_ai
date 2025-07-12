@@ -87,7 +87,8 @@ public class User implements UserDetails {
         ADMIN,
         USER,
         STUDENT,
-        PARENT
+        PARENT,
+        TEACHER
     }
 
     @PrePersist

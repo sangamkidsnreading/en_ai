@@ -8,14 +8,14 @@
             <div class="header-top">
                 <div class="header-left">
                     <h1>Level 1 - Day 1</h1>
-                    <p>오늘 학습: 단어 <span class="words-count">0</span>/<span class="words-total">0</span>개, 문장 <span class="sentences-count">0</span>/<span class="sentences-total">0</span>개</p>
+                    <p>오늘의 단어: <span id="words-learned">0</span>개, 오늘의 문장: <span id="sentences-learned">0</span>개</p>
                 </div>
                 <div class="header-right">
                     <div class="coins">
                         <div class="coins-label">오늘 획득한 코인</div>
                         <div class="coin-display">
                             <span class="coin-icon">🪙</span>
-                            <span class="coin-number">0</span>
+                            <span id="total-coins" class="coin-number">0</span>
                         </div>
                     </div>
                 </div>
@@ -24,25 +24,6 @@
             <!-- Welcome Message - 헤더 박스 안에 포함 -->
             <div class="welcome-message">
                 오늘 첫날 시작이 반!! 화이팅 김학습자 💪
-            </div>
-        </div>
-
-        <!-- Section Headers - 이미지와 정확히 동일 -->
-        <div class="learning-sections">
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-icon words-icon">W</div>
-                    <div class="section-title">Words</div>
-                </div>
-                <div class="section-subtitle">오늘의 단어 <span class="words-total">0</span>개를 학습해보세요! (<span class="words-count">0</span>/<span class="words-total">0</span>)</div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-icon sentences-icon">S</div>
-                    <div class="section-title">Sentences</div>
-                </div>
-                <div class="section-subtitle">오늘의 문장 <span class="sentences-total">0</span>개를 학습해보세요! (<span class="sentences-count">0</span>/<span class="sentences-total">0</span>)</div>
             </div>
         </div>
     </div>
@@ -54,13 +35,33 @@
                 <div class="section-icon words-icon">W</div>
                 <div class="section-title">Words</div>
             </div>
-            <button class="start-button">
+            <button class="start-button" id="words-start-btn">
                 <span class="rocket-icon">🚀</span>
                 Start
             </button>
         </div>
+        
+        <!-- 학습한 단어 목록 섹션 -->
+        <!-- 
+        <div class="learned-section" id="words-learned-section">
+            <div class="learned-header">
+                <h3>📚 오늘 학습한 단어 목록</h3>
+                <span class="learned-count" id="words-learned-count">0개</span>
+            </div>
+            <div class="learned-content">
+                <div class="learned-list" id="words-learned-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📖</div>
+                        <p>아직 학습한 단어가 없습니다</p>
+                        <small>단어를 클릭하여 학습을 시작해보세요!</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
 
-        <div class="words-grid">
+        <!-- 단어 그리드 -->
+        <div class="words-grid" id="words-grid">
             <!-- 단어 카드들이 동적으로 로드됩니다 -->
         </div>
     </div>
@@ -72,16 +73,288 @@
                 <div class="section-icon sentences-icon">S</div>
                 <div class="section-title">Sentences</div>
             </div>
-            <button class="start-button">
+            <button class="start-button" id="sentences-start-btn">
                 <span class="rocket-icon">🚀</span>
                 Start
             </button>
         </div>
+        
+        <!-- 학습한 문장 목록 섹션 -->
+        <!-- 
+        <div class="learned-section" id="sentences-learned-section">
+            <div class="learned-header">
+                <h3>📝 오늘 학습한 문장 목록</h3>
+                <span class="learned-count" id="sentences-learned-count">0개</span>
+            </div>
+            <div class="learned-content">
+                <div class="learned-list" id="sentences-learned-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <p>아직 학습한 문장이 없습니다</p>
+                        <small>문장을 클릭하여 학습을 시작해보세요!</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
 
-        <div class="sentences-grid">
+        <!-- 문장 그리드 -->
+        <div class="sentences-grid" id="sentences-grid">
             <!-- 문장 카드들이 동적으로 로드됩니다 -->
         </div>
     </div>
 </div>
+
+<style>
+/* 학습한 항목 섹션 스타일 */
+.learned-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+.learned-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.learned-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.learned-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.learned-content {
+    padding: 0;
+}
+
+.learned-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* 빈 상태 스타일 */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 10px 0 5px 0;
+    font-weight: 500;
+}
+
+.empty-state small {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* 학습한 항목 카드 스타일 */
+.learned-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.learned-item:last-child {
+    border-bottom: none;
+}
+
+.learned-item:hover {
+    background: #e9ecef;
+}
+
+.learned-item.completed {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.learned-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.learned-item-icon.word {
+    background: #007bff;
+    color: white;
+}
+
+.learned-item-icon.sentence {
+    background: #28a745;
+    color: white;
+}
+
+.learned-item-content {
+    flex: 1;
+}
+
+.learned-item-text {
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #333;
+}
+
+.learned-item-translation {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.learned-item-time {
+    font-size: 11px;
+    color: #adb5bd;
+    margin-left: 10px;
+}
+
+/* 애니메이션 */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.learned-item {
+    animation: slideInUp 0.3s ease-out;
+}
+
+/* 스크롤바 스타일 */
+.learned-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.learned-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.learned-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+ .learned-list::-webkit-scrollbar-thumb:hover {
+     background: #a8a8a8;
+ }
+
+ /* 단어 카드 스타일 */
+ .word-card, .sentence-card {
+     background: white;
+     border: 2px solid #e9ecef;
+     border-radius: 12px;
+     padding: 20px;
+     margin: 10px;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .word-card:hover, .sentence-card:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+     border-color: #007bff;
+ }
+
+ .word-content, .sentence-content {
+     flex: 1;
+ }
+
+ .word-english, .sentence-text {
+     font-size: 18px;
+     font-weight: 600;
+     color: #333;
+     margin-bottom: 5px;
+ }
+
+ .word-korean, .sentence-translation {
+     font-size: 14px;
+     color: #666;
+ }
+
+ .word-actions, .sentence-actions {
+     display: flex;
+     gap: 8px;
+ }
+
+ .word-favorite, .word-audio, .sentence-audio {
+     background: none;
+     border: 1px solid #ddd;
+     border-radius: 50%;
+     width: 32px;
+     height: 32px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     font-size: 14px;
+ }
+
+ .word-favorite:hover, .word-audio:hover, .sentence-audio:hover {
+     background: #f8f9fa;
+     border-color: #007bff;
+     transform: scale(1.1);
+ }
+
+ .word-favorite.active {
+     color: #dc3545;
+     border-color: #dc3545;
+ }
+
+ /* 그리드 레이아웃 */
+ .words-grid, .sentences-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+     gap: 15px;
+     padding: 20px;
+ }
+
+ /* 학습 완료 상태 */
+ .word-card.learned, .sentence-card.learned {
+     background: linear-gradient(135deg, #e6f7ff 0%, #f0f8ff 100%);
+     border-color: #91d5ff;
+ }
+
+ .sentence-card.learned {
+     background: linear-gradient(135deg, #f6ffed 0%, #f0fff0 100%);
+     border-color: #b7eb8f;
+ }
+ </style>
 
 </html>

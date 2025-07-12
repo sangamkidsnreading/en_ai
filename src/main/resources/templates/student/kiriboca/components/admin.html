@@ -1,7 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="admin-content" class="admin-container">
+
+<div th:fragment="admin-content">
     <!-- 헤더 -->
     <div class="admin-header">
         <h1>관리자 대시보드</h1>
@@ -101,6 +100,21 @@
                     </svg>
                     새 사용자 추가
                 </button>
+            </div>
+
+            <!-- 역할/상태 필터 탭 -->
+            <div class="user-filter-tabs" style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+                <div class="role-tabs" style="display: flex; gap: 8px;">
+                    <button class="role-tab active" data-role="ALL">전체</button>
+                    <button class="role-tab" data-role="ADMIN">관리자</button>
+                    <button class="role-tab" data-role="TEACHER">교사</button>
+                    <button class="role-tab" data-role="STUDENT">학생</button>
+                </div>
+                <div class="active-tabs" style="display: flex; gap: 8px; margin-left: 24px;">
+                    <button class="active-tab active" data-active="ALL">전체</button>
+                    <button class="active-tab" data-active="true">활성</button>
+                    <button class="active-tab" data-active="false">비활성</button>
+                </div>
             </div>
 
             <div class="user-list" id="user-list">
@@ -384,6 +398,7 @@
                     <select id="user-role" required>
                         <option value="STUDENT">학생</option>
                         <option value="ADMIN">관리자</option>
+                        <option value="TEACHER">선생님</option>
                     </select>
                 </div>
 

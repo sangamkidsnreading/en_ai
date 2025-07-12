@@ -1,5 +1,23 @@
 // admin.js - 음원 업로드 기능 포함 완성 버전
 
+// 전역 AdminDashboard 인스턴스
+let adminDashboardInstance = null;
+
+// 관리자 초기화 함수
+function initAdmin() {
+    console.log('⚙️ 관리자 초기화 시작');
+    if (!adminDashboardInstance) {
+        adminDashboardInstance = new AdminDashboard();
+    } else {
+        // 이미 인스턴스가 있다면 탭을 users로 리셋
+        adminDashboardInstance.switchTab('users');
+    }
+    console.log('✅ 관리자 초기화 완료');
+}
+
+// 전역 함수로 등록
+window.initAdmin = initAdmin;
+
 class AdminDashboard {
     constructor() {
         this.baseUrl = '/api/admin';
@@ -7,6 +25,8 @@ class AdminDashboard {
         this.isSavingSentence = false;
         this.isSavingWord = false;
         this.isSavingUser = false;
+        this.currentUserRoleFilter = 'ALL';
+        this.currentUserActiveFilter = 'ALL';
         this.init();
     }
 
@@ -181,6 +201,29 @@ class AdminDashboard {
             });
         }
 
+        // Day 필터링 이벤트 바인딩
+        const wordDaySelect = document.getElementById('word-day-select');
+        if (wordDaySelect) {
+            console.log('✅ 단어 Day 선택 드롭다운 찾음');
+            wordDaySelect.addEventListener('change', function(e) {
+                console.log('🎯 단어 Day 필터 변경:', e.target.value);
+                self.filterWordsByDay(e.target.value);
+            });
+        } else {
+            console.warn('❌ 단어 Day 선택 드롭다운을 찾을 수 없습니다.');
+        }
+
+        const sentenceDaySelect = document.getElementById('sentence-day-select');
+        if (sentenceDaySelect) {
+            console.log('✅ 문장 Day 선택 드롭다운 찾음');
+            sentenceDaySelect.addEventListener('change', function(e) {
+                console.log('🎯 문장 Day 필터 변경:', e.target.value);
+                self.filterSentencesByDay(e.target.value);
+            });
+        } else {
+            console.warn('❌ 문장 Day 선택 드롭다운을 찾을 수 없습니다.');
+        }
+
         // 음원 관련 이벤트 바인딩
         this.bindAudioEvents();
 
@@ -201,6 +244,25 @@ class AdminDashboard {
                     console.log('모달 배경 클릭됨');
                     self.closeModal(modal.id);
                 }
+            });
+        });
+
+        // 역할별 탭 이벤트
+        document.querySelectorAll('.role-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.currentUserRoleFilter = tab.dataset.role;
+                this.renderUsers(this.allUsers || []);
+            });
+        });
+        // 활성/비활성 탭 이벤트
+        document.querySelectorAll('.active-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.active-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.currentUserActiveFilter = tab.dataset.active;
+                this.renderUsers(this.allUsers || []);
             });
         });
 
@@ -565,9 +627,19 @@ class AdminDashboard {
                 this.loadUsers();
                 break;
             case 'words':
+                // Day 필터 초기화
+                const wordDaySelect = document.getElementById('word-day-select');
+                if (wordDaySelect) {
+                    wordDaySelect.value = 'all';
+                }
                 this.loadWords();
                 break;
             case 'sentences':
+                // Day 필터 초기화
+                const sentenceDaySelect = document.getElementById('sentence-day-select');
+                if (sentenceDaySelect) {
+                    sentenceDaySelect.value = 'all';
+                }
                 this.loadSentences();
                 break;
             case 'audio':
@@ -637,9 +709,9 @@ class AdminDashboard {
 
     loadUsers() {
         const self = this;
-
         this.apiCall('/users')
             .then(function(users) {
+                self.allUsers = users; // 전체 목록 저장
                 self.renderUsers(users);
             })
             .catch(function(error) {
@@ -653,22 +725,26 @@ class AdminDashboard {
     }
 
     renderUsers(users) {
+        // 역할/상태 필터 적용
+        let filtered = users;
+        if (this.currentUserRoleFilter && this.currentUserRoleFilter !== 'ALL') {
+            filtered = filtered.filter(u => u.role === this.currentUserRoleFilter);
+        }
+        if (this.currentUserActiveFilter && this.currentUserActiveFilter !== 'ALL') {
+            filtered = filtered.filter(u => String(u.isActive) === this.currentUserActiveFilter);
+        }
         const userList = document.getElementById('user-list');
-
         if (!userList) {
             console.warn('user-list 요소를 찾을 수 없습니다.');
             return;
         }
-
-        if (users.length === 0) {
+        if (filtered.length === 0) {
             userList.innerHTML = '<div class="no-data">등록된 사용자가 없습니다.</div>';
             return;
         }
-
-        userList.innerHTML = users.map(function(user) {
+        userList.innerHTML = filtered.map(function(user) {
             const statusClass = user.isActive === false ? 'inactive' : 'active';
             const statusText = user.isActive === false ? '비활성' : '활성';
-
             return '<div class="user-item ' + statusClass + '" data-user-id="' + user.id + '">' +
                 '<div class="user-info">' +
                 '<div class="user-name">' + user.name + '</div>' +
@@ -676,7 +752,7 @@ class AdminDashboard {
                 (user.username && user.username !== user.email ?
                     '<div class="user-username">@' + user.username + '</div>' : '') +
                 '<div class="user-role ' + user.role.toLowerCase() + '">' +
-                (user.role === 'ADMIN' ? '관리자' : '학생') + '</div>' +
+                (user.role === 'ADMIN' ? '관리자' : user.role === 'TEACHER' ? '교사' : '학생') + '</div>' +
                 '<div class="user-status ' + statusClass + '">' + statusText + '</div>' +
                 '</div>' +
                 '<div class="user-actions">' +
@@ -766,6 +842,7 @@ class AdminDashboard {
         const usernameField = document.getElementById('user-username');
         const activeField = document.getElementById('user-active');
         const emailValue = document.getElementById('user-email').value;
+        const passwordValue = document.getElementById('user-password').value;
 
         const userData = {
             username: usernameField && usernameField.value.trim()
@@ -773,13 +850,25 @@ class AdminDashboard {
                 : emailValue,
             name: document.getElementById('user-name').value,
             email: emailValue,
-            role: document.getElementById('user-role').value,
-            password: document.getElementById('user-password').value,
+            role: document.getElementById('user-role').value, // 반드시 "ADMIN" 또는 "STUDENT"
             isActive: activeField ? activeField.checked : true
         };
 
+        // 신규 추가 시에는 비밀번호 필수, 수정 시에는 입력된 경우만 보냄
+        if (!userId) {
+            if (!passwordValue) {
+                this.showError('비밀번호를 입력해주세요.');
+                return;
+            }
+            userData.password = passwordValue;
+        } else {
+            if (passwordValue) {
+                userData.password = passwordValue;
+            }
+        }
+
         // 필수 필드 검증
-        if (!userData.name || !userData.email || (!userId && !userData.password)) {
+        if (!userData.name || !userData.email) {
             this.showError('필수 항목을 모두 입력해주세요.');
             return;
         }
@@ -838,36 +927,52 @@ class AdminDashboard {
         const self = this;
         this.showLoading('단어 목록을 불러오는 중...');
 
+        // 현재 선택된 Day 필터 확인
+        const wordDaySelect = document.getElementById('word-day-select');
+        const selectedDay = wordDaySelect ? wordDaySelect.value : 'all';
+
+        // 모든 단어를 로드한 후 클라이언트에서 필터링
         this.apiCall('/words')
-            .then(function(words) {
-                console.log('단어 로드 성공:', words.length + '개');
-                self.renderWords(words);
+            .then(function(allWords) {
+                console.log('전체 단어 로드 성공:', allWords.length + '개');
+                
+                let filteredWords;
+                if (selectedDay === 'all') {
+                    filteredWords = allWords;
+                } else {
+                    // 클라이언트 사이드 필터링
+                    filteredWords = allWords.filter(function(word) {
+                        return word.day == selectedDay; // == 사용하여 문자열/숫자 비교
+                    });
+                }
+                
+                console.log('필터링된 단어:', filteredWords.length + '개 (Day: ' + selectedDay + ')');
+                self.renderWords(filteredWords);
                 self.hideLoading();
             })
             .catch(function(error) {
                 console.error('단어 로드 실패:', error);
                 self.hideLoading();
 
+                // 테스트용 더미 데이터로 필터링
                 const dummyWords = [
-                    {
-                        id: 1,
-                        english: 'apple',
-                        korean: '사과',
-                        level: 1,
-                        pronunciation: 'æpl',
-                        audioUrl: null
-                    },
-                    {
-                        id: 2,
-                        english: 'book',
-                        korean: '책',
-                        level: 1,
-                        pronunciation: 'bʊk',
-                        audioUrl: null
-                    }
+                    { id: 1, english: 'apple', korean: '사과', level: 1, day: 1, pronunciation: 'æpl', audioUrl: null },
+                    { id: 2, english: 'book', korean: '책', level: 1, day: 1, pronunciation: 'bʊk', audioUrl: null },
+                    { id: 3, english: 'cat', korean: '고양이', level: 1, day: 2, pronunciation: 'kæt', audioUrl: null },
+                    { id: 4, english: 'dog', korean: '개', level: 1, day: 2, pronunciation: 'dɔɡ', audioUrl: null },
+                    { id: 5, english: 'elephant', korean: '코끼리', level: 1, day: 3, pronunciation: 'ˈelɪfənt', audioUrl: null }
                 ];
 
-                self.renderWords(dummyWords);
+                let filteredWords;
+                if (selectedDay === 'all') {
+                    filteredWords = dummyWords;
+                } else {
+                    filteredWords = dummyWords.filter(function(word) {
+                        return word.day == selectedDay;
+                    });
+                }
+
+                self.renderWords(filteredWords);
                 self.showWarning('서버에서 단어 데이터를 불러올 수 없어 테스트 데이터를 표시합니다.');
             });
     }
@@ -1236,34 +1341,52 @@ this.bindSelectAllWordEvents();
         const self = this;
         this.showLoading('문장 목록을 불러오는 중...');
 
+        // 현재 선택된 Day 필터 확인
+        const sentenceDaySelect = document.getElementById('sentence-day-select');
+        const selectedDay = sentenceDaySelect ? sentenceDaySelect.value : 'all';
+
+        // 모든 문장을 로드한 후 클라이언트에서 필터링
         this.apiCall('/sentences')
-            .then(function(sentences) {
-                console.log('문장 로드 성공:', sentences.length + '개');
-                self.renderSentences(sentences);
+            .then(function(allSentences) {
+                console.log('전체 문장 로드 성공:', allSentences.length + '개');
+                
+                let filteredSentences;
+                if (selectedDay === 'all') {
+                    filteredSentences = allSentences;
+                } else {
+                    // 클라이언트 사이드 필터링
+                    filteredSentences = allSentences.filter(function(sentence) {
+                        return sentence.day == selectedDay; // == 사용하여 문자열/숫자 비교
+                    });
+                }
+                
+                console.log('필터링된 문장:', filteredSentences.length + '개 (Day: ' + selectedDay + ')');
+                self.renderSentences(filteredSentences);
                 self.hideLoading();
             })
             .catch(function(error) {
                 console.error('문장 로드 실패:', error);
                 self.hideLoading();
 
+                // 테스트용 더미 데이터로 필터링
                 const dummySentences = [
-                    {
-                        id: 1,
-                        english: 'I love reading books.',
-                        korean: '나는 책 읽는 것을 좋아한다.',
-                        level: 1,
-                        audioUrl: null
-                    },
-                    {
-                        id: 2,
-                        english: 'How are you today?',
-                        korean: '오늘 어떻게 지내세요?',
-                        level: 1,
-                        audioUrl: null
-                    }
+                    { id: 1, english: 'I love reading books.', korean: '나는 책 읽는 것을 좋아한다.', level: 1, day: 1, audioUrl: null },
+                    { id: 2, english: 'How are you today?', korean: '오늘 어떻게 지내세요?', level: 1, day: 1, audioUrl: null },
+                    { id: 3, english: 'The cat is sleeping.', korean: '고양이가 자고 있다.', level: 1, day: 2, audioUrl: null },
+                    { id: 4, english: 'What is your name?', korean: '당신의 이름은 무엇입니까?', level: 1, day: 2, audioUrl: null },
+                    { id: 5, english: 'Elephants are big animals.', korean: '코끼리는 큰 동물이다.', level: 1, day: 3, audioUrl: null }
                 ];
 
-                self.renderSentences(dummySentences);
+                let filteredSentences;
+                if (selectedDay === 'all') {
+                    filteredSentences = dummySentences;
+                } else {
+                    filteredSentences = dummySentences.filter(function(sentence) {
+                        return sentence.day == selectedDay;
+                    });
+                }
+
+                self.renderSentences(filteredSentences);
                 self.showWarning('서버에서 문장 데이터를 불러올 수 없어 테스트 데이터를 표시합니다.');
             });
     }
@@ -2560,6 +2683,106 @@ this.bindSelectAllWordEvents();
                 self.loadStats();
             });
     }
+
+    filterWordsByDay(day) {
+        const self = this;
+        this.showLoading('단어 목록을 필터링하는 중...');
+
+        // 먼저 모든 단어를 로드한 후 클라이언트에서 필터링
+        this.apiCall('/words')
+            .then(function(allWords) {
+                console.log('전체 단어 로드 성공:', allWords.length + '개');
+                
+                let filteredWords;
+                if (day === 'all') {
+                    filteredWords = allWords;
+                } else {
+                    // 클라이언트 사이드 필터링
+                    filteredWords = allWords.filter(function(word) {
+                        return word.day == day; // == 사용하여 문자열/숫자 비교
+                    });
+                }
+                
+                console.log('필터링된 단어:', filteredWords.length + '개 (Day: ' + day + ')');
+                self.renderWords(filteredWords);
+                self.hideLoading();
+            })
+            .catch(function(error) {
+                console.error('단어 로드 실패:', error);
+                self.hideLoading();
+
+                // 테스트용 더미 데이터로 필터링
+                const dummyWords = [
+                    { id: 1, english: 'apple', korean: '사과', level: 1, day: 1, pronunciation: 'æpl', audioUrl: null },
+                    { id: 2, english: 'book', korean: '책', level: 1, day: 1, pronunciation: 'bʊk', audioUrl: null },
+                    { id: 3, english: 'cat', korean: '고양이', level: 1, day: 2, pronunciation: 'kæt', audioUrl: null },
+                    { id: 4, english: 'dog', korean: '개', level: 1, day: 2, pronunciation: 'dɔɡ', audioUrl: null },
+                    { id: 5, english: 'elephant', korean: '코끼리', level: 1, day: 3, pronunciation: 'ˈelɪfənt', audioUrl: null }
+                ];
+
+                let filteredWords;
+                if (day === 'all') {
+                    filteredWords = dummyWords;
+                } else {
+                    filteredWords = dummyWords.filter(function(word) {
+                        return word.day == day;
+                    });
+                }
+
+                self.renderWords(filteredWords);
+                self.showWarning('서버에서 단어 데이터를 불러올 수 없어 테스트 데이터를 표시합니다.');
+            });
+    }
+
+    filterSentencesByDay(day) {
+        const self = this;
+        this.showLoading('문장 목록을 필터링하는 중...');
+
+        // 먼저 모든 문장을 로드한 후 클라이언트에서 필터링
+        this.apiCall('/sentences')
+            .then(function(allSentences) {
+                console.log('전체 문장 로드 성공:', allSentences.length + '개');
+                
+                let filteredSentences;
+                if (day === 'all') {
+                    filteredSentences = allSentences;
+                } else {
+                    // 클라이언트 사이드 필터링
+                    filteredSentences = allSentences.filter(function(sentence) {
+                        return sentence.day == day; // == 사용하여 문자열/숫자 비교
+                    });
+                }
+                
+                console.log('필터링된 문장:', filteredSentences.length + '개 (Day: ' + day + ')');
+                self.renderSentences(filteredSentences);
+                self.hideLoading();
+            })
+            .catch(function(error) {
+                console.error('문장 로드 실패:', error);
+                self.hideLoading();
+
+                // 테스트용 더미 데이터로 필터링
+                const dummySentences = [
+                    { id: 1, english: 'I love reading books.', korean: '나는 책 읽는 것을 좋아한다.', level: 1, day: 1, audioUrl: null },
+                    { id: 2, english: 'How are you today?', korean: '오늘 어떻게 지내세요?', level: 1, day: 1, audioUrl: null },
+                    { id: 3, english: 'The cat is sleeping.', korean: '고양이가 자고 있다.', level: 1, day: 2, audioUrl: null },
+                    { id: 4, english: 'What is your name?', korean: '당신의 이름은 무엇입니까?', level: 1, day: 2, audioUrl: null },
+                    { id: 5, english: 'Elephants are big animals.', korean: '코끼리는 큰 동물이다.', level: 1, day: 3, audioUrl: null }
+                ];
+
+                let filteredSentences;
+                if (day === 'all') {
+                    filteredSentences = dummySentences;
+                } else {
+                    filteredSentences = dummySentences.filter(function(sentence) {
+                        return sentence.day == day;
+                    });
+                }
+
+                self.renderSentences(filteredSentences);
+                self.showWarning('서버에서 문장 데이터를 불러올 수 없어 테스트 데이터를 표시합니다.');
+            });
+    }
 }
 
 // 전역 접근을 위한 변수
@@ -2579,3 +2802,104 @@ window.initAdminDashboard = function() {
 
     return window.adminDashboard;
 };
+
+// 페이지 전환 함수
+function showPage(pageId) {
+    // 모든 주요 페이지 id 배열
+    const pageIds = [
+        "dashboard-page",
+        "profile-page",
+        "admin-page",
+        "superadmin-page",
+        "learning-page"
+    ];
+    pageIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (id === pageId) ? "block" : "none";
+    });
+}
+
+// 대시보드 버튼 클릭 이벤트
+document.getElementById("dashboard-btn")?.addEventListener("click", function() {
+    showPage("dashboard-page");
+});
+
+// 프로필 버튼 클릭 이벤트
+document.getElementById("profile-btn")?.addEventListener("click", function() {
+    showPage("profile-page");
+});
+
+// 사용자 역할 한글 변환 함수
+function roleToKorean(role) {
+    switch (role) {
+        case 'ADMIN': return '관리자';
+        case 'SUPER_ADMIN': return '총관리자';
+        case 'TEACHER': return '교사';
+        case 'STUDENT': return '학생';
+        default: return '-';
+    }
+}
+
+// 날짜 포맷 함수
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return dateStr.split('T')[0];
+}
+function formatDateTime(dateStr) {
+    if (!dateStr) return '';
+    return dateStr.replace('T', ' ').slice(0, 16);
+}
+
+// 사용자 목록 렌더링 함수
+function renderUserList(users) {
+    const userListDiv = document.getElementById('user-list');
+    if (!userListDiv) return;
+    let html = `<table class="user-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>역할</th>
+                <th>상태</th>
+                <th>가입일</th>
+                <th>마지막 로그인</th>
+                <th>액션</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    users.forEach(user => {
+        html += `<tr>
+            <td>${user.id}</td>
+            <td>${user.name || ''}</td>
+            <td>${user.email || ''}</td>
+            <td>${roleToKorean(user.role)}</td>
+            <td>${user.isActive ? '활성' : '비활성'}</td>
+            <td>${formatDate(user.createdAt)}</td>
+            <td>${formatDateTime(user.lastLogin)}</td>
+            <td>
+                <button class="edit-btn" onclick="window.adminDashboard.editUser(${user.id})">수정</button>
+                <button class="delete-btn" onclick="window.adminDashboard.deleteUser(${user.id})">삭제</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    userListDiv.innerHTML = html;
+}
+
+// 사용자 목록 불러오기
+async function loadUserList() {
+    try {
+        const response = await fetch('/api/admin/users');
+        if (!response.ok) throw new Error('사용자 목록 로드 실패');
+        const users = await response.json();
+        renderUserList(users);
+    } catch (error) {
+        console.error('사용자 목록 로드 실패:', error);
+    }
+}
+
+// 페이지 진입 시 자동 로드
+if (document.getElementById('user-list')) {
+    loadUserList();
+}

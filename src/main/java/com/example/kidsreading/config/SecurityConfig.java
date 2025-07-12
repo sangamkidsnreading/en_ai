@@ -80,10 +80,11 @@ public class SecurityConfig {
                         // 디버그 및 테스트 허용 (개발용)
                         .requestMatchers("/debug/**", "/init-test-data", "/check-users").permitAll()
 
-                        // 관리자 전용 API 및 페이지 /api/coins
-                        .requestMatchers("/api/coins/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // 관리자 전용 API 및 페이지
+                        .requestMatchers("/api/coins/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/teacher/**").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "TEACHER")
 
                         // 학부모 전용 API (필요시)
                         .requestMatchers("/api/parent/**").hasRole("PARENT")

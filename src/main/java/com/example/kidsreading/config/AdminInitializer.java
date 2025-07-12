@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,26 +30,51 @@ public class AdminInitializer implements CommandLineRunner {
         log.info("=== AdminInitializer 시작 ===");
 
         try {
-            // 현재 사용자 수 확인
-            long currentUserCount = userRepository.count();
-            log.info("현재 데이터베이스의 사용자 수: {}", currentUserCount);
+            log.info("현재 데이터베이스의 사용자 수: {}", userRepository.count());
 
-            // 테스트 데이터 생성
-            initializeAdminAndTestUser();
+            System.out.println("=== 초기 관리자 계정 설정 시작 ===");
+            System.out.println("기존 관리자 계정 확인 중...");
 
-            // 최종 사용자 수 확인
-            long finalUserCount = userRepository.count();
-            log.info("초기화 완료 후 사용자 수: {}", finalUserCount);
+            Optional<User> existingAdmin = userRepository.findByEmail("admin@kidsreading.com");
 
-            // 모든 사용자 출력
-            userRepository.findAll().forEach(user -> {
-                log.info("사용자: ID={}, Email={}, Username={}, Role={}, Active={}",
-                        user.getId(), user.getEmail(), user.getUsername(), user.getRole(), user.getIsActive());
-            });
+            if (existingAdmin.isPresent()) {
+                User admin = existingAdmin.get();
+                System.out.println("기존 관리자 발견: ID=" + admin.getId() + ", Email=" + admin.getEmail());
+            } else {
+                System.out.println("기존 관리자가 없습니다. 새로 생성합니다.");
+
+                User newAdmin = User.builder()
+                        .username("admin")
+                        .email("admin@kidsreading.com")
+                        .password(passwordEncoder.encode("admin123!"))
+                        .name("관리자")
+                        .role(User.Role.ADMIN)
+                        .isActive(true)
+                        .emailVerified(true)
+                        .build();
+
+                User savedAdmin = userRepository.save(newAdmin);
+                System.out.println("새 관리자 생성 완료: ID=" + savedAdmin.getId());
+            }
+
+            log.info("초기화 완료 후 사용자 수: {}", userRepository.count());
+
+            // 모든 사용자 출력 (디버깅용) - 안전한 방식으로 처리
+            try {
+                List<User> allUsers = userRepository.findAll();
+                log.info("=== 전체 사용자 목록 ===");
+                for (User user : allUsers) {
+                    log.info("사용자: ID={}, 이메일={}, 역할={}, 활성={}", 
+                        user.getId(), user.getEmail(), user.getRole(), user.getIsActive());
+                }
+            } catch (Exception userListException) {
+                log.error("사용자 목록 조회 중 오류 발생 (enum 불일치 가능성): {}", userListException.getMessage());
+                log.info("사용자 목록 조회를 건너뜁니다.");
+            }
 
         } catch (Exception e) {
             log.error("AdminInitializer 실행 중 오류 발생", e);
-            throw e;
+            log.info("애플리케이션은 계속 실행됩니다.");
         }
 
         log.info("=== AdminInitializer 완료 ===");

@@ -18,9 +18,9 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <div class="stat-number">0</div>
+                <div class="stat-number" id="dashboard-words-learned">0</div>
                 <div class="stat-label">학습 단어</div>
-                <div class="stat-change positive">+12%</div>
+                <div class="stat-change positive" id="dashboard-words-change">+0%</div>
             </div>
         </div>
 
@@ -33,9 +33,9 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <div class="stat-number">0</div>
+                <div class="stat-number" id="dashboard-sentences-learned">0</div>
                 <div class="stat-label">학습 문장</div>
-                <div class="stat-change positive">+8%</div>
+                <div class="stat-change positive" id="dashboard-sentences-change">+0%</div>
             </div>
         </div>
 
@@ -46,9 +46,9 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <div class="stat-number">0</div>
+                <div class="stat-number" id="dashboard-total-coins">0</div>
                 <div class="stat-label">학습 코인</div>
-                <div class="stat-change positive">+15%</div>
+                <div class="stat-change positive" id="dashboard-coins-change">+0%</div>
             </div>
         </div>
 
@@ -62,9 +62,9 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <div class="stat-number">1</div>
+                <div class="stat-number" id="dashboard-streak-days">1</div>
                 <div class="stat-label">연속 학습일</div>
-                <div class="stat-duration">1 일</div>
+                <div class="stat-duration" id="dashboard-streak-duration">1 일</div>
             </div>
         </div>
     </div>
@@ -97,149 +97,7 @@
             </div>
 
             <div class="calendar-days">
-                <!-- Week 1 -->
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell current-day">
-                    <div class="day-number">1</div>
-                    <div class="day-status">오늘</div>
-                </div>
-
-                <!-- Week 2 -->
-                <div class="day-cell upcoming">
-                    <div class="day-number">2</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">3</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">4</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">5</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">6</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">7</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">8</div>
-                    <div class="day-status">다음주</div>
-                </div>
-
-                <!-- Week 3 -->
-                <div class="day-cell upcoming">
-                    <div class="day-number">9</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">10</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">11</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">12</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">13</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">14</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">15</div>
-                    <div class="day-status">다음주</div>
-                </div>
-
-                <!-- Week 4 -->
-                <div class="day-cell upcoming">
-                    <div class="day-number">16</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">17</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">18</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">19</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">20</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">21</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">22</div>
-                    <div class="day-status">다음주</div>
-                </div>
-
-                <!-- Week 5 -->
-                <div class="day-cell upcoming">
-                    <div class="day-number">23</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">24</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">25</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">26</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">27</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">28</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell upcoming">
-                    <div class="day-number">29</div>
-                    <div class="day-status">다음주</div>
-                </div>
-
-                <!-- Week 6 -->
-                <div class="day-cell upcoming">
-                    <div class="day-number">30</div>
-                    <div class="day-status">다음주</div>
-                </div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
-                <div class="day-cell"></div>
+                <!-- JavaScript로 동적 생성됨 -->
             </div>
         </div>
 
@@ -284,13 +142,13 @@
             </div>
             <div class="level-card">
                 <div class="level-info">
-                    <div class="level-number">Level 1</div>
-                    <div class="level-progress">
-                        <div class="progress-circle">
-                            <div class="progress-value">0%</div>
-                        </div>
+                                    <div class="level-number" id="dashboard-current-level">Level 1</div>
+                <div class="level-progress">
+                    <div class="progress-circle">
+                        <div class="progress-value" id="dashboard-level-progress">0%</div>
                     </div>
-                    <div class="level-description">다음 레벨까지 100단어</div>
+                </div>
+                <div class="level-description" id="dashboard-level-description">다음 레벨까지 100단어</div>
                 </div>
             </div>
         </div>
@@ -305,7 +163,7 @@
                     </svg>
                     뱃지 컬렉션
                 </div>
-                <div class="badge-count">3/5</div>
+                <div class="badge-count" id="dashboard-badge-count">3/5</div>
                 <div class="badges-earned">획득한 뱃지</div>
             </div>
             <div class="badge-grid">
@@ -372,5 +230,9 @@
         </div>
     </div>
 </div>
+
+<!-- Dashboard JavaScript -->
+<script src="/js/dashboard.js"></script>
+
 </body>
 </html>

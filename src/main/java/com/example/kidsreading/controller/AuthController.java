@@ -61,7 +61,11 @@ public class AuthController {
     }
 
     @GetMapping("/student/kiriboca/index")
-    public String kiribocaIndex() {
+    public String kiribocaIndex(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        com.example.kidsreading.entity.User user = userService.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+        model.addAttribute("role", user.getRole().name());
         return "student/kiriboca/index";
     }
 

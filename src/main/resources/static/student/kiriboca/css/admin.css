@@ -1566,3 +1566,53 @@ body {
         max-width: 100%;
     }
 }
+
+/* 역할/상태 필터 탭 스타일 */
+.user-filter-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.role-tabs, .active-tabs {
+  display: flex;
+  gap: 8px;
+}
+.role-tab, .active-tab {
+  background: #f5f6fa;
+  border: 1px solid #d1d5db;
+  color: #333;
+  border-radius: 20px;
+  padding: 7px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+  outline: none;
+}
+.role-tab.active, .active-tab.active {
+  background: #4f8cff;
+  color: #fff;
+  border-color: #4f8cff;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+}
+.role-tab:not(.active):hover, .active-tab:not(.active):hover {
+  background: #e6f0ff;
+  color: #1a5cff;
+  border-color: #4f8cff;
+}
+@media (max-width: 700px) {
+  .user-filter-tabs {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .role-tabs, .active-tabs {
+    gap: 4px;
+  }
+  .role-tab, .active-tab {
+    padding: 7px 12px;
+    font-size: 14px;
+  }
+}
