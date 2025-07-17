@@ -55,8 +55,8 @@ public class User implements UserDetails {
     private Role role;
 
     @Column(name = "is_active", nullable = false)
-    @Builder.Default  // Add this annotation
-    private Boolean isActive = true;
+    @Builder.Default
+    private Boolean isActive = false;
 
     @Column(name = "email_verified", nullable = false)
     @Builder.Default  // Add this annotation
@@ -77,6 +77,28 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "level")
+    private Integer level;
+
+    @Column(name = "level_progress")
+    private Integer levelProgress;
+
+    @Column(name = "words_to_next_level")
+    private Integer wordsToNextLevel;
+
+    // 회원가입 동의 필드들
+    @Column(name = "agree_terms")
+    @Builder.Default
+    private Boolean agreeTerms = false;
+
+    @Column(name = "agree_privacy")
+    @Builder.Default
+    private Boolean agreePrivacy = false;
+
+    @Column(name = "agree_marketing")
+    @Builder.Default
+    private Boolean agreeMarketing = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserWordProgress> wordProgresses;
 
@@ -88,7 +110,9 @@ public class User implements UserDetails {
         USER,
         STUDENT,
         PARENT,
-        TEACHER
+        TEACHER,
+        SANGAM,
+        YONGIN
     }
 
     @PrePersist

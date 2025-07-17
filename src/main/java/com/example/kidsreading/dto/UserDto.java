@@ -18,8 +18,11 @@ public class UserDto {
     private String email;
     private String password;
     private String role;
+    private String groupName; // <-- 추가
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
+    private String parentName;
+    private String phoneNumber;
 }

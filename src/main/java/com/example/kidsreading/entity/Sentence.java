@@ -40,6 +40,9 @@ public class Sentence {
     @Column(name = "audio_url", length = 500)
     private String audioUrl;  // 오디오 파일 URL
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private SentenceCategory category;  // 문장 카테고리

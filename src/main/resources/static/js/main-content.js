@@ -23,6 +23,9 @@ class EnhancedIntegratedLearningManager {
         
         // 오늘 학습한 단어/문장 수 추적
         this.todayCoinsEarned = 0;
+        this.isPlayingAudio = false; // 동시 재생 방지 플래그 추가
+        this.currentWordIndex = 0; // 단어 순차 재생 인덱스
+        this.currentSentenceIndex = 0; // 문장 순차 재생 인덱스
 
         this.init();
     }
@@ -64,11 +67,16 @@ class EnhancedIntegratedLearningManager {
 
             this.isInitialized = true;
             console.log('✅ 향상된 통합 학습 관리자 초기화 완료');
+            
+            // 최종적으로 로딩 스피너 숨기기
+            hideLoadingSpinner();
 
         } catch (error) {
             console.error('❌ 초기화 실패:', error);
             console.error('❌ 오류 상세:', error.message, error.stack);
             this.showError('데이터를 불러오는데 실패했습니다: ' + (error.message || '알 수 없는 오류'));
+            // 에러 발생 시에도 로딩 스피너 숨기기
+            hideLoadingSpinner();
         }
     }
 
@@ -107,8 +115,14 @@ class EnhancedIntegratedLearningManager {
             this.renderWordsToHTML();
             this.renderSentencesToHTML();
             
+            // 오늘의 개수 정보 로드 및 업데이트
+            await this.loadTodayCounts();
+            
             // 최종 UI 업데이트
             this.updateTodayStats();
+            
+            // 로딩 스피너 숨기기
+            hideLoadingSpinner();
 
         } catch (error) {
             console.error('데이터 로드 실패:', error);
@@ -119,6 +133,8 @@ class EnhancedIntegratedLearningManager {
                 totalSentences: 0,
                 coinsEarned: 0
             };
+            // 에러 발생 시에도 로딩 스피너 숨기기
+            hideLoadingSpinner();
         }
     }
 
@@ -140,12 +156,19 @@ class EnhancedIntegratedLearningManager {
                     <div style="font-size: 14px;">다른 레벨이나 Day를 선택해보세요!</div>
                 </div>
             `;
-            hideLoadingSpinner();
             console.log('📝 단어 데이터가 없어서 빈 상태를 표시합니다.');
             return;
         }
 
-        this.words.forEach((word, index) => {
+        // displayOrder 기준 정렬
+        const sortedWords = [...this.words].sort((a, b) => {
+            if (a.displayOrder == null && b.displayOrder == null) return 0;
+            if (a.displayOrder == null) return 1;
+            if (b.displayOrder == null) return -1;
+            return a.displayOrder - b.displayOrder;
+        });
+
+        sortedWords.forEach((word, index) => {
             const wordCard = document.createElement('div');
             wordCard.className = 'word-card';
             wordCard.setAttribute('data-word-id', word.id);
@@ -178,7 +201,6 @@ class EnhancedIntegratedLearningManager {
             // 동적 렌더링 후 반드시 이벤트 재설정
             this.setupWordCardEvents();
         }, 0);
-        hideLoadingSpinner();
         console.log(`📝 ${this.words.length}개의 단어 카드가 렌더링되었습니다.`);
     }
 
@@ -200,11 +222,18 @@ class EnhancedIntegratedLearningManager {
                     <div style="font-size: 14px;">곧 추가될 예정입니다!</div>
                 </div>
             `;
-            hideLoadingSpinner();
             return;
         }
 
-        this.sentences.forEach((sentence, index) => {
+        // displayOrder 기준 정렬
+        const sortedSentences = [...this.sentences].sort((a, b) => {
+            if (a.displayOrder == null && b.displayOrder == null) return 0;
+            if (a.displayOrder == null) return 1;
+            if (b.displayOrder == null) return -1;
+            return a.displayOrder - b.displayOrder;
+        });
+
+        sortedSentences.forEach((sentence, index) => {
             const sentenceCard = document.createElement('div');
             sentenceCard.className = 'sentence-card';
             sentenceCard.setAttribute('data-sentence-id', sentence.id);
@@ -239,9 +268,9 @@ class EnhancedIntegratedLearningManager {
             document.querySelectorAll('.sentence-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.visibility = 'visible';
+                // 동적 렌더링 후 반드시 이벤트 재설정
+                this.setupSentenceCardEvents();
             });
-            // 동적 렌더링 후 반드시 이벤트 재설정
-            this.setupSentenceCardEvents();
         }, 0);
         hideLoadingSpinner();
         console.log(`📝 ${this.sentences.length}개의 문장 카드가 동적으로 렌더링되었습니다.`);
@@ -410,12 +439,19 @@ class EnhancedIntegratedLearningManager {
                 e.stopPropagation();
                 e.stopImmediatePropagation();
 
+                // 모든 Start 버튼을 항상 초기화
+                document.querySelectorAll('.start-button').forEach(b => {
+                    b.textContent = '🚀 Start';
+                    b.style.backgroundColor = '#007bff';
+                });
+
                 const studyArea = btn.closest('.study-area');
                 const isWordsSection = studyArea && studyArea.querySelector('.word-card');
 
                 if (this.isPlaying) {
                     // 현재 재생 중이면 중지
                     this.stopLearning();
+                    // 클릭한 버튼만 Start로 복원 (이미 위에서 전체 초기화됨)
                     btn.textContent = '🚀 Start';
                     btn.style.backgroundColor = '#007bff';
                 } else {
@@ -425,6 +461,7 @@ class EnhancedIntegratedLearningManager {
                 } else {
                     this.startSentencesLearning();
                     }
+                    // 클릭한 버튼만 Stop으로 변경
                     btn.textContent = '⏹️ Stop';
                     btn.style.backgroundColor = '#dc3545';
                 }
@@ -451,6 +488,20 @@ class EnhancedIntegratedLearningManager {
                 await this.addWordCoins();
                 await this.updateWordProgress(wordId, true);
 
+                // 오늘의 개수 실시간 업데이트
+                await this.loadTodayCounts();
+
+                // 대시보드 통계 업데이트 (대시보드가 활성화된 경우)
+                if (window.dashboardManager) {
+                    try {
+                        await window.dashboardManager.loadDashboardData();
+                        console.log('📊 대시보드 통계 업데이트 완료');
+                    } catch (error) {
+                        console.warn('⚠️ 대시보드 통계 업데이트 실패:', error);
+                    }
+                }
+
+                this.updateTodayLearnedCounts(); // 추가
                 console.log('✅ 단어 학습 완료:', this.completedWords.size);
             } else {
                 // 이미 학습한 카드도 시각적 효과만
@@ -470,7 +521,7 @@ class EnhancedIntegratedLearningManager {
             // 이미 완료된 카드인지 확인
             if (this.completedSentences.has(card.dataset.sentenceId)) {
                 console.log('✅ 이미 완료된 문장입니다.');
-                return;
+                // 완료된 문장이어도 음성 재생은 가능하도록 return 제거
             }
 
             // 오디오 재생
@@ -489,6 +540,20 @@ class EnhancedIntegratedLearningManager {
             // 진행도 업데이트
             await this.updateSentenceProgress(card.dataset.sentenceId, true);
             
+            // 오늘의 개수 실시간 업데이트
+            await this.loadTodayCounts();
+            
+            // 대시보드 통계 업데이트 (대시보드가 활성화된 경우)
+            if (window.dashboardManager) {
+                try {
+                    await window.dashboardManager.loadDashboardData();
+                    console.log('📊 대시보드 통계 업데이트 완료');
+                } catch (error) {
+                    console.warn('⚠️ 대시보드 통계 업데이트 실패:', error);
+                }
+            }
+            
+            this.updateTodayLearnedCounts(); // 추가
             console.log('✅ 문장 학습 완료:', this.completedSentences.size);
             
         } catch (error) {
@@ -513,6 +578,16 @@ class EnhancedIntegratedLearningManager {
                     //this.showCoinAnimation('+5 BONUS!');
                     /*this.showMessage('🎉 모든 학습 완료! 보너스 5코인 획득! 🎉');*/
                     console.log('🏆 완료 보너스 획득:', bonusResult);
+                    
+                    // 대시보드 통계 업데이트 (대시보드가 활성화된 경우)
+                    if (window.dashboardManager) {
+                        try {
+                            await window.dashboardManager.loadDashboardData();
+                            console.log('📊 완료 보너스 후 대시보드 통계 업데이트 완료');
+                        } catch (error) {
+                            console.warn('⚠️ 완료 보너스 후 대시보드 통계 업데이트 실패:', error);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('❌ 보너스 지급 실패:', error);
@@ -571,6 +646,63 @@ class EnhancedIntegratedLearningManager {
         } catch (error) {
             this.coinSettings = { wordCoin: 5, sentenceCoin: 10, levelUpCoin: 20 };
             console.error('코인 설정값 로드 중 오류:', error);
+        }
+    }
+
+    // 오늘의 개수 정보 로드
+    async loadTodayCounts() {
+        try {
+            const response = await fetch(`/learning/api/today/counts?level=${this.currentLevel}&day=${this.currentDay}`);
+            if (!response.ok) throw new Error('오늘의 개수 로드 실패');
+            
+            const counts = await response.json();
+            console.log('📊 오늘의 개수 로드 완료:', counts);
+            
+            // 각 영역에 개수 표시
+            this.updateTodayCountsDisplay(counts);
+            
+            // header-left에 총 개수 업데이트
+            this.updateHeaderTotalCount(counts);
+            
+        } catch (error) {
+            console.error('오늘의 개수 로드 실패:', error);
+            // 에러 시 기본값으로 설정
+            this.updateTodayCountsDisplay({
+                todayWordsCount: 0,
+                todaySentencesCount: 0,
+                learnedWordsCount: 0,
+                learnedSentencesCount: 0,
+                totalLearnedCount: 0
+            });
+        }
+    }
+
+    // 오늘의 개수 표시 업데이트
+    updateTodayCountsDisplay(counts) {
+        // 단어 영역 개수 업데이트
+        const todayWordsCountEl = document.getElementById('today-words-count');
+        if (todayWordsCountEl) {
+            todayWordsCountEl.textContent = counts.todayWordsCount || 0;
+        }
+        
+        // 문장 영역 개수 업데이트
+        const todaySentencesCountEl = document.getElementById('today-sentences-count');
+        if (todaySentencesCountEl) {
+            todaySentencesCountEl.textContent = counts.todaySentencesCount || 0;
+        }
+    }
+
+    // header-left 총 개수 업데이트
+    updateHeaderTotalCount(counts) {
+        const wordsLearnedEl = document.getElementById('words-learned-today');
+        const sentencesLearnedEl = document.getElementById('sentences-learned-today');
+        
+        if (wordsLearnedEl) {
+            wordsLearnedEl.textContent = counts.learnedWordsCount || 0;
+        }
+        
+        if (sentencesLearnedEl) {
+            sentencesLearnedEl.textContent = counts.learnedSentencesCount || 0;
         }
     }
 
@@ -731,6 +863,15 @@ class EnhancedIntegratedLearningManager {
 
     // 음성 재생 메서드들
     async playWordAudio(card) {
+        if (this.isPlayingAudio) return; // 이미 재생 중이면 무시
+        this.isPlayingAudio = true;
+        this.setAllCardsDisabledExcept(card);
+        // 기존 오디오 정리
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio = null;
+        }
+        
         const wordText = card.querySelector('.word-english')?.textContent;
         const wordId = card.getAttribute('data-word-id');
         const audioFileName = card.getAttribute('data-audio-file'); // 추가: audio_file 속성
@@ -780,6 +921,8 @@ class EnhancedIntegratedLearningManager {
                         }
                         this.logAudioPlay('word', wordId);
                         this.currentPlayback = null;
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve();
                     };
                     
@@ -799,6 +942,8 @@ class EnhancedIntegratedLearningManager {
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('word', wordId);
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     };
                     
@@ -819,6 +964,8 @@ class EnhancedIntegratedLearningManager {
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('word', wordId);
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     });
                 });
@@ -833,14 +980,27 @@ class EnhancedIntegratedLearningManager {
             if (wordId) {
                     this.logAudioPlay('word', wordId);
             }
+                this.isPlayingAudio = false;
+                this.resetAllCardsEnabled();
                 resolve();
             });
         } catch (error) {
+            this.isPlayingAudio = false;
+            this.resetAllCardsEnabled();
             console.error('음성 재생 실패:', error);
         }
     }
 
     async playSentenceAudio(card) {
+        if (this.isPlayingAudio) return;
+        this.isPlayingAudio = true;
+        this.setAllCardsDisabledExcept(card);
+        // 기존 오디오 정리
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio = null;
+        }
+        
         const sentenceText = card.querySelector('.sentence-text')?.textContent;
         const sentenceId = card.getAttribute('data-sentence-id');
         const audioFileName = card.getAttribute('data-audio-file'); // 추가: audio_file 속성
@@ -884,6 +1044,8 @@ class EnhancedIntegratedLearningManager {
                         }
                         this.logAudioPlay('sentence', sentenceId);
                         this.currentPlayback = null;
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve();
                     };
                     
@@ -903,6 +1065,8 @@ class EnhancedIntegratedLearningManager {
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('sentence', sentenceId);
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     };
                     
@@ -923,6 +1087,8 @@ class EnhancedIntegratedLearningManager {
                             soundBtn.style.transform = 'scale(1)';
                         }
                         this.logAudioPlay('sentence', sentenceId);
+                        this.isPlayingAudio = false;
+                        this.resetAllCardsEnabled();
                         resolve(); // 에러가 아닌 정상 종료로 처리
                     });
                 });
@@ -937,9 +1103,13 @@ class EnhancedIntegratedLearningManager {
             if (sentenceId) {
                     this.logAudioPlay('sentence', sentenceId);
             }
+                this.isPlayingAudio = false;
+                this.resetAllCardsEnabled();
                 resolve();
             });
         } catch (error) {
+            this.isPlayingAudio = false;
+            this.resetAllCardsEnabled();
             console.error('음성 재생 실패:', error);
         }
     }
@@ -977,14 +1147,24 @@ class EnhancedIntegratedLearningManager {
 
     // 학습 시작 메서드들
     startWordsLearning() {
+        console.log('🚀 단어 학습 시작');
         this.isPlaying = true;
-        /*this.showMessage('단어 학습을 시작합니다! 📚');*/
+        this.currentAudio = null;
+        // 기존 코드: 항상 처음부터
+        // this.playAllWords();
+        // 변경: 멈춘 위치부터
         this.playAllWords();
     }
 
     startSentencesLearning() {
+        console.log('🚀 문장 학습 시작');
         this.isPlaying = true;
-        /*this.showMessage('문장 학습을 시작합니다! 📝');*/
+        this.currentAudio = null;
+        // currentSentenceIndex가 전체 개수 이상이면 0으로 리셋
+        const sentenceCards = document.querySelectorAll('.sentence-card');
+        if (this.currentSentenceIndex >= sentenceCards.length) {
+            this.currentSentenceIndex = 0;
+        }
         this.playAllSentences();
     }
 
@@ -1011,13 +1191,15 @@ class EnhancedIntegratedLearningManager {
         });
 
         /*this.showMessage('학습이 중지되었습니다! ⏹️');*/
+        // 인덱스는 playAllWords/playAllSentences 내부에서 멈춘 위치로 갱신됨
+        this.isPlayingAudio = false; // Stop 시 음성 재생 가능하도록 초기화
     }
 
     // 모든 단어 순차 재생
     async playAllWords() {
         const wordCards = document.querySelectorAll('.word-card');
 
-        for (let i = 0; i < wordCards.length && this.isPlaying; i++) {
+        for (let i = this.currentWordIndex; i < wordCards.length && this.isPlaying; i++) {
             const card = wordCards[i];
             const wordId = card.getAttribute('data-word-id');
             const wordText = card.querySelector('.word-english')?.textContent;
@@ -1040,6 +1222,9 @@ class EnhancedIntegratedLearningManager {
                 card.classList.add('learned');
                 card.style.background = 'linear-gradient(135deg, #e6f7ff 0%, #f0f8ff 100%)';
                 card.style.borderColor = '#91d5ff';
+                
+                // 오늘 학습한 단어 개수 업데이트
+                this.updateTodayLearnedCounts();
             }
 
             // 코인 지급도 반드시 호출
@@ -1052,11 +1237,12 @@ class EnhancedIntegratedLearningManager {
 
             card.style.background = '';
             card.style.borderColor = '';
+            this.currentWordIndex = i + 1; // 멈춘 위치 기억
         }
 
         if (this.isPlaying) {
             this.isPlaying = false;
-            // 버튼 상태 복원
+            this.currentWordIndex = 0; // 끝까지 갔으면 리셋
             const startButtons = document.querySelectorAll('.start-button');
             startButtons.forEach(btn => {
                 btn.textContent = '🚀 Start';
@@ -1068,47 +1254,40 @@ class EnhancedIntegratedLearningManager {
     // 모든 문장 순차 재생
     async playAllSentences() {
         const sentenceCards = document.querySelectorAll('.sentence-card');
-
-        for (let i = 0; i < sentenceCards.length && this.isPlaying; i++) {
+        for (let i = this.currentSentenceIndex; i < sentenceCards.length && this.isPlaying; i++) {
             const card = sentenceCards[i];
             const sentenceId = card.getAttribute('data-sentence-id');
             const sentenceText = card.querySelector('.sentence-text')?.textContent;
             const sentenceTranslation = card.querySelector('.sentence-korean')?.textContent;
-
             card.style.background = 'linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%)';
             card.style.borderColor = '#ff9800';
-
-            // 음성 재생이 완전히 끝날 때까지 대기
             await this.playSentenceAudio(card);
-
-            // 학습 완료 처리 (Start 버튼으로도 학습 완료)
             if (!this.completedSentences.has(sentenceId)) {
                 this.completedSentences.add(sentenceId);
-                
-                // 학습한 문장 목록에 추가 (주석 처리)
-                // this.addToLearnedSentencesList(sentenceId, sentenceText, sentenceTranslation);
-                
-                // 카드 스타일 변경
                 card.classList.add('learned');
                 card.style.background = 'linear-gradient(135deg, #f6ffed 0%, #f0fff0 100%)';
                 card.style.borderColor = '#b7eb8f';
+                this.updateTodayLearnedCounts();
             }
-
-            // 코인 지급도 반드시 호출
             if (sentenceText) {
                 await this.addCoinAfterAudio('sentence', sentenceText.substring(0, 20) + '...');
             }
-            
-            // 재생 중지 확인
-            if (!this.isPlaying) break;
-
+            // Stop으로 중단된 경우 currentSentenceIndex를 현재 위치로 유지, 끝까지 갔으면 0으로 리셋
+            if (this.isPlaying) {
+                this.currentSentenceIndex = i + 1;
+            } else {
+                this.currentSentenceIndex = i;
+                break;
+            }
             card.style.background = '';
             card.style.borderColor = '';
         }
-
+        // 끝까지 다 들었으면 인덱스 리셋
+        if (this.currentSentenceIndex >= sentenceCards.length) {
+            this.currentSentenceIndex = 0;
+        }
         if (this.isPlaying) {
             this.isPlaying = false;
-            // 버튼 상태 복원
             const startButtons = document.querySelectorAll('.start-button');
             startButtons.forEach(btn => {
                 btn.textContent = '🚀 Start';
@@ -1539,6 +1718,42 @@ class EnhancedIntegratedLearningManager {
         if (wordsLearnedElement) wordsLearnedElement.textContent = this.words.length;
         if (sentencesLearnedElement) sentencesLearnedElement.textContent = this.sentences.length;
     }
+
+    updateTodayLearnedCounts() {
+        // 실제로 완료된 단어/문장 개수로 DOM 업데이트
+        const wordsCount = this.completedWords.size;
+        const sentencesCount = this.completedSentences.size;
+        const wordsEl = document.getElementById('words-learned-today');
+        const sentencesEl = document.getElementById('sentences-learned-today');
+        if (wordsEl) wordsEl.textContent = wordsCount;
+        if (sentencesEl) sentencesEl.textContent = sentencesCount;
+    }
+
+    // 통계 데이터 fetch 메서드 추가
+    async fetchStats() {
+        try {
+            const response = await fetch('/learning/api/stats?level=' + this.currentLevel + '&day=' + this.currentDay);
+            if (!response.ok) throw new Error('통계 데이터 로드 실패');
+            return await response.json();
+        } catch (error) {
+            console.error('통계 데이터 fetch 실패:', error);
+            return {};
+        }
+    }
+
+    // 카드 활성화/비활성화 유틸리티 추가
+    setAllCardsDisabledExcept(card) {
+        document.querySelectorAll('.word-card, .sentence-card').forEach(c => {
+            c.style.pointerEvents = (c === card) ? 'auto' : 'none';
+            c.style.opacity = (c === card) ? '1' : '0.5';
+        });
+    }
+    resetAllCardsEnabled() {
+        document.querySelectorAll('.word-card, .sentence-card').forEach(c => {
+            c.style.pointerEvents = '';
+            c.style.opacity = '';
+        });
+    }
 }
 
 // 전역에서 사용할 수 있도록 설정
@@ -1577,355 +1792,54 @@ function showLoadingSpinner() {
         spinner = document.createElement('div');
         spinner.id = 'loading-spinner';
         spinner.style.position = 'fixed';
-        spinner.style.top = '0';
-        spinner.style.left = '0';
-        spinner.style.width = '100vw';
-        spinner.style.height = '100vh';
-        spinner.style.background = 'rgba(255,255,255,0.7)';
+        spinner.style.top = '50%';
+        spinner.style.left = '50%';
+        spinner.style.transform = 'translate(-50%, -50%)';
+        spinner.style.background = 'rgba(255,255,255,0.9)';
+        spinner.style.padding = '20px 40px';
+        spinner.style.borderRadius = '10px';
+        spinner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
         spinner.style.display = 'flex';
         spinner.style.alignItems = 'center';
         spinner.style.justifyContent = 'center';
-        spinner.style.zIndex = '9999';
-        spinner.innerHTML = '<div style="font-size:2rem; color:#34E5C2;">로딩 중...</div>';
+        spinner.style.zIndex = '1000';
+        spinner.innerHTML = '<div style="font-size:1.2rem; color:#34E5C2;">로딩 중...</div>';
         document.body.appendChild(spinner);
     }
     spinner.style.display = 'flex';
 }
 function hideLoadingSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    if (spinner) spinner.style.display = 'none';
+    if (spinner) {
+        spinner.style.display = 'none';
+        // 완전히 제거
+        setTimeout(() => {
+            if (spinner && spinner.parentNode) {
+                spinner.parentNode.removeChild(spinner);
+            }
+        }, 100);
+    }
 }
 // DOMContentLoaded에서 안전하게 실행
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         showLoadingSpinner();
         initEnhancedIntegratedLearningManager();
+        
+        // 10초 후 강제로 로딩 스피너 숨기기 (안전장치)
+        setTimeout(() => {
+            hideLoadingSpinner();
+        }, 10000);
     });
 } else {
     showLoadingSpinner();
     initEnhancedIntegratedLearningManager();
+    
+    // 10초 후 강제로 로딩 스피너 숨기기 (안전장치)
+    setTimeout(() => {
+        hideLoadingSpinner();
+    }, 10000);
 }
 // EnhancedIntegratedLearningManager 내에서 데이터 렌더링 후 hideLoadingSpinner() 호출
 // renderWordsToHTML, renderSentencesToHTML 마지막에 hideLoadingSpinner() 추가
 
-// 학생 관리 매니저 클래스
-class StudentManagementManager {
-    constructor() {
-        this.baseUrl = '/api/teacher';
-        this.currentStudentId = null;
-        this.init();
-    }
-
-    init() {
-        console.log('학생 관리 매니저 초기화 중...');
-        this.loadStudents();
-        this.setupEventListeners();
-    }
-
-    // 이벤트 리스너 설정
-    setupEventListeners() {
-        // 학생 검색
-        const searchBtn = document.getElementById('student-search-btn');
-        const searchInput = document.getElementById('student-search-input');
-        
-        if (searchBtn) {
-            searchBtn.addEventListener('click', () => {
-                this.searchStudents(searchInput?.value || '');
-            });
-        }
-        
-        if (searchInput) {
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.searchStudents(searchInput.value);
-                }
-            });
-        }
-
-        // 상세보기 버튼들 (동적으로 생성된 버튼들)
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('view-detail-btn')) {
-                const studentId = e.target.dataset.studentId;
-                if (studentId) {
-                    this.showStudentDetail(studentId);
-                }
-            }
-        });
-
-        // 피드백 폼 제출
-        const feedbackForm = document.getElementById('feedback-form');
-        if (feedbackForm) {
-            feedbackForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.submitFeedback();
-            });
-        }
-
-        // 닫기 버튼
-        const closeBtn = document.getElementById('close-detail-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                this.hideStudentDetail();
-            });
-        }
-    }
-
-    // 학생 목록 로드
-    async loadStudents(searchQuery = '') {
-        try {
-            console.log('학생 목록 로드 중...');
-            const url = searchQuery ? 
-                `${this.baseUrl}/students?searchQuery=${encodeURIComponent(searchQuery)}` : 
-                `${this.baseUrl}/students`;
-            
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const students = await response.json();
-            this.renderStudentList(students);
-            console.log('학생 목록 로드 완료:', students);
-        } catch (error) {
-            console.error('학생 목록 로드 실패:', error);
-            this.showError('학생 목록을 불러올 수 없습니다.');
-        }
-    }
-
-    // 학생 검색
-    searchStudents(query) {
-        console.log('학생 검색:', query);
-        this.loadStudents(query);
-    }
-
-    // 학생 목록 렌더링
-    renderStudentList(students) {
-        const tbody = document.querySelector('.student-list-table tbody');
-        if (!tbody) return;
-
-        if (students.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">학생이 없습니다.</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = students.map(student => `
-            <tr>
-                <td>${student.name || '이름 없음'}</td>
-                <td>${student.email || '이메일 없음'}</td>
-                <td>${student.grade || '학년 정보 없음'}</td>
-                <td>
-                    <button class="view-detail-btn" data-student-id="${student.id}">상세</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // 학생 상세 정보 표시
-    async showStudentDetail(studentId) {
-        try {
-            console.log('학생 상세 정보 로드 중:', studentId);
-            this.currentStudentId = studentId;
-
-            // 학생 기본 정보 로드
-            const studentResponse = await fetch(`${this.baseUrl}/students/${studentId}`);
-            if (!studentResponse.ok) throw new Error('학생 정보 로드 실패');
-            const student = await studentResponse.json();
-
-            // 학생 통계 로드
-            const statsResponse = await fetch(`${this.baseUrl}/students/${studentId}/stats`);
-            if (!statsResponse.ok) throw new Error('학생 통계 로드 실패');
-            const stats = await statsResponse.json();
-
-            // 학생 학습 데이터 로드 (최근 30일)
-            const learningResponse = await fetch(`${this.baseUrl}/students/${studentId}/learning-data`);
-            if (!learningResponse.ok) throw new Error('학습 데이터 로드 실패');
-            const learningData = await learningResponse.json();
-
-            // 학생 피드백 로드
-            const feedbackResponse = await fetch(`${this.baseUrl}/students/${studentId}/feedback`);
-            if (!feedbackResponse.ok) throw new Error('피드백 로드 실패');
-            const feedbacks = await feedbackResponse.json();
-
-            // UI 업데이트
-            this.updateStudentDetailUI(student, stats, learningData, feedbacks);
-            
-            // 상세 섹션 표시
-            const detailSection = document.querySelector('.student-detail-section');
-            if (detailSection) {
-                detailSection.style.display = 'block';
-            }
-
-            console.log('학생 상세 정보 로드 완료');
-        } catch (error) {
-            console.error('학생 상세 정보 로드 실패:', error);
-            this.showError('학생 정보를 불러올 수 없습니다.');
-        }
-    }
-
-    // 학생 상세 정보 UI 업데이트
-    updateStudentDetailUI(student, stats, learningData, feedbacks) {
-        // 기본 정보 업데이트
-        const nameEl = document.getElementById('detail-student-name');
-        const emailEl = document.getElementById('detail-student-email');
-        const gradeEl = document.getElementById('detail-student-grade');
-
-        if (nameEl) nameEl.textContent = student.name || '이름 없음';
-        if (emailEl) emailEl.textContent = student.email || '이메일 없음';
-        if (gradeEl) gradeEl.textContent = student.grade || '학년 정보 없음';
-
-        // 학습 데이터 테이블 업데이트
-        this.renderLearningDataTable(learningData);
-
-        // 피드백 히스토리 업데이트
-        this.renderFeedbackHistory(feedbacks);
-    }
-
-    // 학습 데이터 테이블 렌더링
-    renderLearningDataTable(learningData) {
-        const tbody = document.getElementById('learning-data-body');
-        if (!tbody) return;
-
-        if (learningData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">학습 데이터가 없습니다.</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = learningData.map(day => `
-            <tr>
-                <td>${day.date}</td>
-                <td>${day.wordsLearned || 0}개</td>
-                <td>${day.sentencesLearned || 0}개</td>
-                <td>${day.coinsEarned || 0}개</td>
-            </tr>
-        `).join('');
-    }
-
-    // 피드백 히스토리 렌더링
-    renderFeedbackHistory(feedbacks) {
-        const feedbackHistory = document.getElementById('feedback-history');
-        if (!feedbackHistory) return;
-
-        const ul = feedbackHistory.querySelector('ul');
-        if (!ul) return;
-
-        if (feedbacks.length === 0) {
-            ul.innerHTML = '<li>작성된 피드백이 없습니다.</li>';
-            return;
-        }
-
-        ul.innerHTML = feedbacks.map(feedback => `
-            <li>
-                <span>${feedback.content || '내용 없음'}</span>
-                <small>${feedback.createdAt ? new Date(feedback.createdAt).toLocaleString() : ''}</small>
-                <button type="button" class="edit-feedback-btn" data-feedback-id="${feedback.id}">수정</button>
-                <button type="button" class="delete-feedback-btn" data-feedback-id="${feedback.id}">삭제</button>
-            </li>
-        `).join('');
-    }
-
-    // 피드백 제출
-    async submitFeedback() {
-        if (!this.currentStudentId) {
-            this.showError('학생을 선택해주세요.');
-            return;
-        }
-
-        const contentEl = document.getElementById('feedback-content');
-        const content = contentEl?.value?.trim();
-        
-        if (!content) {
-            this.showError('피드백 내용을 입력해주세요.');
-            return;
-        }
-
-        try {
-            console.log('피드백 제출 중...');
-            const response = await fetch(`${this.baseUrl}/students/${this.currentStudentId}/feedback`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content })
-            });
-
-            if (!response.ok) throw new Error('피드백 제출 실패');
-            
-            const result = await response.json();
-            console.log('피드백 제출 완료:', result);
-            
-            // 피드백 입력창 초기화
-            if (contentEl) contentEl.value = '';
-            
-            // 피드백 목록 새로고침
-            this.refreshFeedbackList();
-            
-            this.showSuccess('피드백이 저장되었습니다.');
-        } catch (error) {
-            console.error('피드백 제출 실패:', error);
-            this.showError('피드백 저장에 실패했습니다.');
-        }
-    }
-
-    // 피드백 목록 새로고침
-    async refreshFeedbackList() {
-        if (!this.currentStudentId) return;
-
-        try {
-            const response = await fetch(`${this.baseUrl}/students/${this.currentStudentId}/feedback`);
-            if (!response.ok) throw new Error('피드백 목록 로드 실패');
-            
-            const feedbacks = await response.json();
-            this.renderFeedbackHistory(feedbacks);
-        } catch (error) {
-            console.error('피드백 목록 새로고침 실패:', error);
-        }
-    }
-
-    // 학생 상세 정보 숨기기
-    hideStudentDetail() {
-        const detailSection = document.querySelector('.student-detail-section');
-        if (detailSection) {
-            detailSection.style.display = 'none';
-        }
-        this.currentStudentId = null;
-    }
-
-    // 성공 메시지 표시
-    showSuccess(message) {
-        // 토스트 메시지 또는 알림 표시
-        console.log('✅', message);
-        alert(message);
-    }
-
-    // 에러 메시지 표시
-    showError(message) {
-        console.error('❌', message);
-        alert('오류: ' + message);
-    }
-}
-
-// 전역에서 사용할 수 있도록 설정
-window.StudentManagementManager = StudentManagementManager;
-
-// 초기화 함수
-function initStudentManagementManager() {
-    if (window.studentManagementManager) {
-        window.studentManagementManager = null;
-    }
-
-    setTimeout(() => {
-        try {
-            window.studentManagementManager = new StudentManagementManager();
-            console.log('✅ 학생 관리 매니저 초기화 완료');
-        } catch (error) {
-            console.error('❌ 학생 관리 매니저 초기화 실패:', error);
-        }
-    }, 100);
-}
-
-// DOMContentLoaded에서 안전하게 실행
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStudentManagementManager);
-} else {
-    initStudentManagementManager();
-}

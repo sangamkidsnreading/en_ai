@@ -1,18 +1,31 @@
 // ========== UserService.java (업데이트) ==========
 package com.example.kidsreading.service;
 
+import com.example.kidsreading.dto.LevelProgressDto;
 import com.example.kidsreading.dto.RegisterRequest;
+import com.example.kidsreading.entity.LevelSettings;
 import com.example.kidsreading.entity.User;
+import com.example.kidsreading.repository.UserSentenceProgressRepository;
+import com.example.kidsreading.repository.LevelSettingsRepository;
 import com.example.kidsreading.repository.UserRepository;
+import com.example.kidsreading.repository.UserWordProgressRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +35,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserWordProgressRepository userWordProgressRepository;
+    private final LevelSettingsRepository levelSettingsRepository;
+    private final UserSentenceProgressRepository userSentenceProgressRepository;
     // private final EmailService emailService; // 나중에 추가
+
+    public User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email).orElseThrow();
+    }
 
     /**
      * 회원가입 처리
@@ -60,6 +81,10 @@ public class UserService {
                 .emailVerified(request.getEmailVerified())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                // 동의 항목 매핑 추가
+                .agreeTerms(request.getAgreeTerms() != null ? request.getAgreeTerms() : false)
+                .agreePrivacy(request.getAgreePrivacy() != null ? request.getAgreePrivacy() : false)
+                .agreeMarketing(request.getAgreeMarketing() != null ? request.getAgreeMarketing() : false)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -79,7 +104,14 @@ public class UserService {
      * 사용자명으로 사용자 조회
      */
     public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.getIsActive() != null && !user.getIsActive()) {
+                throw new IllegalStateException("비승인 상태입니다. 관리자에게 문의 바랍니다.");
+            }
+        }
+        return userOpt;
     }
 
     /**
@@ -158,5 +190,65 @@ public class UserService {
         userRepository.save(user);
 
         log.info("비밀번호 변경 완료: {} (ID: {})", user.getEmail(), user.getId());
+    }
+
+    public LevelProgressDto getLevelProgressForCurrentUser() {
+        User user = getCurrentUser();
+        int learnedWords = userWordProgressRepository.countByUserIdAndIsLearnedTrue(user.getId());
+        int learnedSentences = userSentenceProgressRepository.countByUserIdAndIsLearnedTrue(user.getId());
+        int currentLevel = user.getLevel() != null ? user.getLevel() : 1;
+
+        // 레벨별 필요 단어/문장 수
+        LevelSettings settings = levelSettingsRepository.findByLevel(currentLevel).orElse(null);
+        int wordsToNextLevel = (settings != null && settings.getWordsToNextLevel() > 0) ? settings.getWordsToNextLevel() : 100;
+        int sentencesToNextLevel = (settings != null && settings.getSentencesToNextLevel() > 0) ? settings.getSentencesToNextLevel() : 50;
+
+        // 누적 필요 단어/문장 수
+        int prevWordsTotal = getTotalWordsForPreviousLevels(currentLevel);
+        int prevSentencesTotal = getTotalSentencesForPreviousLevels(currentLevel);
+
+        int currentLevelLearnedWords = learnedWords - prevWordsTotal;
+        int currentLevelLearnedSentences = learnedSentences - prevSentencesTotal;
+        if (currentLevelLearnedWords < 0) currentLevelLearnedWords = 0;
+        if (currentLevelLearnedSentences < 0) currentLevelLearnedSentences = 0;
+
+        // 단어/문장 각각의 진행률
+        double wordProgress = (currentLevelLearnedWords * 1.0) / wordsToNextLevel;
+        double sentenceProgress = (currentLevelLearnedSentences * 1.0) / sentencesToNextLevel;
+
+        // 평균 진행률(혹은 가중치 부여 가능)
+        int levelProgress = (int) ( (wordProgress + sentenceProgress) / 2 * 100 );
+        levelProgress = Math.min(levelProgress, 100);
+
+        LevelProgressDto dto = new LevelProgressDto();
+        dto.setCurrentLevel(currentLevel);
+        dto.setLevelProgress(levelProgress);
+        dto.setWordsToNextLevel(Math.max(wordsToNextLevel - currentLevelLearnedWords, 0));
+        dto.setSentencesToNextLevel(Math.max(sentencesToNextLevel - currentLevelLearnedSentences, 0));
+        return dto;
+    }
+
+    private int getWordsToNextLevel(int currentLevel) {
+        Optional<LevelSettings> opt = levelSettingsRepository.findByLevel(currentLevel);
+        return opt.map(LevelSettings::getWordsToNextLevel).orElse(100);
+    }
+
+    private int getTotalWordsForPreviousLevels(int currentLevel) {
+        List<LevelSettings> prevLevels = levelSettingsRepository.findByLevelLessThan(currentLevel);
+        return prevLevels.stream().mapToInt(LevelSettings::getWordsToNextLevel).sum();
+    }
+
+    private int getTotalSentencesForPreviousLevels(int currentLevel) {
+        List<LevelSettings> prevLevels = levelSettingsRepository.findByLevelLessThan(currentLevel);
+        return prevLevels.stream().mapToInt(LevelSettings::getSentencesToNextLevel).sum();
+    }
+
+    @Transactional
+    public void levelUpCurrentUser() {
+        User user = getCurrentUser();
+        int currentLevel = user.getLevel() != null ? user.getLevel() : 1;
+        int nextLevel = currentLevel + 1;
+        user.setLevel(nextLevel);
+        userRepository.save(user);
     }
 }

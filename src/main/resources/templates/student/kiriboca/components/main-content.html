@@ -8,13 +8,14 @@
             <div class="header-top">
                 <div class="header-left">
                     <h1>Level 1 - Day 1</h1>
-                    <p>오늘의 단어: <span id="words-learned">0</span>개, 오늘의 문장: <span id="sentences-learned">0</span>개</p>
+                      <!--  <p>오늘 학습한 단어: <span id="words-learned-today">0</span>개, 오늘 학습한 문장: <span id="sentences-learned-today">0</span>개</p>-->
                 </div>
+
                 <div class="header-right">
                     <div class="coins">
                         <div class="coins-label">오늘 획득한 코인</div>
                         <div class="coin-display">
-                            <span class="coin-icon">🪙</span>
+                            <span class="coin-icon"><img src="/imgs/coin.png" alt="coin" style="width: 50px; height: 50px; vertical-align: middle;"></span>
                             <span id="total-coins" class="coin-number">0</span>
                         </div>
                     </div>
@@ -23,7 +24,7 @@
 
             <!-- Welcome Message - 헤더 박스 안에 포함 -->
             <div class="welcome-message">
-                오늘 첫날 시작이 반!! 화이팅 김학습자 💪
+                오늘 첫날 시작이 반!! 화이팅 <span th:text="${name}"></span> 💪
             </div>
         </div>
     </div>
@@ -34,6 +35,11 @@
             <div class="words-title">
                 <div class="section-icon words-icon">W</div>
                 <div class="section-title">Words</div>
+                <div class="today-count">
+                    <span class="count-label">오늘의 단어:</span>
+                    <span class="count-number" id="today-words-count">0</span>
+                    <span class="count-unit">개</span>
+                </div>
             </div>
             <button class="start-button" id="words-start-btn">
                 <span class="rocket-icon">🚀</span>
@@ -72,6 +78,11 @@
             <div class="sentences-title">
                 <div class="section-icon sentences-icon">S</div>
                 <div class="section-title">Sentences</div>
+                <div class="today-count">
+                    <span class="count-label">오늘의 문장:</span>
+                    <span class="count-number" id="today-sentences-count">0</span>
+                    <span class="count-unit">개</span>
+                </div>
             </div>
             <button class="start-button" id="sentences-start-btn">
                 <span class="rocket-icon">🚀</span>
@@ -213,6 +224,34 @@
 .learned-item-icon.sentence {
     background: #28a745;
     color: white;
+}
+
+/* 오늘의 개수 표시 스타일 */
+.today-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #666;
+}
+
+.count-label {
+    font-weight: 500;
+}
+
+.count-number {
+    font-weight: bold;
+    color: #1890ff;
+    font-size: 14px;
+}
+
+.count-unit {
+    font-size: 11px;
+    opacity: 0.8;
 }
 
 .learned-item-content {

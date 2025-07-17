@@ -88,6 +88,7 @@
             <div class="tab-item" data-tab="sentences">문장 관리</div>
             <div class="tab-item" data-tab="audio">음원 관리</div>
             <div class="tab-item" data-tab="settings">학습 설정</div>
+            <div class="tab-item" data-tab="registration">회원가입 설정</div>
         </div>
 
         <!-- 사용자 관리 탭 -->
@@ -127,7 +128,21 @@
             <div class="content-header">
                 <h3>단어 관리</h3>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <!-- Day 선택 드롭다운 추가 -->
+                    <label for="word-level-select">Level</label>
+                    <!-- Day 선택 드롭다운 추가 --> 
+                    <select id="word-level-select">
+                        <option value="all">전체</option>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                        <option value="6">Level 6</option>
+                        <option value="7">Level 7</option>
+                        <option value="8">Level 8</option>
+                        <option value="9">Level 9</option>
+                        <option value="10">Level 10</option>
+                    </select>
                     <label for="word-day-select">Day</label>
                     <select id="word-day-select">
                         <option value="all">전체</option>
@@ -146,7 +161,7 @@
                         📤 엑셀 업로드
                     </button>
                     <span style="font-size: 13px; color: #888;">
-                        (엑셀 컬럼: <b>word, meaning, audio_file, level, day</b> 순)
+                        (엑셀 컬럼: <b>word, meaning, audio_file, level, day</b> 순) - audio_file은 비워두면 자동 생성됩니다
                     </span>
                     <button class="add-btn" id="bulk-audio-upload-words-btn">
                         🎵 음원 일괄 업로드
@@ -160,6 +175,9 @@
             </div>
             <div class="word-list" id="word-list">
                 <!-- 단어 목록이 동적으로 로드됩니다 -->
+                <div class="dragndrop-hint" style="text-align:center;color:#888;font-size:14px;margin:8px 0;">
+                    ⬍ 단어를 드래그하여 순서를 변경할 수 있습니다
+                </div>
             </div>
         </div>
 
@@ -168,6 +186,20 @@
             <div class="content-header">
                 <h3>문장 관리</h3>
                 <div style="display: flex; gap: 12px; align-items: center;">
+                    <label for="sentence-level-select">Level</label>
+                    <select id="sentence-level-select">
+                        <option value="all">전체</option>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                        <option value="6">Level 6</option>
+                        <option value="7">Level 7</option>
+                        <option value="8">Level 8</option>
+                        <option value="9">Level 9</option>
+                        <option value="10">Level 10</option>
+                    </select>
                     <!-- Day 선택 드롭다운 추가 -->
                     <label for="sentence-day-select">Day</label>
                     <select id="sentence-day-select">
@@ -176,7 +208,7 @@
                         <!--# th:each="d : ${#numbers.sequence(1,50)}"-->
                         <option th:each="d : ${#numbers.sequence(1,50)}" th:value="${d}" th:text="${'Day ' + d}">Day 1</option>
                         <!--/-->
-                    </select>
+                    </select>          
                     <button class="add-btn sentences-btn" id="add-sentence-btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -186,6 +218,9 @@
                     <button class="add-btn" id="upload-sentences-btn">
                         📤 엑셀 업로드
                     </button>
+                    <span style="font-size: 13px; color: #888;">
+                        (엑셀 컬럼: <b>entence   meaning   audio_file   level   day</b> 순) - audio_file은 비워두면 자동 생성됩니다
+                    </span>
                     <button class="add-btn" id="bulk-audio-upload-sentences-btn">
                         🎵 음원 일괄 업로드
                     </button>
@@ -198,6 +233,9 @@
             </div>
             <div class="sentence-list" id="sentence-list">
                 <!-- 문장 목록이 동적으로 로드됩니다 -->
+                <div class="dragndrop-hint" style="text-align:center;color:#888;font-size:14px;margin:8px 0;">
+                    ⬍ 문장을 드래그하여 순서를 변경할 수 있습니다
+                </div>
             </div>
         </div>
 
@@ -328,6 +366,18 @@
                 </div>
 
                 <div class="settings-card">
+                    <h4>레벨별 단어 설정</h4>
+                    <!-- 필드 안내 문구 추가 -->
+                    <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                        <b>단어</b>: 해당 레벨에서 학습할 단어 개수 &nbsp; | &nbsp;
+                        <b>문장</b>: 해당 레벨에서 학습할 문장 개수
+                    </div>
+                    <div id="level-settings-list"></div>
+                    <div id="level-settings-debug" style="color: #1976d2; margin-top: 10px;"></div>
+                    <button onclick="saveLevelSettings()">저장</button>
+                </div>
+
+                <div class="settings-card">
                     <h4>레벨 설정</h4>
 
                     <div class="setting-item">
@@ -364,6 +414,71 @@
                 <button class="save-btn" id="save-settings-btn">설정 저장</button>
             </div>
         </div>
+
+        <!-- 회원가입 설정 탭 -->
+        <div class="tab-content" id="registration-tab">
+            <div class="content-header">
+                <h3>회원가입 설정</h3>
+                <div>
+                    <button class="add-btn" id="add-group-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        분원 추가
+                    </button>
+                    <button class="add-btn" id="save-registration-settings-btn">
+                        💾 설정 저장
+                    </button>
+                </div>
+            </div>
+
+            <div class="registration-settings-grid">
+                <!-- 분원 관리 섹션 -->
+                <div class="settings-card">
+                    <h4>분원 관리</h4>
+                    <div class="group-list" id="group-list">
+                        <!-- 분원 목록이 동적으로 로드됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 동의 설정 섹션 -->
+                <div class="settings-card">
+                    <h4>회원가입 동의 설정</h4>
+                    
+                    <div class="agreement-settings">
+                        <div class="agreement-setting-item">
+                            <label class="agreement-label">
+                                <input type="checkbox" id="terms-required" checked>
+                                <span class="agreement-text">이용 약관 동의 (필수)</span>
+                            </label>
+                            <div class="agreement-content">
+                                <textarea id="terms-content" placeholder="이용 약관 내용을 입력하세요..." rows="6"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="agreement-setting-item">
+                            <label class="agreement-label">
+                                <input type="checkbox" id="privacy-required" checked>
+                                <span class="agreement-text">개인정보 수집 및 이용 동의 (필수)</span>
+                            </label>
+                            <div class="agreement-content">
+                                <textarea id="privacy-content" placeholder="개인정보 수집 및 이용 동의 내용을 입력하세요..." rows="6"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="agreement-setting-item">
+                            <label class="agreement-label">
+                                <input type="checkbox" id="marketing-required">
+                                <span class="agreement-text">마케팅 정보 수신 동의 (선택)</span>
+                            </label>
+                            <div class="agreement-content">
+                                <textarea id="marketing-content" placeholder="마케팅 정보 수신 동의 내용을 입력하세요..." rows="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 모달들 -->
@@ -394,11 +509,20 @@
                 </div>
 
                 <div class="form-group">
-                    <label>역할 *</label>
+                    <label>분원 선택 *</label>
+                    <select id="user-groupName" required>
+                        <option value="SANGAM">상암본원 키즈엔리딩</option>
+                        <option value="YONGIN">용인지혜의 숲 키즈엔리딩</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>역할 선택 *</label>
                     <select id="user-role" required>
                         <option value="STUDENT">학생</option>
+                        <option value="PARENT">학부모</option>
+                        <option value="TEACHER">교사</option>
                         <option value="ADMIN">관리자</option>
-                        <option value="TEACHER">선생님</option>
                     </select>
                 </div>
 
@@ -555,6 +679,53 @@
             <div class="modal-footer">
                 <button data-modal="sentence-modal" class="modal-cancel">취소</button>
                 <button id="save-sentence-btn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 분원 추가/수정 모달 -->
+    <div id="group-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="group-modal-title">분원 추가</h3>
+                <span class="close" data-modal="group-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="group-id">
+                
+                <div class="form-group">
+                    <label>분원 코드 *</label>
+                    <input type="text" id="group-code" placeholder="예: SANGAM, YONGIN" required>
+                    <small style="color: #666; font-size: 12px;">영문 대문자로 된 고유한 코드를 입력하세요.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>분원명 *</label>
+                    <input type="text" id="group-name" placeholder="예: 상암본원 키즈엔리딩" required>
+                    <small style="color: #666; font-size: 12px;">사용자에게 표시될 분원명을 입력하세요.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>주소</label>
+                    <input type="text" id="group-address" placeholder="분원 주소">
+                </div>
+
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="text" id="group-phone" placeholder="전화번호">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="group-active" checked>
+                        활성 상태
+                    </label>
+                    <small style="color: #666; font-size: 12px;">비활성화된 분원은 회원가입 시 선택할 수 없습니다.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-modal="group-modal" class="modal-cancel">취소</button>
+                <button id="save-group-btn">저장</button>
             </div>
         </div>
     </div>
@@ -1192,4 +1363,281 @@
   .word-content { flex-direction: column; align-items: flex-start; gap: 8px; }
   .word-actions { flex-direction: row; gap: 8px; margin-left: 0; margin-top: 8px; }
 }
+
+/* 회원가입 설정 탭 스타일 */
+.registration-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.group-list {
+    margin-top: 16px;
+}
+
+.group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s;
+}
+
+.group-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.group-info {
+    flex: 1;
+}
+
+.group-code {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.group-name {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.group-details {
+    color: #888;
+    font-size: 12px;
+}
+
+.group-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.group-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.group-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.group-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.agreement-settings {
+    margin-top: 16px;
+}
+
+.agreement-setting-item {
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.agreement-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.agreement-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4f8cff;
+}
+
+.agreement-text {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.agreement-content {
+    margin-top: 12px;
+}
+
+.agreement-content textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.agreement-content textarea:focus {
+    outline: none;
+    border-color: #4f8cff;
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .registration-settings-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .group-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .group-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
 </style>
+
+<style>
+.dragElem {
+    opacity: 0.6;
+    background: #e3e3ff !important;
+    border: 2px dashed #7b61ff !important;
+}
+.over {
+    border: 2px solid #7b61ff !important;
+    background: #f3f0ff !important;
+}
+.dragndrop-hint {
+    user-select: none;
+    pointer-events: none;
+}
+.drag-insert-line {
+    height: 0;
+    border-top: 4px solid #1976d2;
+    margin: -2px 0 0 0;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 10;
+}
+.drag-insert-line.insert-after {
+    border-top: none;
+    border-bottom: 4px solid #1976d2;
+    margin: 0 0 -2px 0;
+}
+</style>
+
+<!-- 음원 일괄 업로드 진행 상황 모달 -->
+<div id="bulk-audio-progress-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 id="bulk-audio-progress-title">음원 일괄 업로드 진행 상황</h3>
+            <span class="close" onclick="closeModal('bulk-audio-progress-modal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <!-- 전체 진행률 -->
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span id="progress-status">업로드 준비 중...</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            <!-- 상세 진행 상황 -->
+            <div class="progress-details">
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">총 파일 수:</span>
+                        <span id="total-files" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">업로드 완료:</span>
+                        <span id="uploaded-files" class="stat-value success">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">업로드 실패:</span>
+                        <span id="failed-files" class="stat-value error">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">남은 파일:</span>
+                        <span id="remaining-files" class="stat-value">0</span>
+                    </div>
+                </div>
+                <!-- 현재 처리 중인 파일 -->
+                <div class="current-file-section">
+                    <h4>현재 처리 중:</h4>
+                    <div id="current-file-info" class="current-file-info">
+                        <span id="current-file-name">-</span>
+                        <span id="current-file-status">대기 중</span>
+                    </div>
+                </div>
+                <!-- 실시간 로그 -->
+                <div class="upload-log-section">
+                    <h4>업로드 로그:</h4>
+                    <div id="upload-log" class="upload-log">
+                        <div class="log-entry info">업로드를 시작합니다...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-upload-btn" class="btn btn-secondary">업로드 취소</button>
+            <button id="close-progress-modal-btn" class="btn btn-primary" style="display: none;">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 음원 일괄 업로드 결과 모달 -->
+<div id="bulk-audio-result-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h3>음원 일괄 업로드 완료</h3>
+            <span class="close" onclick="closeModal('bulk-audio-result-modal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <!-- 결과 요약 -->
+            <div class="result-summary">
+                <div class="result-stat success">
+                    <div class="result-icon">✅</div>
+                    <div class="result-info">
+                        <div class="result-number" id="result-success-count">0</div>
+                        <div class="result-label">성공</div>
+                    </div>
+                </div>
+                <div class="result-stat error">
+                    <div class="result-icon">❌</div>
+                    <div class="result-info">
+                        <div class="result-number" id="result-error-count">0</div>
+                        <div class="result-label">실패</div>
+                    </div>
+                </div>
+            </div>
+            <!-- 성공한 파일 목록 -->
+            <div id="success-files-section" class="files-section" style="display: none;">
+                <h4>✅ 성공한 파일들</h4>
+                <div id="success-files-list" class="files-list"></div>
+            </div>
+            <!-- 실패한 파일 목록 -->
+            <div id="error-files-section" class="files-section" style="display: none;">
+                <h4>❌ 실패한 파일들</h4>
+                <div id="error-files-list" class="files-list"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('bulk-audio-result-modal')" class="btn btn-primary">확인</button>
+        </div>
+    </div>
+</div>

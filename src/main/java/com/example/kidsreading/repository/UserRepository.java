@@ -359,4 +359,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "WHERE u.lastLogin >= :since OR uwp.lastPracticedAt >= :since OR usp.lastPracticedAt >= :since")
     List<User> findRecentlyActiveUsers(@Param("since") LocalDateTime since);
     */
+
+    @Query("SELECT COALESCE(u.level, 1) FROM User u WHERE u.id = :userId")
+    int getCurrentLevel(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(u.levelProgress, 0) FROM User u WHERE u.id = :userId")
+    int getLevelProgressPercent(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(u.wordsToNextLevel, 100) FROM User u WHERE u.id = :userId")
+    int getWordsToNextLevel(@Param("userId") Long userId);
 }

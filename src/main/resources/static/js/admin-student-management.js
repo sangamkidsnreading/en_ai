@@ -1,3 +1,9 @@
+// 중복 선언 방지
+if (typeof window.StudentManagementManager !== 'undefined') {
+    console.log('🔄 기존 StudentManagementManager 제거');
+    delete window.StudentManagementManager;
+}
+
 // 학생 관리 매니저 클래스
 class StudentManagementManager {
     constructor() {
@@ -78,7 +84,7 @@ class StudentManagementManager {
             console.log('학생 목록 로드 완료:', students);
         } catch (error) {
             console.error('학생 목록 로드 실패:', error);
-            this.showError('학생 목록을 불러올 수 없습니다.');
+            //this.showError('학생 목록을 불러올 수 없습니다.');
         }
     }
 

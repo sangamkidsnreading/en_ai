@@ -50,6 +50,9 @@ public class Word {
     @Column(name = "day_number")
     private Integer dayNumber;
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     @OneToMany(mappedBy = "word", cascade = CascadeType.ALL)
     private List<UserWordProgress> userProgresses;
 

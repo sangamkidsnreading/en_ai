@@ -16,8 +16,18 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +36,9 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -109,16 +122,17 @@ public class SecurityConfig {
                         .usernameParameter("username")  // 이메일을 username으로 받음
                         .passwordParameter("password")
                         .successHandler(successHandler())
+                        .failureHandler(customAuthenticationFailureHandler) // 이 줄로 변경!
                         .defaultSuccessUrl("/student/kiriboca/index", true)
-                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")) // 이 줄 추가!
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(3)

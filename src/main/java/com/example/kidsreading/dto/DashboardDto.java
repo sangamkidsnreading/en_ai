@@ -80,18 +80,3 @@ class CalendarDayDto {
     private Integer sentencesCompleted;
     private Integer coinsEarned;
 }
-
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class RankingDto {
-    private Integer rank;
-    private String username;
-    private String name;
-    private Integer wordsLearned;
-    private Integer sentencesLearned;
-    private Integer totalCoins;
-    private String badge;
-} 

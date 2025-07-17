@@ -114,4 +114,32 @@ public class S3Service {
     public void deleteFile(String key) {
         s3Client.deleteObject(builder -> builder.bucket(bucket).key(key).build());
     }
+
+    public String uploadFileWithKey(File file, String s3Key, String ext) throws IOException {
+        String contentType = "audio/mpeg";
+        if (ext.equalsIgnoreCase(".wav")) contentType = "audio/wav";
+        else if (ext.equalsIgnoreCase(".m4a")) contentType = "audio/mp4";
+        else if (ext.equalsIgnoreCase(".ogg")) contentType = "audio/ogg";
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3Key)
+                .contentType(contentType)
+                .build();
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
+        // 업로드 성공 여부 확인
+        if (!fileExists(s3Key)) {
+            throw new IOException("S3 파일 업로드 실패: " + s3Key);
+        }
+        return s3Key;
+    }
+
+    public String uploadFileWithKey(File file, String s3Key) throws IOException {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3Key)
+                .contentType("audio/wav") // 필요시 확장자별 분기 가능
+                .build();
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
+        return s3Key;
+    }
 }

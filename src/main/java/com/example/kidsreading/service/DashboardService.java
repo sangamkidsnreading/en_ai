@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
+import com.example.kidsreading.dto.RankingDto;
+import com.example.kidsreading.dto.LevelProgressDto;
 
 @Service
 @Transactional
@@ -326,23 +328,17 @@ public class DashboardService {
     /**
      * 레벨 진행도 조회
      */
-    public Map<String, Object> getLevelProgress(Long userId) {
-        try {
-            Map<String, Object> levelData = new HashMap<>();
-            
-            // 기본 레벨 데이터 (실제로는 DB에서 조회해야 함)
-            levelData.put("currentLevel", 1);
-            levelData.put("levelProgress", 0);
-            levelData.put("wordsToNextLevel", 100);
-            
-            return levelData;
-        } catch (Exception e) {
-            Map<String, Object> defaultLevel = new HashMap<>();
-            defaultLevel.put("currentLevel", 1);
-            defaultLevel.put("levelProgress", 0);
-            defaultLevel.put("wordsToNextLevel", 100);
-            return defaultLevel;
-        }
+    public LevelProgressDto getLevelProgress(Long userId) {
+        // 예시: 현재 레벨, 진행률, 다음 레벨까지 남은 단어 수 계산
+        int currentLevel = userRepository.getCurrentLevel(userId);
+        int levelProgress = userRepository.getLevelProgressPercent(userId); // 0~100
+        int wordsToNextLevel = userRepository.getWordsToNextLevel(userId);
+
+        return LevelProgressDto.builder()
+            .currentLevel(currentLevel)
+            .levelProgress(levelProgress)
+            .wordsToNextLevel(wordsToNextLevel)
+            .build();
     }
 
     /**
@@ -399,5 +395,28 @@ public class DashboardService {
         }
         
         return stats;
+    }
+
+    public List<RankingDto> getTopRankings() {
+        // 예시: 최근 1일 기준, 단어+문장 학습량 합산으로 랭킹
+        List<User> users = userRepository.findAll();
+        List<RankingDto> rankings = new ArrayList<>();
+        for (User user : users) {
+            int words = wordRepository.getTodayCompletedWordsCount(user.getId());
+            int sentences = sentenceRepository.getTodayCompletedSentencesCount(user.getId());
+            rankings.add(RankingDto.builder()
+                .rank(0) // 나중에 정렬 후 순위 부여
+                .name(user.getName())
+                .wordsLearned(words)
+                .sentencesLearned(sentences)
+                .badge("오늘")
+                .build());
+        }
+        // 정렬 및 순위 부여
+        rankings.sort((a, b) -> (b.getWordsLearned() + b.getSentencesLearned()) - (a.getWordsLearned() + a.getSentencesLearned()));
+        for (int i = 0; i < rankings.size(); i++) {
+            rankings.get(i).setRank(i + 1);
+        }
+        return rankings.subList(0, Math.min(10, rankings.size())); // 상위 10명만
     }
 } 

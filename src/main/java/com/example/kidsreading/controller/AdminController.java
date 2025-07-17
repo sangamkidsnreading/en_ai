@@ -241,8 +241,15 @@ public class AdminController {
 
     @PostMapping({"/sentences/bulk-audio-upload"})
     public ResponseEntity<Map<String, Object>> bulkUploadSentenceAudio(@RequestParam("file") MultipartFile file) {
-        Map<String, Object> result = this.adminService.bulkUploadSentenceAudio(file);
+        try {
+            Map<String, Object> result = this.sentenceService.bulkUploadSentenceAudio(file);
         return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new java.util.HashMap<>();
+            error.put("success", false);
+            error.put("message", "업로드 실패: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     // 오디오 파일 서빙 엔드포인트 추가

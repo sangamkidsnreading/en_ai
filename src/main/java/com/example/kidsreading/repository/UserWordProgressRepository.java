@@ -73,6 +73,7 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
     List<UserWordProgress> findByUserIdAndIsCompletedTrue(Long userId);
     long countByUserId(Long userId);
     long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    int countByUserIdAndIsLearnedTrue(Long userId);
 
     /**
      * 오늘 완료한 단어 수
@@ -91,4 +92,12 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
      */
     @Query("SELECT u.wordId FROM UserWordProgress u WHERE u.userId = :userId AND u.isCompleted = true")
     List<Long> findCompletedWordIdsByUserId(@Param("userId") Long userId);
+
+    /**
+     * 특정 날짜 범위에서 사용자가 완료한 단어 수 조회
+     */
+    @Query("SELECT COUNT(u) FROM UserWordProgress u WHERE u.userId = :userId AND u.isCompleted = true AND u.lastLearnedAt BETWEEN :startDate AND :endDate")
+    int countCompletedWordsByUserAndDateRange(@Param("userId") Long userId,
+                                              @Param("startDate") LocalDateTime startDate,
+                                              @Param("endDate") LocalDateTime endDate);
 }

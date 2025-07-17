@@ -13,6 +13,9 @@
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin.css}">
     <link rel="stylesheet" th:href="@{/student/kiriboca/css/admin-student-management.css}">
 
+    <!-- Chart.js 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
     <!-- 중복 로드 방지 스크립트 -->
     <script>
         // 중복 선언 방지
@@ -456,10 +459,7 @@
 
             // 특별 처리 (로그아웃)
             if (page === 'logout') {
-                if (confirm('정말 로그아웃하시겠습니까?')) {
-                    this.showToast('로그아웃', '로그아웃되었습니다!');
-                    // 실제 로그아웃 로직 추가
-                }
+                window.location.replace('/logout');
                 return;
             }
 
@@ -927,6 +927,7 @@
     };
 </script>
 <!-- JavaScript 파일들 (캐시 버스팅) - 한 번만 로드 -->
+    <script th:src="@{/js/dragNdrop.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/main-content.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/change-cards.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/dark-mode.js?v=1.0.2}" defer></script>

@@ -21,8 +21,8 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$",
-            message = "비밀번호는 영문 대소문자, 숫자, 특수문자를 포함하여 8-16자리여야 합니다.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$",
+            message = "비밀번호는 영문, 숫자, 특수문자(@$!%*?&)를 포함하여 8-16자리여야 합니다.")
     private String password;
 
     @NotBlank(message = "이름은 필수입니다.")
@@ -45,12 +45,16 @@ public class RegisterRequest {
     @NotBlank(message = "그룹 선택은 필수입니다.")
     private String groupName;
 
+    private Boolean agreeTerms;
+    private Boolean agreePrivacy;
+    private Boolean agreeMarketing;
+
     // 기본값들 (숨겨진 필드로 전송됨)
     @Builder.Default
-    private User.Role role = User.Role.PARENT;
+    private User.Role role = User.Role.STUDENT;
 
     @Builder.Default
-    private Boolean isActive = true;
+    private Boolean isActive = false;
 
     @Builder.Default
     private Boolean emailVerified = false;
@@ -58,5 +62,26 @@ public class RegisterRequest {
     // 사용자명은 이메일과 동일하게 설정
     public String getUsername() {
         return this.email;
+    }
+
+    public Boolean getAgreeTerms() {
+        return agreeTerms;
+    }
+    public void setAgreeTerms(Boolean agreeTerms) {
+        this.agreeTerms = agreeTerms;
+    }
+
+    public Boolean getAgreePrivacy() {
+        return agreePrivacy;
+    }
+    public void setAgreePrivacy(Boolean agreePrivacy) {
+        this.agreePrivacy = agreePrivacy;
+    }
+
+    public Boolean getAgreeMarketing() {
+        return agreeMarketing;
+    }
+    public void setAgreeMarketing(Boolean agreeMarketing) {
+        this.agreeMarketing = agreeMarketing;
     }
 }

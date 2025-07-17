@@ -56,4 +56,14 @@ public interface UserSentenceProgressRepository extends JpaRepository<UserSenten
      */
     @org.springframework.data.jpa.repository.Query("SELECT u.sentenceId FROM UserSentenceProgress u WHERE u.userId = :userId AND u.isCompleted = true")
     java.util.List<Long> findCompletedSentenceIdsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
+
+    /**
+     * 특정 날짜 범위에서 사용자가 완료한 문장 수 조회
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(u) FROM UserSentenceProgress u WHERE u.userId = :userId AND u.isCompleted = true AND u.lastLearnedAt BETWEEN :startDate AND :endDate")
+    int countCompletedSentencesByUserAndDateRange(@org.springframework.data.repository.query.Param("userId") Long userId,
+                                                  @org.springframework.data.repository.query.Param("startDate") LocalDateTime startDate,
+                                                  @org.springframework.data.repository.query.Param("endDate") LocalDateTime endDate);
+
+    int countByUserIdAndIsLearnedTrue(Long userId);
 }

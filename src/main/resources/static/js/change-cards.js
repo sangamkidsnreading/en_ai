@@ -107,8 +107,8 @@ class CardChangeManager {
                 console.log('🔄 향상된 통합 학습 관리자에게 데이터 전달');
 
                 // 데이터가 없을 때도 빈 배열로 설정하여 카드 초기화
-                window.enhancedIntegratedLearningManager.words = data.words || [];
-                window.enhancedIntegratedLearningManager.sentences = data.sentences || [];
+                //window.enhancedIntegratedLearningManager.words = data.words || [];
+                //window.enhancedIntegratedLearningManager.sentences = data.sentences || [];
                 window.enhancedIntegratedLearningManager.currentLevel = this.currentLevel;
                 window.enhancedIntegratedLearningManager.currentDay = this.currentDay;
 

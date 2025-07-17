@@ -281,7 +281,9 @@ class KiribocaApp {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const page = item.dataset.page;
-                if (page) {
+                if (page === 'logout') {
+                    this.handleLogout();
+                } else if (page) {
                     this.navigateTo(page);
                 }
             });
@@ -868,12 +870,10 @@ class KiribocaApp {
         this.showToast('관리자', '관리자 페이지를 로드했습니다!');
     }
 
+    // 로그아웃 처리
     handleLogout() {
-        console.log('🚪 로그아웃 처리');
-        if (confirm('정말 로그아웃하시겠습니까?')) {
-            this.showToast('로그아웃', '로그아웃되었습니다!');
-            // 실제로는 서버에 로그아웃 요청 전송
-        }
+        console.log('로그아웃 시도!');
+        window.location.replace('/logout');
     }
 
     // 유틸리티 함수들
@@ -899,6 +899,26 @@ class KiribocaApp {
 
     setMediaRecorder(recorder) {
         this.mediaRecorder = recorder;
+    }
+
+    // 오늘 진행상황 가져오기
+    async fetchTodayProgress() {
+        try {
+            console.log('📊 오늘 진행상황 로드 중...');
+            
+            // 실제 API 호출이 필요한 경우 여기에 추가
+            // const response = await fetch('/api/progress/today');
+            // const data = await response.json();
+            
+            // 임시로 기본값 설정
+            this.wordsLearned = 0;
+            this.sentencesLearned = 0;
+            this.totalCoins = 0;
+            
+            console.log('✅ 오늘 진행상황 로드 완료');
+        } catch (error) {
+            console.error('❌ 오늘 진행상황 로드 실패:', error);
+        }
     }
 }
 

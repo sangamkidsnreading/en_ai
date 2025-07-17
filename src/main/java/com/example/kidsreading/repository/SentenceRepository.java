@@ -51,4 +51,18 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
     List<Sentence> findByCategoryIdAndIsActiveTrue(Long categoryId);
     
     List<Sentence> findByCategoryIdAndDifficultyLevelAndIsActiveTrue(Long categoryId, Integer difficultyLevel);
+
+    @Query("SELECT COUNT(sp) FROM UserSentenceProgress sp WHERE sp.userId = :userId AND sp.isCompleted = true AND FUNCTION('date', sp.updatedAt) = CURRENT_DATE")
+    int getTodayCompletedSentencesCount(@Param("userId") Long userId);
+
+    List<Sentence> findByDifficultyLevelAndDayNumberAndIsActiveTrueOrderByDisplayOrderAscIdAsc(Integer difficultyLevel, Integer dayNumber);
+
+    // S3 key(확장자 없는 audioUrl)로 Sentence 단건 조회
+    Sentence findByAudioUrl(String audioUrl);
+
+    // 폴더 기준으로 audioUrl prefix로 문장 리스트 조회
+    java.util.List<Sentence> findByAudioUrlStartingWith(String prefix);
+
+    // audioUrl이 특정 prefix로 시작하는 문장들 조회
+    List<Sentence> findByAudioUrlStartingWithOrderByIdAsc(String prefix);
 }

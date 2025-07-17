@@ -182,6 +182,34 @@ class AdminDashboard {
             });
         }
 
+        // 회원가입 설정 관련 버튼
+        const addGroupBtn = document.getElementById('add-group-btn');
+        if (addGroupBtn) {
+            addGroupBtn.addEventListener('click', function(e) {
+                console.log('🎯 분원 추가 버튼 클릭됨');
+                e.preventDefault();
+                self.openGroupModal();
+            });
+        }
+
+        const saveRegistrationSettingsBtn = document.getElementById('save-registration-settings-btn');
+        if (saveRegistrationSettingsBtn) {
+            saveRegistrationSettingsBtn.addEventListener('click', function(e) {
+                console.log('🎯 회원가입 설정 저장 버튼 클릭됨');
+                e.preventDefault();
+                self.saveRegistrationSettings();
+            });
+        }
+
+        const saveGroupBtn = document.getElementById('save-group-btn');
+        if (saveGroupBtn) {
+            saveGroupBtn.addEventListener('click', function(e) {
+                console.log('🎯 분원 저장 버튼 클릭됨');
+                e.preventDefault();
+                self.saveGroup();
+            });
+        }
+
         // 선택 삭제 버튼 이벤트
         const deleteSelectedWordsBtn = document.getElementById('delete-selected-words-btn');
         if (deleteSelectedWordsBtn) {
@@ -265,6 +293,22 @@ class AdminDashboard {
                 this.renderUsers(this.allUsers || []);
             });
         });
+
+        // 단어 레벨 필터
+        const wordLevelSelect = document.getElementById('word-level-select');
+        if (wordLevelSelect) {
+            wordLevelSelect.addEventListener('change', function() {
+                filterWordList();
+            });
+        }
+
+        // 문장 레벨 필터
+        const sentenceLevelSelect = document.getElementById('sentence-level-select');
+        if (sentenceLevelSelect) {
+            sentenceLevelSelect.addEventListener('change', function() {
+                filterSentenceList();
+            });
+        }
 
         console.log('✅ 관리자 이벤트 바인딩 완료');
     }
@@ -627,26 +671,41 @@ class AdminDashboard {
                 this.loadUsers();
                 break;
             case 'words':
-                // Day 필터 초기화
+                // 필터 초기화
                 const wordDaySelect = document.getElementById('word-day-select');
+                const wordLevelSelect = document.getElementById('word-level-select');
                 if (wordDaySelect) {
                     wordDaySelect.value = 'all';
                 }
+                if (wordLevelSelect) {
+                    wordLevelSelect.value = 'all';
+                }
                 this.loadWords();
+                // 필터 이벤트 리스너 재설정
+                setTimeout(() => setupFilterEventListeners(), 100);
                 break;
             case 'sentences':
-                // Day 필터 초기화
+                // 필터 초기화
                 const sentenceDaySelect = document.getElementById('sentence-day-select');
+                const sentenceLevelSelect = document.getElementById('sentence-level-select');
                 if (sentenceDaySelect) {
                     sentenceDaySelect.value = 'all';
                 }
+                if (sentenceLevelSelect) {
+                    sentenceLevelSelect.value = 'all';
+                }
                 this.loadSentences();
+                // 필터 이벤트 리스너 재설정
+                setTimeout(() => setupFilterEventListeners(), 100);
                 break;
             case 'audio':
                 this.loadAudioManagement();
                 break;
             case 'settings':
                 this.loadSettings();
+                break;
+            case 'registration':
+                this.loadRegistrationSettings();
                 break;
         }
     }
@@ -785,7 +844,17 @@ class AdminDashboard {
 
             document.getElementById('user-name').value = user.name;
             document.getElementById('user-email').value = user.email;
-            document.getElementById('user-role').value = user.role;
+            // 역할 select 값 robust하게 설정
+            const roleSelect = document.getElementById('user-role');
+            if (roleSelect && user.role) {
+                if (["STUDENT", "PARENT", "TEACHER", "ADMIN"].includes(user.role)) {
+                    roleSelect.value = user.role;
+                } else {
+                    roleSelect.value = "STUDENT";
+                }
+            } else if (roleSelect) {
+                roleSelect.value = "STUDENT";
+            }
 
             const activeField = document.getElementById('user-active');
             if (activeField) {
@@ -794,6 +863,17 @@ class AdminDashboard {
 
             document.getElementById('user-password').required = false;
             document.getElementById('user-password').value = '';
+
+            const groupNameSelect = document.getElementById('user-groupName');
+            if (groupNameSelect && user.groupName) {
+                if (["SANGAM", "YONGIN"].includes(user.groupName)) {
+                    groupNameSelect.value = user.groupName;
+                } else {
+                    groupNameSelect.value = "SANGAM";
+                }
+            } else if (groupNameSelect) {
+                groupNameSelect.value = "SANGAM";
+            }
         } else {
             title.textContent = '사용자 추가';
             document.getElementById('user-id').value = '';
@@ -814,6 +894,11 @@ class AdminDashboard {
 
             document.getElementById('user-password').value = '';
             document.getElementById('user-password').required = true;
+
+            const groupNameSelect = document.getElementById('user-groupName');
+            if (groupNameSelect) {
+                groupNameSelect.value = "SANGAM";
+            }
         }
 
         modal.style.display = 'block';
@@ -844,13 +929,18 @@ class AdminDashboard {
         const emailValue = document.getElementById('user-email').value;
         const passwordValue = document.getElementById('user-password').value;
 
+        const groupNameField = document.getElementById('user-groupName');
+
+        const roleField = document.getElementById('user-role');
+
         const userData = {
             username: usernameField && usernameField.value.trim()
                 ? usernameField.value.trim()
                 : emailValue,
             name: document.getElementById('user-name').value,
             email: emailValue,
-            role: document.getElementById('user-role').value, // 반드시 "ADMIN" 또는 "STUDENT"
+            groupName: groupNameField ? groupNameField.value : '', // 분원
+            role: roleField ? roleField.value : 'STUDENT', // 역할
             isActive: activeField ? activeField.checked : true
         };
 
@@ -990,7 +1080,7 @@ class AdminDashboard {
         wordList.innerHTML = words.map(function(word) {
             const audioIcon = word.audioUrl ? '' : '🔇';
             const audioClass = word.audioUrl ? 'word-audio' : 'word-audio-missing';
-            return '<div class="word-item" data-word-id="' + word.id + '" data-word-day="' + (word.day || 1) + '">' +
+            return '<div class="word-item" data-id="' + word.id + '" data-word-id="' + word.id + '" data-word-day="' + (word.day || 1) + '">' +
                 '<input type="checkbox" class="word-checkbox" data-word-id="' + word.id + '">' +
                 '<div class="word-content">' +
                 '<div class="word-info">' +
@@ -1026,7 +1116,10 @@ class AdminDashboard {
         // 체크박스 이벤트 바인딩
         this.bindWordCheckboxEvents();
 
-this.bindSelectAllWordEvents();
+        this.bindSelectAllWordEvents();
+
+        // === 이 아래 한 줄 추가 ===
+        makeListDraggable('#word-list', '.word-item', '/api/dragndrop/words-order');
     }
 
     openWordModal(word) {
@@ -1295,44 +1388,54 @@ this.bindSelectAllWordEvents();
             return;
         }
 
-        this.showLoading('단어 파일을 업로드하고 처리하는 중...');
+        // 진행률 표시 UI 생성
+        const progressModal = this.createProgressModal('단어엑셀 파일 업로드 중...');
+        document.body.appendChild(progressModal);
 
-        this.uploadFile('/words/bulk-upload', file)
-            .then(function(response) {
-                self.hideLoading();
+        this.uploadFileWithProgress('/words/bulk-upload', file, function(progress) {
+            const progressFill = progressModal.querySelector('.progress-fill');
+            const progressText = progressModal.querySelector('.progress-text');
+            if (progressFill) progressFill.style.width = progress + '%';
+            if (progressText) progressText.textContent = `업로드 중... ${Math.round(progress)}%`;
+        })
+        .then(function(response) {
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
 
-                const successCount = response.successCount || 0;
-                const errorCount = response.errorCount || 0;
+            const successCount = response.successCount || 0;
+            const errorCount = response.errorCount || 0;
 
-                let message = successCount + '개의 단어가 성공적으로 등록되었습니다.';
-                if (errorCount > 0) {
-                    message += '\n' + errorCount + '개의 단어 등록에 실패했습니다.';
-                }
+            let message = successCount + '개의 단어가 성공적으로 등록되었습니다.';
+            if (errorCount > 0) {
+                message += '\n' + errorCount + '개의 단어 등록에 실패했습니다.';
+            }
 
-                if (errorCount > 0) {
-                    self.showWarning(message);
-                } else {
-                    self.showSuccess(message);
-                }
+            if (errorCount > 0) {
+                self.showWarning(message);
+            } else {
+                self.showSuccess(message);
+            }
 
-                self.loadWords();
-                self.loadStats();
+            self.loadWords();
+            self.loadStats();
 
-                const fileInput = document.getElementById('word-file');
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-            })
-            .catch(function(error) {
-                console.error('단어 파일 업로드 실패:', error);
-                self.hideLoading();
-                self.showError('단어 파일 업로드에 실패했습니다: ' + error.message);
+            const fileInput = document.getElementById('word-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        })
+        .catch(function(error) {
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
+            
+            console.error('단어 파일 업로드 실패:', error);
+            self.showError('단어 파일 업로드에 실패했습니다: ' + error.message);
 
-                const fileInput = document.getElementById('word-file');
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-            });
+            const fileInput = document.getElementById('word-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
     }
 
     // ========== 문장 관리 ==========
@@ -1356,7 +1459,7 @@ this.bindSelectAllWordEvents();
                 } else {
                     // 클라이언트 사이드 필터링
                     filteredSentences = allSentences.filter(function(sentence) {
-                        return sentence.day == selectedDay; // == 사용하여 문자열/숫자 비교
+                        return String(sentence.day) == selectedDay || String(sentence.dayNumber) == selectedDay;
                     });
                 }
                 
@@ -1382,7 +1485,7 @@ this.bindSelectAllWordEvents();
                     filteredSentences = dummySentences;
                 } else {
                     filteredSentences = dummySentences.filter(function(sentence) {
-                        return sentence.day == selectedDay;
+                        return String(sentence.day) == selectedDay || String(sentence.dayNumber) == selectedDay;
                     });
                 }
 
@@ -1413,8 +1516,19 @@ this.bindSelectAllWordEvents();
             const koreanText = sentence.translation || sentence.korean || '';
             const audioIcon = sentence.audioUrl ? '' : '🔇';
             const audioClass = sentence.audioUrl ? 'sentence-audio' : 'sentence-audio-missing';
+            // day 값 보완: 객체에 없으면 data-sentence-day 속성에서라도 읽기
+            let dayValue = sentence.dayNumber || sentence.day;
+            if (!dayValue && sentence.id) {
+                // DOM에서 data-sentence-day 읽기 (이미 렌더링된 경우)
+                const domItem = document.querySelector('[data-sentence-id="' + sentence.id + '"]');
+                if (domItem) {
+                    dayValue = domItem.getAttribute('data-sentence-day') || '-';
+                } else {
+                    dayValue = '-';
+                }
+            }
 
-            return '<div class="sentence-item" data-sentence-id="' + sentence.id + '">' +
+            return '<div class="sentence-item" data-id="' + sentence.id + '" data-sentence-id="' + sentence.id + '" data-sentence-day="' + (sentence.dayNumber || sentence.day || 1) + '">' +
                 '<input type="checkbox" class="sentence-checkbox" data-sentence-id="' + sentence.id + '">' +
                 '<div class="sentence-content" style="display: flex; align-items: flex-start; gap: 24px;">' +
                     '<div class="sentence-info">' +
@@ -1422,7 +1536,7 @@ this.bindSelectAllWordEvents();
                         '<div class="sentence-korean">' + koreanText + '</div>' +
                         '<div class="sentence-details">' +
                             '<span class="sentence-level">Level ' + sentence.level + '</span>' +
-                            '<span class="sentence-day">Day ' + (sentence.day || '-') + '</span>' +
+                            '<span class="sentence-day">Day ' + dayValue + '</span>' +
                             '<span class="' + audioClass + '">' + audioIcon + '</span>' +
                         '</div>' +
                         (sentence.audioUrl ? 
@@ -1450,6 +1564,9 @@ this.bindSelectAllWordEvents();
         // 체크박스 이벤트 바인딩
         this.bindSentenceCheckboxEvents();
         this.bindSelectAllSentenceEvents();
+
+        // === 이 아래 한 줄 추가 ===
+        makeListDraggable('#sentence-list', '.sentence-item', '/api/dragndrop/sentences-order');
     }
 
     openSentenceModal(sentence) {
@@ -1506,12 +1623,14 @@ this.bindSelectAllWordEvents();
             const englishEl = sentenceItem.querySelector('.sentence-english');
             const koreanEl = sentenceItem.querySelector('.sentence-korean');
             const levelEl = sentenceItem.querySelector('.sentence-level');
+            const day = sentenceItem.getAttribute('data-sentence-day') ? Number(sentenceItem.getAttribute('data-sentence-day')) : 1;
 
             const sentence = {
                 id: sentenceId,
                 english: englishEl ? englishEl.textContent : '',
                 korean: koreanEl ? koreanEl.textContent : '',
-                level: levelEl ? parseInt(levelEl.textContent.replace('Level ', '')) : 1
+                level: levelEl ? parseInt(levelEl.textContent.replace('Level ', '')) : 1,
+                day: day
             };
 
             this.openSentenceModal(sentence);
@@ -1692,44 +1811,54 @@ this.bindSelectAllWordEvents();
             return;
         }
 
-        this.showLoading('문장 파일을 업로드하고 처리하는 중...');
+        // 진행률 표시 UI 생성
+        const progressModal = this.createProgressModal('문장엑셀 파일 업로드 중...');
+        document.body.appendChild(progressModal);
 
-        this.uploadFile('/sentences/bulk-upload', file)
-            .then(function(response) {
-                self.hideLoading();
+        this.uploadFileWithProgress('/sentences/bulk-upload', file, function(progress) {
+            const progressFill = progressModal.querySelector('.progress-fill');
+            const progressText = progressModal.querySelector('.progress-text');
+            if (progressFill) progressFill.style.width = progress + '%';
+            if (progressText) progressText.textContent = `업로드 중... ${Math.round(progress)}%`;
+        })
+        .then(function(response) {
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
 
-                const successCount = response.successCount || 0;
-                const errorCount = response.errorCount || 0;
+            const successCount = response.successCount || 0;
+            const errorCount = response.errorCount || 0;
 
-                let message = successCount + '개의 문장이 성공적으로 등록되었습니다.';
-                if (errorCount > 0) {
-                    message += '\n' + errorCount + '개의 문장 등록에 실패했습니다.';
-                }
+            let message = successCount + '개의 문장이 성공적으로 등록되었습니다.';
+            if (errorCount > 0) {
+                message += '\n' + errorCount + '개의 문장 등록에 실패했습니다.';
+            }
 
-                if (errorCount > 0) {
-                    self.showWarning(message);
-                } else {
-                    self.showSuccess(message);
-                }
+            if (errorCount > 0) {
+                self.showWarning(message);
+            } else {
+                self.showSuccess(message);
+            }
 
-                self.loadSentences();
-                self.loadStats();
+            self.loadSentences();
+            self.loadStats();
 
-                const fileInput = document.getElementById('sentence-file');
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-            })
-            .catch(function(error) {
-                console.error('문장 파일 업로드 실패:', error);
-                self.hideLoading();
-                self.showError('문장 파일 업로드에 실패했습니다: ' + error.message);
+            const fileInput = document.getElementById('sentence-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        })
+        .catch(function(error) {
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
+            
+            console.error('문장 파일 업로드 실패:', error);
+            self.showError('문장 파일 업로드에 실패했습니다: ' + error.message);
 
-                const fileInput = document.getElementById('sentence-file');
-                if (fileInput) {
-                    fileInput.value = '';
-                }
-            });
+            const fileInput = document.getElementById('sentence-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
     }
 
     // ========== 음원 관리 ==========
@@ -1768,22 +1897,15 @@ this.bindSelectAllWordEvents();
             return;
         }
 
-        // 파일 크기 검증 (100MB)
-        if (zipFile.size > 100 * 1024 * 1024) {
-            this.showError('ZIP 파일 크기는 100MB 이하여야 합니다.');
+        // 파일 크기 검증 (10B)
+        if (zipFile.size > 100 * 1024 * 124) {
+            this.showError('ZIP 파일 크기는 10니다.');
             return;
         }
 
-        // 진행 상황 표시
-        const progress = document.getElementById('bulk-upload-progress');
-        const progressFill = document.getElementById('bulk-progress-fill');
-        const progressText = document.getElementById('bulk-progress-text');
-
-        if (progress) {
-            progress.style.display = 'block';
-            if (progressFill) progressFill.style.width = '0%';
-            if (progressText) progressText.textContent = '업로드 시작 중...';
-        }
+        // 진행률 표시 UI 생성
+        const progressModal = this.createProgressModal(type === 'words' ? '단어 음원 일괄 업로드 중...' : '문장음원 일괄 업로드 중...');
+        document.body.appendChild(progressModal);
 
         // FormData 생성
         const formData = new FormData();
@@ -1793,20 +1915,15 @@ this.bindSelectAllWordEvents();
         // 업로드 시작
         const endpoint = type === 'words' ? '/words/bulk-audio-upload' : '/sentences/bulk-audio-upload';
 
-        fetch(this.baseUrl + endpoint, {
-            method: 'POST',
-            body: formData
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('HTTP error! status: ' + response.status);
-            }
-            return response.json();
+        this.uploadFileWithProgress(endpoint, zipFile, function(progress) {
+            const progressFill = progressModal.querySelector('.progress-fill');
+            const progressText = progressModal.querySelector('.progress-text');
+            if (progressFill) progressFill.style.width = progress + '%';
+            if (progressText) progressText.textContent = `업로드 중... ${Math.round(progress)}%`;
         })
         .then(function(result) {
-            // 진행률 완료 표시
-            if (progressFill) progressFill.style.width = '100%';
-            if (progressText) progressText.textContent = '업로드 완료!';
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
 
             // 결과 표시
             self.showBulkUploadResults(result);
@@ -1821,9 +1938,10 @@ this.bindSelectAllWordEvents();
             self.showSuccess('일괄 음원 업로드가 완료되었습니다.');
         })
         .catch(function(error) {
+            // 진행률 모달 제거
+            document.body.removeChild(progressModal);
+            
             console.error('일괄 음원 업로드 실패:', error);
-
-            if (progressText) progressText.textContent = '업로드 실패';
             self.showError('일괄 음원 업로드에 실패했습니다: ' + error.message);
         });
     }
@@ -2684,26 +2802,41 @@ this.bindSelectAllWordEvents();
             });
     }
 
-    filterWordsByDay(day) {
+    filterWords() {
         const self = this;
         this.showLoading('단어 목록을 필터링하는 중...');
+
+        // 현재 필터 값들 가져오기
+        const daySelect = document.getElementById('word-day-select');
+        const levelSelect = document.getElementById('word-level-select');
+        
+        const selectedDay = daySelect ? daySelect.value : 'all';
+        const selectedLevel = levelSelect ? levelSelect.value : 'all';
+
+        console.log('필터 값 - Day:', selectedDay, 'Level:', selectedLevel);
 
         // 먼저 모든 단어를 로드한 후 클라이언트에서 필터링
         this.apiCall('/words')
             .then(function(allWords) {
                 console.log('전체 단어 로드 성공:', allWords.length + '개');
                 
-                let filteredWords;
-                if (day === 'all') {
-                    filteredWords = allWords;
-                } else {
-                    // 클라이언트 사이드 필터링
-                    filteredWords = allWords.filter(function(word) {
-                        return word.day == day; // == 사용하여 문자열/숫자 비교
+                let filteredWords = allWords;
+                
+                // Day 필터링
+                if (selectedDay !== 'all') {
+                    filteredWords = filteredWords.filter(function(word) {
+                        return String(word.day) == selectedDay;
                     });
                 }
                 
-                console.log('필터링된 단어:', filteredWords.length + '개 (Day: ' + day + ')');
+                // Level 필터링
+                if (selectedLevel !== 'all') {
+                    filteredWords = filteredWords.filter(function(word) {
+                        return String(word.level) == selectedLevel || Number(word.level) === Number(selectedLevel);
+                    });
+                }
+                
+                console.log('필터링된 단어:', filteredWords.length + '개 (Day: ' + selectedDay + ', Level: ' + selectedLevel + ')');
                 self.renderWords(filteredWords);
                 self.hideLoading();
             })
@@ -2715,17 +2848,24 @@ this.bindSelectAllWordEvents();
                 const dummyWords = [
                     { id: 1, english: 'apple', korean: '사과', level: 1, day: 1, pronunciation: 'æpl', audioUrl: null },
                     { id: 2, english: 'book', korean: '책', level: 1, day: 1, pronunciation: 'bʊk', audioUrl: null },
-                    { id: 3, english: 'cat', korean: '고양이', level: 1, day: 2, pronunciation: 'kæt', audioUrl: null },
-                    { id: 4, english: 'dog', korean: '개', level: 1, day: 2, pronunciation: 'dɔɡ', audioUrl: null },
-                    { id: 5, english: 'elephant', korean: '코끼리', level: 1, day: 3, pronunciation: 'ˈelɪfənt', audioUrl: null }
+                    { id: 3, english: 'cat', korean: '고양이', level: 2, day: 2, pronunciation: 'kæt', audioUrl: null },
+                    { id: 4, english: 'dog', korean: '개', level: 2, day: 2, pronunciation: 'dɔɡ', audioUrl: null },
+                    { id: 5, english: 'elephant', korean: '코끼리', level: 3, day: 3, pronunciation: 'ˈelɪfənt', audioUrl: null }
                 ];
 
-                let filteredWords;
-                if (day === 'all') {
-                    filteredWords = dummyWords;
-                } else {
-                    filteredWords = dummyWords.filter(function(word) {
-                        return word.day == day;
+                let filteredWords = dummyWords;
+                
+                // Day 필터링
+                if (selectedDay !== 'all') {
+                    filteredWords = filteredWords.filter(function(word) {
+                        return String(word.day) == selectedDay;
+                    });
+                }
+                
+                // Level 필터링
+                if (selectedLevel !== 'all') {
+                    filteredWords = filteredWords.filter(function(word) {
+                        return String(word.level) == selectedLevel || Number(word.level) === Number(selectedLevel);
                     });
                 }
 
@@ -2734,26 +2874,41 @@ this.bindSelectAllWordEvents();
             });
     }
 
-    filterSentencesByDay(day) {
+    filterSentences() {
         const self = this;
         this.showLoading('문장 목록을 필터링하는 중...');
+
+        // 현재 필터 값들 가져오기
+        const daySelect = document.getElementById('sentence-day-select');
+        const levelSelect = document.getElementById('sentence-level-select');
+        
+        const selectedDay = daySelect ? daySelect.value : 'all';
+        const selectedLevel = levelSelect ? levelSelect.value : 'all';
+
+        console.log('필터 값 - Day:', selectedDay, 'Level:', selectedLevel);
 
         // 먼저 모든 문장을 로드한 후 클라이언트에서 필터링
         this.apiCall('/sentences')
             .then(function(allSentences) {
                 console.log('전체 문장 로드 성공:', allSentences.length + '개');
                 
-                let filteredSentences;
-                if (day === 'all') {
-                    filteredSentences = allSentences;
-                } else {
-                    // 클라이언트 사이드 필터링
-                    filteredSentences = allSentences.filter(function(sentence) {
-                        return sentence.day == day; // == 사용하여 문자열/숫자 비교
+                let filteredSentences = allSentences;
+                
+                // Day 필터링
+                if (selectedDay !== 'all') {
+                    filteredSentences = filteredSentences.filter(function(sentence) {
+                        return String(sentence.day) == selectedDay || String(sentence.dayNumber) == selectedDay;
                     });
                 }
                 
-                console.log('필터링된 문장:', filteredSentences.length + '개 (Day: ' + day + ')');
+                // Level 필터링
+                if (selectedLevel !== 'all') {
+                    filteredSentences = filteredSentences.filter(function(sentence) {
+                        return String(sentence.level) == selectedLevel || Number(sentence.level) === Number(selectedLevel);
+                    });
+                }
+                
+                console.log('필터링된 문장:', filteredSentences.length + '개 (Day: ' + selectedDay + ', Level: ' + selectedLevel + ')');
                 self.renderSentences(filteredSentences);
                 self.hideLoading();
             })
@@ -2765,23 +2920,329 @@ this.bindSelectAllWordEvents();
                 const dummySentences = [
                     { id: 1, english: 'I love reading books.', korean: '나는 책 읽는 것을 좋아한다.', level: 1, day: 1, audioUrl: null },
                     { id: 2, english: 'How are you today?', korean: '오늘 어떻게 지내세요?', level: 1, day: 1, audioUrl: null },
-                    { id: 3, english: 'The cat is sleeping.', korean: '고양이가 자고 있다.', level: 1, day: 2, audioUrl: null },
-                    { id: 4, english: 'What is your name?', korean: '당신의 이름은 무엇입니까?', level: 1, day: 2, audioUrl: null },
-                    { id: 5, english: 'Elephants are big animals.', korean: '코끼리는 큰 동물이다.', level: 1, day: 3, audioUrl: null }
+                    { id: 3, english: 'The cat is sleeping.', korean: '고양이가 자고 있다.', level: 2, day: 2, audioUrl: null },
+                    { id: 4, english: 'What is your name?', korean: '당신의 이름은 무엇입니까?', level: 2, day: 2, audioUrl: null },
+                    { id: 5, english: 'Elephants are big animals.', korean: '코끼리는 큰 동물이다.', level: 3, day: 3, audioUrl: null }
                 ];
 
-                let filteredSentences;
-                if (day === 'all') {
-                    filteredSentences = dummySentences;
-                } else {
-                    filteredSentences = dummySentences.filter(function(sentence) {
-                        return sentence.day == day;
+                let filteredSentences = dummySentences;
+                
+                // Day 필터링
+                if (selectedDay !== 'all') {
+                    filteredSentences = filteredSentences.filter(function(sentence) {
+                        return String(sentence.day) == selectedDay || String(sentence.dayNumber) == selectedDay;
+                    });
+                }
+                
+                // Level 필터링
+                if (selectedLevel !== 'all') {
+                    filteredSentences = filteredSentences.filter(function(sentence) {
+                        return String(sentence.level) == selectedLevel || Number(sentence.level) === Number(selectedLevel);
                     });
                 }
 
                 self.renderSentences(filteredSentences);
                 self.showWarning('서버에서 문장 데이터를 불러올 수 없어 테스트 데이터를 표시합니다.');
             });
+    }
+
+    // === 회원가입 설정 관리 ===
+
+    loadRegistrationSettings() {
+        console.log('🔧 회원가입 설정 로드 시작');
+        this.loadGroups();
+        this.loadAgreementSettings();
+    }
+
+    loadGroups() {
+        const self = this;
+        this.apiCall('/registration/groups')
+            .then(function(groups) {
+                console.log('분원 목록 로드 성공:', groups.length + '개');
+                self.renderGroups(groups);
+            })
+            .catch(function(error) {
+                console.error('분원 목록 로드 실패:', error);
+                self.showError('분원 목록을 불러올 수 없습니다.');
+            });
+    }
+
+    renderGroups(groups) {
+        const groupList = document.getElementById('group-list');
+        if (!groupList) return;
+
+        if (groups.length === 0) {
+            groupList.innerHTML = '<div class="no-data">등록된 분원이 없습니다.</div>';
+            return;
+        }
+
+        groupList.innerHTML = groups.map(function(group) {
+            const statusClass = group.isActive ? 'active' : 'inactive';
+            const statusText = group.isActive ? '활성' : '비활성';
+            
+            return '<div class="group-item" data-group-id="' + group.id + '">' +
+                '<div class="group-info">' +
+                '<div class="group-code">' + group.code + '</div>' +
+                '<div class="group-name">' + group.name + '</div>' +
+                '<div class="group-details">' +
+                (group.address ? '주소: ' + group.address + ' | ' : '') +
+                (group.phone ? '연락처: ' + group.phone : '') +
+                '</div>' +
+                '</div>' +
+                '<div class="group-status ' + statusClass + '">' + statusText + '</div>' +
+                '<div class="group-actions">' +
+                '<button class="edit-btn" onclick="window.adminDashboard.editGroup(' + group.id + ')">수정</button>' +
+                '<button class="delete-btn" onclick="window.adminDashboard.deleteGroup(' + group.id + ')">삭제</button>' +
+                '</div>' +
+                '</div>';
+        }).join('');
+    }
+
+    loadAgreementSettings() {
+        const self = this;
+        this.apiCall('/registration/settings')
+            .then(function(settings) {
+                console.log('동의 설정 로드 성공');
+                self.renderAgreementSettings(settings);
+            })
+            .catch(function(error) {
+                console.error('동의 설정 로드 실패:', error);
+                self.showError('동의 설정을 불러올 수 없습니다.');
+            });
+    }
+
+    renderAgreementSettings(settings) {
+        // 체크박스 설정
+        const termsRequired = document.getElementById('terms-required');
+        const privacyRequired = document.getElementById('privacy-required');
+        const marketingRequired = document.getElementById('marketing-required');
+
+        if (termsRequired) termsRequired.checked = settings.termsRequired;
+        if (privacyRequired) privacyRequired.checked = settings.privacyRequired;
+        if (marketingRequired) marketingRequired.checked = settings.marketingRequired;
+
+        // 내용 설정
+        const termsContent = document.getElementById('terms-content');
+        const privacyContent = document.getElementById('privacy-content');
+        const marketingContent = document.getElementById('marketing-content');
+
+        if (termsContent) termsContent.value = settings.termsContent || '';
+        if (privacyContent) privacyContent.value = settings.privacyContent || '';
+        if (marketingContent) marketingContent.value = settings.marketingContent || '';
+    }
+
+    openGroupModal(group) {
+        group = group || null;
+        console.log('🔓 분원 모달 열기:', group);
+        const modal = document.getElementById('group-modal');
+        const title = document.getElementById('group-modal-title');
+
+        if (!modal) {
+            console.error('❌ 분원 모달을 찾을 수 없습니다.');
+            return;
+        }
+
+        if (group) {
+            title.textContent = '분원 수정';
+            document.getElementById('group-id').value = group.id;
+            document.getElementById('group-code').value = group.code;
+            document.getElementById('group-name').value = group.name;
+            document.getElementById('group-address').value = group.address || '';
+            document.getElementById('group-phone').value = group.phone || '';
+            document.getElementById('group-active').checked = group.isActive;
+        } else {
+            title.textContent = '분원 추가';
+            document.getElementById('group-id').value = '';
+            document.getElementById('group-code').value = '';
+            document.getElementById('group-name').value = '';
+            document.getElementById('group-address').value = '';
+            document.getElementById('group-phone').value = '';
+            document.getElementById('group-active').checked = true;
+        }
+
+        modal.style.display = 'block';
+    }
+
+    editGroup(groupId) {
+        const self = this;
+        this.apiCall('/registration/groups/' + groupId)
+            .then(function(group) {
+                self.openGroupModal(group);
+            })
+            .catch(function(error) {
+                console.error('분원 정보 로드 실패:', error);
+                self.showError('분원 정보를 불러올 수 없습니다.');
+            });
+    }
+
+    saveGroup() {
+        const groupId = document.getElementById('group-id').value;
+        const groupData = {
+            code: document.getElementById('group-code').value,
+            name: document.getElementById('group-name').value,
+            address: document.getElementById('group-address').value,
+            phone: document.getElementById('group-phone').value,
+            isActive: document.getElementById('group-active').checked
+        };
+
+        if (!groupData.code || !groupData.name) {
+            this.showError('분원 코드와 분원명은 필수입니다.');
+            return;
+        }
+
+        const self = this;
+        const method = groupId ? 'PUT' : 'POST';
+        const url = groupId ? '/registration/groups/' + groupId : '/registration/groups';
+
+        this.apiCall(url, method, groupData)
+            .then(function(result) {
+                console.log('분원 저장 성공');
+                self.closeModal('group-modal');
+                self.showSuccess(groupId ? '분원이 수정되었습니다.' : '분원이 추가되었습니다.');
+                self.loadGroups();
+            })
+            .catch(function(error) {
+                console.error('분원 저장 실패:', error);
+                self.showError('분원 저장에 실패했습니다.');
+            });
+    }
+
+    deleteGroup(groupId) {
+        if (!confirm('정말로 이 분원을 삭제하시겠습니까?')) {
+            return;
+        }
+
+        const self = this;
+        this.apiCall('/registration/groups/' + groupId, 'DELETE')
+            .then(function() {
+                console.log('분원 삭제 성공');
+                self.showSuccess('분원이 삭제되었습니다.');
+                self.loadGroups();
+            })
+            .catch(function(error) {
+                console.error('분원 삭제 실패:', error);
+                self.showError('분원 삭제에 실패했습니다.');
+            });
+    }
+
+    saveRegistrationSettings() {
+        const settingsData = {
+            termsRequired: document.getElementById('terms-required').checked,
+            termsContent: document.getElementById('terms-content').value,
+            privacyRequired: document.getElementById('privacy-required').checked,
+            privacyContent: document.getElementById('privacy-content').value,
+            marketingRequired: document.getElementById('marketing-required').checked,
+            marketingContent: document.getElementById('marketing-content').value
+        };
+
+        const self = this;
+        this.apiCall('/registration/settings', 'PUT', settingsData)
+            .then(function(result) {
+                console.log('회원가입 설정 저장 성공');
+                self.showSuccess('회원가입 설정이 저장되었습니다.');
+            })
+            .catch(function(error) {
+                console.error('회원가입 설정 저장 실패:', error);
+                self.showError('회원가입 설정 저장에 실패했습니다.');
+            });
+    }
+
+    // 진행률 모달 생성
+    createProgressModal(title) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width:100%;
+            height:100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001
+            color: white;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                color: #333;
+                padding: 30px;
+                border-radius: 12px;
+                text-align: center;
+                min-width: 400px;
+                box-shadow: 0 10px 30 rgba(0,0,0,0.3);
+            >
+                <h3 style="margin: 0; color: #333;">${title}</h3>
+                <div style="
+                    width: 100%;
+                    height: 8px;
+                    background: #e9ecef;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    margin-bottom: 12px;
+                >
+                    <div class="progress-fill" style="
+                        height: 100%;
+                        background: linear-gradient(90deg, #4caf50 0%, #45a049 " width: 0%;
+                        transition: width 0.3s ease;
+                    ></div>
+                </div>
+                <div class="progress-text" style="
+                    font-size: 14px;
+                    color: #666;
+                    margin-top: 8px;
+                >업로드 시작 중...</div>
+            </div>
+        `;
+        
+        return modal;
+    }
+
+    // 진행률 추적이 가능한 파일 업로드
+    uploadFileWithProgress(endpoint, file, progressCallback) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 진행률 이벤트
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    if (progressCallback) {
+                        progressCallback(percentComplete);
+                    }
+                }
+            });
+
+            // 완료 이벤트
+            xhr.addEventListener('load', function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response);
+                    } catch (e) {
+                        reject(new Error('응답 파싱 실패'));
+                    }
+                } else {
+                    reject(new Error('HTTP error! status: ' + xhr.status));
+                }
+            });
+
+            // 오류 이벤트
+            xhr.addEventListener('error', function() {
+                reject(new Error('네트워크 오류'));
+            });
+
+            xhr.addEventListener('abort', function() {
+                reject(new Error('업로드 취소됨'));
+            });
+
+            xhr.open('POST', this.baseUrl + endpoint);
+            xhr.send(formData);
+        });
     }
 }
 
@@ -2860,7 +3321,7 @@ function renderUserList(users) {
                 <th>ID</th>
                 <th>이름</th>
                 <th>이메일</th>
-                <th>역할</th>
+                <th>분원</th>
                 <th>상태</th>
                 <th>가입일</th>
                 <th>마지막 로그인</th>
@@ -2873,8 +3334,8 @@ function renderUserList(users) {
             <td>${user.id}</td>
             <td>${user.name || ''}</td>
             <td>${user.email || ''}</td>
-            <td>${roleToKorean(user.role)}</td>
-            <td>${user.isActive ? '활성' : '비활성'}</td>
+            <td>${user.groupName || '-'}</td>
+            <td>${user.isActive === false ? '관리자에게 문의 부탁 드립니다' : ''}</td>
             <td>${formatDate(user.createdAt)}</td>
             <td>${formatDateTime(user.lastLogin)}</td>
             <td>
@@ -2903,3 +3364,131 @@ async function loadUserList() {
 if (document.getElementById('user-list')) {
     loadUserList();
 }
+
+async function loadLevelSettings() {
+    console.log("loadLevelSettings called");
+    const res = await fetch('/api/admin/level-settings');
+    let data = await res.json();
+    // level 오름차순 정렬
+    data = data.sort((a, b) => a.level - b.level);
+    const list = document.getElementById('level-settings-list');
+    if (!list) return;
+    // 헤더 row 추가
+    let html = `<div class="level-setting-header" style="display:flex;gap:12px;margin-bottom:6px;font-weight:bold;">
+        <span style="width:60px;">레벨</span>
+        <span style="width:100px;">단어</span>
+        <span style="width:100px;">문장</span>
+    </div>`;
+    html += data.map(s =>
+        `<div class="level-setting-row" style="display:flex;gap:12px;margin-bottom:4px;align-items:center;">
+            <label style="width:60px;">레벨 ${s.level}</label>
+            <input type="number" value="${s.wordsToNextLevel}" min="1" data-id="${s.id}" data-field="wordsToNextLevel" placeholder="단어" style="width:100px;">
+            <input type="number" value="${s.sentencesToNextLevel}" min="1" data-id="${s.id}" data-field="sentencesToNextLevel" placeholder="문장" style="width:100px;">
+        </div>`
+    ).join('');
+    list.innerHTML = html;
+}
+
+async function saveLevelSettings() {
+    const rows = document.querySelectorAll('.level-setting-row');
+    for (const row of rows) {
+        const id = row.querySelector('input[data-field="wordsToNextLevel"]').dataset.id;
+        const words = row.querySelector('input[data-field="wordsToNextLevel"]').value;
+        const sentences = row.querySelector('input[data-field="sentencesToNextLevel"]').value;
+        await fetch(`/api/admin/level-settings/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                wordsToNextLevel: parseInt(words),
+                sentencesToNextLevel: parseInt(sentences)
+            })
+        });
+    }
+    alert('저장 완료');
+}
+
+window.addEventListener('DOMContentLoaded', loadLevelSettings);
+
+// === 전역 데이터 배열 선언 ===
+var allWords = [];
+var allSentences = [];
+
+// ... (데이터 로드 후 allWords/allSentences에 할당) ...
+
+// === 필터 이벤트 리스너 설정 ===
+function setupFilterEventListeners() {
+    console.log('🔗 필터 이벤트 리스너 설정 시작...');
+    
+    // 단어 필터 이벤트 리스너
+    const wordDaySelect = document.getElementById('word-day-select');
+    const wordLevelSelect = document.getElementById('word-level-select');
+    
+    if (wordDaySelect) {
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        wordDaySelect.removeEventListener('change', window.wordDayChangeHandler);
+        window.wordDayChangeHandler = function() {
+            console.log('단어 Day 필터 변경:', this.value);
+            if (window.adminDashboard) {
+                window.adminDashboard.filterWords();
+            }
+        };
+        wordDaySelect.addEventListener('change', window.wordDayChangeHandler);
+    }
+    
+    if (wordLevelSelect) {
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        wordLevelSelect.removeEventListener('change', window.wordLevelChangeHandler);
+        window.wordLevelChangeHandler = function() {
+            console.log('단어 Level 필터 변경:', this.value);
+            if (window.adminDashboard) {
+                window.adminDashboard.filterWords();
+            }
+        };
+        wordLevelSelect.addEventListener('change', window.wordLevelChangeHandler);
+    }
+    
+    // 문장 필터 이벤트 리스너
+    const sentenceDaySelect = document.getElementById('sentence-day-select');
+    const sentenceLevelSelect = document.getElementById('sentence-level-select');
+    
+    if (sentenceDaySelect) {
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        sentenceDaySelect.removeEventListener('change', window.sentenceDayChangeHandler);
+        window.sentenceDayChangeHandler = function() {
+            console.log('문장 Day 필터 변경:', this.value);
+            if (window.adminDashboard) {
+                window.adminDashboard.filterSentences();
+            }
+        };
+        sentenceDaySelect.addEventListener('change', window.sentenceDayChangeHandler);
+    }
+    
+    if (sentenceLevelSelect) {
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        sentenceLevelSelect.removeEventListener('change', window.sentenceLevelChangeHandler);
+        window.sentenceLevelChangeHandler = function() {
+            console.log('문장 Level 필터 변경:', this.value);
+            if (window.adminDashboard) {
+                window.adminDashboard.filterSentences();
+            }
+        };
+        sentenceLevelSelect.addEventListener('change', window.sentenceLevelChangeHandler);
+    }
+    
+    console.log('✅ 필터 이벤트 리스너 설정 완료');
+}
+
+// 전역 함수로 등록
+window.setupFilterEventListeners = setupFilterEventListeners;
+
+// DOM이 로드되면 이벤트 리스너 설정
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM 로드됨 - 필터 이벤트 리스너 설정');
+    setupFilterEventListeners();
+});
+
+// 페이지 로드 후에도 한 번 더 시도 (동적 로딩 대응)
+window.addEventListener('load', function() {
+    console.log('🌐 페이지 로드됨 - 필터 이벤트 리스너 재설정');
+    setTimeout(setupFilterEventListeners, 100);
+});

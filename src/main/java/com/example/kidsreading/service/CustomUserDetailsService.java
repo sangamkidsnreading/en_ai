@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,15 +32,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsernameOrEmail(username, username)
                 .orElseThrow(() -> {
                     System.err.println("사용자를 찾을 수 없음: " + username);
-                    return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
+                    return new UsernameNotFoundException("이메일 또는 비밀번호가 올바르지 않습니다.");
                 });
 
         System.out.println("사용자 발견: " + user.getEmail() + " (ID: " + user.getId() + ")");
 
         // 사용자 활성화 상태 확인
-        if (!user.getIsActive()) {
-            System.err.println("비활성화된 사용자: " + username);
-            throw new UsernameNotFoundException("비활성화된 사용자입니다.");
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            throw new org.springframework.security.authentication.BadCredentialsException("비승인 상태입니다. 관리자에게 문의 바랍니다.");
         }
 
         return createUserPrincipal(user);

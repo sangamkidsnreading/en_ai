@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import com.example.kidsreading.entity.LearningSettings;
@@ -246,5 +247,70 @@ public class CoinService {
         String userId = getCurrentUserId();
         LearningSettingsDto settings = getCoinSettings();
         return addStreakBonus(userId, settings.getStreakBonus());
+    }
+
+    /**
+     * 오늘 획득한 코인 수 조회
+     */
+    public int getTodayCoinsEarned(Long userId) {
+        LocalDate today = LocalDate.now();
+        String userIdStr = userId.toString();
+        Optional<UserCoin> userCoinOpt = userCoinRepository.findByUserIdAndDate(userIdStr, today);
+        
+        if (userCoinOpt.isPresent()) {
+            UserCoin userCoin = userCoinOpt.get();
+            // 단어 코인 + 문장 코인 + 보너스 코인
+            return userCoin.getWordsCoins() + userCoin.getSentenceCoins() + userCoin.getStreakBonus();
+        }
+        
+        return 0;
+    }
+
+    /**
+     * 어제 획득한 코인 수 조회
+     */
+    public int getYesterdayCoinsEarned(Long userId) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        String userIdStr = userId.toString();
+        Optional<UserCoin> userCoinOpt = userCoinRepository.findByUserIdAndDate(userIdStr, yesterday);
+        
+        if (userCoinOpt.isPresent()) {
+            UserCoin userCoin = userCoinOpt.get();
+            // 단어 코인 + 문장 코인 + 보너스 코인
+            return userCoin.getWordsCoins() + userCoin.getSentenceCoins() + userCoin.getStreakBonus();
+        }
+        
+        return 0;
+    }
+
+    /**
+     * 연속 학습일 수 조회
+     */
+    public int getStreakDays(Long userId) {
+        String userIdStr = userId.toString();
+        LocalDate today = LocalDate.now();
+        int streakDays = 0;
+        
+        // 최근 30일간 확인 (더 긴 기간으로 확장)
+        for (int i = 0; i < 30; i++) {
+            LocalDate checkDate = today.minusDays(i);
+            Optional<UserCoin> userCoinOpt = userCoinRepository.findByUserIdAndDate(userIdStr, checkDate);
+            
+            if (userCoinOpt.isPresent()) {
+                UserCoin userCoin = userCoinOpt.get();
+                // 단어나 문장을 학습했거나 보너스를 받았으면 연속으로 간주
+                if (userCoin.getWordsCoins() > 0 || userCoin.getSentenceCoins() > 0 || userCoin.getStreakBonus() > 0) {
+                    streakDays++;
+                } else {
+                    break;
+                }
+            } else {
+                // 해당 날짜에 기록이 없으면 연속 중단
+                break;
+            }
+        }
+        
+        // 최소 1일은 보장
+        return Math.max(streakDays, 1);
     }
 }

@@ -46,7 +46,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     List<Word> findByLevelAndIsActiveTrueOrderByDayAsc(Integer level);
 
-    
+    List<Word> findByLevelAndDayAndIsActiveTrueOrderByDisplayOrderAscIdAsc(Integer level, Integer day);
 
     int countByLevelAndDayAndIsActiveTrue(Integer level, Integer day);
 
@@ -61,4 +61,10 @@ public interface WordRepository extends JpaRepository<Word, Long> {
      */
     @Query("SELECT DISTINCT w.day FROM Word w WHERE w.level = :level AND w.isActive = true ORDER BY w.day")
     List<Integer> findDistinctDaysByLevelAndIsActiveTrueOrderByDay(@Param("level") Integer level);
+
+    @Query("SELECT COUNT(wp) FROM UserWordProgress wp WHERE wp.userId = :userId AND wp.isLearned = true AND FUNCTION('date', wp.updatedAt) = CURRENT_DATE")
+    int getTodayCompletedWordsCount(@Param("userId") Long userId);
+
+    // audioUrl이 특정 prefix로 시작하는 단어 리스트 조회
+    List<Word> findByAudioUrlStartingWith(String prefix);
 }

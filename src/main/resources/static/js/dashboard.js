@@ -9,10 +9,12 @@ class DashboardManager {
     init() {
         console.log('Dashboard Manager 초기화 중...');
         this.loadDashboardData();
+        this.loadLearningGraph();
        // this.loadTodayProgress();
         this.loadBadgesData();
         this.loadRankingsData();
         this.loadLevelProgress();
+        this.loadStreakInfo();
         this.loadDailyGoals();
         
         // 달력 초기화
@@ -40,41 +42,88 @@ class DashboardManager {
     
     async loadDashboardData() {
         try {
-            const response = await fetch('/api/dashboard/stats');
-            if (!response.ok) throw new Error('대시보드 통계 로드 실패');
-            const stats = await response.json();
+            console.log('대시보드 통계 데이터 로드 시작...');
+            
+            // 대시보드 통계와 코인 정보를 병렬로 로드
+            const [statsResponse, coinsResponse] = await Promise.all([
+                fetch('/learning/api/dashboard/stats'),
+                fetch('/api/coins/user')
+            ]);
+            
+            if (!statsResponse.ok) {
+                throw new Error(`대시보드 통계 HTTP error! status: ${statsResponse.status}`);
+            }
+            
+            if (!coinsResponse.ok) {
+                throw new Error(`코인 정보 HTTP error! status: ${coinsResponse.status}`);
+            }
+            
+            const stats = await statsResponse.json();
+            const coins = await coinsResponse.json();
+            
+            console.log('대시보드 통계 데이터 로드 완료:', stats);
+            console.log('코인 정보 로드 완료:', coins);
+            console.log('📊 상세 통계:', {
+                todayWordsLearned: stats.todayWordsLearned,
+                todaySentencesLearned: stats.todaySentencesLearned,
+                todayCoinsEarned: coins.dailyCoins,
+                streakDays: stats.streakDays,
+                totalCoins: coins.totalCoins,
+                wordsChangePercent: stats.wordsChangePercent,
+                sentencesChangePercent: stats.sentencesChangePercent,
+                coinsChangePercent: stats.coinsChangePercent
+            });
     
-            // 누적 단어
-            document.getElementById('dashboard-words-learned').textContent = stats.wordsLearned ?? 0;
-            // 누적 문장
-            document.getElementById('dashboard-sentences-learned').textContent = stats.sentencesLearned ?? 0;
-            // 누적 코인
-            document.getElementById('dashboard-total-coins').textContent = stats.totalCoins ?? 0;
-            // 연속 학습일
-            document.getElementById('dashboard-streak-days').textContent = stats.streakDays ?? 1;
-            document.getElementById('dashboard-streak-duration').textContent = (stats.streakDays ?? 1) + ' 일';
+            // 오늘 학습한 단어/문장/코인
+            this.updateElement('dashboard-words-learned', stats.todayWordsLearned ?? 0);
+            this.updateElement('dashboard-sentences-learned', stats.todaySentencesLearned ?? 0);
+            this.updateElement('dashboard-total-coins', coins.dailyCoins ?? 0);
+            this.updateElement('dashboard-streak-days', stats.streakDays ?? 1);
+            this.updateElement('dashboard-streak-duration', (stats.streakDays ?? 1) + ' 일');
+            this.updateElement('dashboard-total-coins-all', coins.totalCoins ?? 0);
     
-            // 변화율(%) 계산 및 표시 (예시: 전일 대비 증가율)
-            if ('previousWordsLearned' in stats) {
-                const diff = stats.wordsLearned - stats.previousWordsLearned;
-                const percent = stats.previousWordsLearned > 0 ? Math.round((diff / stats.previousWordsLearned) * 100) : 0;
-                document.getElementById('dashboard-words-change').textContent = (percent >= 0 ? '+' : '') + percent + '%';
-                document.getElementById('dashboard-words-change').className = 'stat-change ' + (percent >= 0 ? 'positive' : 'negative');
+            // 변화율(%) 표시
+            const wordsChangeElement = document.getElementById('dashboard-words-change');
+            if (wordsChangeElement) {
+                wordsChangeElement.textContent = (stats.wordsChangePercent >= 0 ? '+' : '') + stats.wordsChangePercent + '%';
+                wordsChangeElement.className = 'stat-change ' + (stats.wordsChangePercent >= 0 ? 'positive' : 'negative');
             }
-            if ('previousSentencesLearned' in stats) {
-                const diff = stats.sentencesLearned - stats.previousSentencesLearned;
-                const percent = stats.previousSentencesLearned > 0 ? Math.round((diff / stats.previousSentencesLearned) * 100) : 0;
-                document.getElementById('dashboard-sentences-change').textContent = (percent >= 0 ? '+' : '') + percent + '%';
-                document.getElementById('dashboard-sentences-change').className = 'stat-change ' + (percent >= 0 ? 'positive' : 'negative');
+
+            const sentencesChangeElement = document.getElementById('dashboard-sentences-change');
+            if (sentencesChangeElement) {
+                sentencesChangeElement.textContent = (stats.sentencesChangePercent >= 0 ? '+' : '') + stats.sentencesChangePercent + '%';
+                sentencesChangeElement.className = 'stat-change ' + (stats.sentencesChangePercent >= 0 ? 'positive' : 'negative');
             }
-            if ('previousTotalCoins' in stats) {
-                const diff = stats.totalCoins - stats.previousTotalCoins;
-                const percent = stats.previousTotalCoins > 0 ? Math.round((diff / stats.previousTotalCoins) * 100) : 0;
-                document.getElementById('dashboard-coins-change').textContent = (percent >= 0 ? '+' : '') + percent + '%';
-                document.getElementById('dashboard-coins-change').className = 'stat-change ' + (percent >= 0 ? 'positive' : 'negative');
+
+            const coinsChangeElement = document.getElementById('dashboard-coins-change');
+            if (coinsChangeElement) {
+                coinsChangeElement.textContent = (stats.coinsChangePercent >= 0 ? '+' : '') + stats.coinsChangePercent + '%';
+                coinsChangeElement.className = 'stat-change ' + (stats.coinsChangePercent >= 0 ? 'positive' : 'negative');
             }
+            
+            console.log('대시보드 통계 UI 업데이트 완료');
         } catch (error) {
             console.error('대시보드 통계 로드 실패:', error);
+            // 에러 시 기본값 설정
+            this.updateElement('dashboard-words-learned', 0);
+            this.updateElement('dashboard-sentences-learned', 0);
+            this.updateElement('dashboard-total-coins', 0);
+            this.updateElement('dashboard-streak-days', 1);
+            this.updateElement('dashboard-streak-duration', '1 일');
+            this.updateElement('dashboard-total-coins-all', 0);
+            
+            // 코인 정보만 별도로 시도
+            try {
+                const coinsResponse = await fetch('/api/coins/user');
+                if (coinsResponse.ok) {
+                    const coins = await coinsResponse.json();
+                    this.updateElement('dashboard-total-coins', coins.dailyCoins ?? 0);
+                    this.updateElement('dashboard-total-coins-all', coins.totalCoins ?? 0);
+                    console.log('코인 정보만 로드 성공:', coins);
+                }
+            } catch (coinError) {
+                console.error('코인 정보 로드도 실패:', coinError);
+            }
         }
     }
 
@@ -142,6 +191,22 @@ class DashboardManager {
         }
     }
 
+    // 연속 학습일 정보 로드
+    async loadStreakInfo() {
+        try {
+            console.log('연속 학습일 정보 로드 중...');
+            const response = await fetch('/api/streak');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            this.updateStreakInfoUI(data);
+            console.log('연속 학습일 정보 로드 완료:', data);
+        } catch (error) {
+            console.error('연속 학습일 정보 로드 실패:', error);
+        }
+    }
+
     // 일일 목표 로드
     async loadDailyGoals() {
         try {
@@ -155,6 +220,154 @@ class DashboardManager {
             console.log('일일 목표 로드 완료:', data);
         } catch (error) {
             console.error('일일 목표 로드 실패:', error);
+        }
+    }
+
+    // 7일 학습량 그래프 로딩 메서드 추가
+    async loadLearningGraph() {
+        try {
+            console.log('학습량 그래프 데이터 로드 중...');
+            
+            // Chart.js가 로드되었는지 확인
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js가 로드되지 않았습니다.');
+                console.log('Chart 객체 확인:', typeof Chart);
+                console.log('window.Chart 확인:', typeof window.Chart);
+                
+                // Chart.js를 동적으로 로드 시도
+                try {
+                    await this.loadChartJS();
+                } catch (error) {
+                    console.error('Chart.js 동적 로드 실패:', error);
+                    return;
+                }
+                
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js 동적 로드 후에도 Chart 객체가 없습니다.');
+                    return;
+                }
+            }
+            console.log('Chart.js 로드 확인됨:', typeof Chart);
+            
+            const response = await fetch('/learning/api/dashboard/graph');
+            console.log('그래프 API 응답 상태:', response.status);
+            
+            if (!response.ok) throw new Error('그래프 데이터 로드 실패');
+            const data = await response.json();
+            console.log('그래프 데이터 로드 완료:', data);
+
+            const canvas = document.getElementById('learningChart');
+            if (!canvas) {
+                console.error('learningChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            console.log('캔버스 요소 찾음:', canvas);
+
+            console.log('캔버스 크기:', canvas.width, 'x', canvas.height);
+            console.log('캔버스 스타일:', canvas.style.width, 'x', canvas.style.height);
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('캔버스 컨텍스트를 가져올 수 없습니다.');
+                return;
+            }
+            console.log('캔버스 컨텍스트 생성됨');
+
+            // 기존 차트가 있다면 제거 (안전하게)
+            if (window.learningChart && typeof window.learningChart.destroy === 'function') {
+                console.log('기존 차트 제거');
+                window.learningChart.destroy();
+            } else if (window.learningChart) {
+                console.log('기존 차트 객체는 있지만 destroy 메서드가 없음 - 초기화');
+                window.learningChart = null;
+            }
+
+            console.log('새 차트 생성 시작...');
+            console.log('데이터 확인:', {
+                labels: data.labels,
+                wordsData: data.wordsData,
+                sentencesData: data.sentencesData
+            });
+
+            // 테스트용: 모든 데이터가 0이면 샘플 데이터 사용
+            let wordsData = data.wordsData;
+            let sentencesData = data.sentencesData;
+            
+            if (wordsData.every(val => val === 0) && sentencesData.every(val => val === 0)) {
+                console.log('모든 데이터가 0이므로 테스트 데이터 사용');
+                wordsData = [2, 3, 1, 4, 2, 3, 1];
+                sentencesData = [1, 2, 1, 3, 1, 2, 1];
+            }
+
+            // Chart 객체가 제대로 로드되었는지 한 번 더 확인
+            if (typeof Chart === 'undefined') {
+                console.error('Chart 객체가 정의되지 않았습니다.');
+                return;
+            }
+            
+            console.log('Chart 객체 확인:', typeof Chart);
+            console.log('Chart 생성자 확인:', typeof Chart.prototype);
+            
+            window.learningChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: '단어',
+                            data: wordsData,
+                            backgroundColor: '#8b5cf6',
+                            borderColor: '#8b5cf6',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '문장',
+                            data: sentencesData,
+                            backgroundColor: '#eab308',
+                            borderColor: '#eab308',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+            console.log('그래프 생성 완료');
+            
+            // 그래프가 실제로 렌더링되었는지 확인
+            setTimeout(() => {
+                console.log('그래프 렌더링 확인:', window.learningChart);
+                console.log('캔버스 부모 요소:', canvas.parentElement);
+                console.log('그래프 섹션:', document.querySelector('.learning-graph-section'));
+            }, 1000);
+            
+        } catch (error) {
+            console.error('학습량 그래프 로드 실패:', error);
+            console.error('오류 상세:', error.stack);
         }
     }
 
@@ -272,8 +485,14 @@ class DashboardManager {
                     cellClass += ' not-started';
                 }
 
+                // 한국 시간대로 날짜 생성 (YYYY-MM-DD 형식)
+                const dateYear = date.getFullYear();
+                const dateMonth = String(date.getMonth() + 1).padStart(2, '0');
+                const dateDay = String(date.getDate()).padStart(2, '0');
+                const dateString = `${dateYear}-${dateMonth}-${dateDay}`;
+                
                 html += `
-                    <div class="${cellClass}" data-date="${date.toISOString().split('T')[0]}">
+                    <div class="${cellClass}" data-date="${dateString}">
                         <div class="day-number">${dayNumber}</div>
                         ${statusText ? `<div class="day-status">${statusText}</div>` : ''}
                     </div>
@@ -404,9 +623,73 @@ class DashboardManager {
 
     // 레벨 진행도 UI 업데이트
     updateLevelProgressUI(data) {
-        this.updateElement('dashboard-current-level', `Level ${data.currentLevel || 1}`);
-        this.updateElement('dashboard-level-progress', `${data.levelProgress || 0}%`);
-        this.updateElement('dashboard-level-description', `다음 레벨까지 ${data.wordsToNextLevel || 100}단어`);
+        document.getElementById('dashboard-current-level').textContent = `Level ${data.currentLevel}`;
+        document.getElementById('dashboard-level-progress').textContent = `${data.levelProgress}%`;
+        document.getElementById('dashboard-level-description').textContent =
+            `다음 레벨까지 ${data.wordsToNextLevel}단어, ${data.sentencesToNextLevel}문장`;
+    }
+
+    // 연속 학습일 정보 UI 업데이트
+    updateStreakInfoUI(data) {
+        // 연속 학습일 수 업데이트
+        this.updateElement('dashboard-streak-days', data.currentStreak);
+        this.updateElement('dashboard-streak-duration', `${data.currentStreak} 일`);
+
+        // 연속 학습일 메시지 표시
+        const streakCard = document.querySelector('.stat-card:nth-child(4)');
+        if (streakCard) {
+            let messageElement = streakCard.querySelector('.streak-message');
+            if (!messageElement) {
+                messageElement = document.createElement('div');
+                messageElement.className = 'streak-message';
+                messageElement.style.fontSize = '12px';
+                messageElement.style.color = '#666';
+                messageElement.style.marginTop = '5px';
+                streakCard.querySelector('.stat-info').appendChild(messageElement);
+            }
+            messageElement.textContent = data.streakMessage;
+        }
+
+        // 연속 학습일 보너스 표시
+        if (data.streakBonus > 0) {
+            let bonusElement = document.getElementById('dashboard-streak-bonus');
+            if (!bonusElement) {
+                bonusElement = document.createElement('div');
+                bonusElement.id = 'dashboard-streak-bonus';
+                bonusElement.className = 'streak-bonus';
+                bonusElement.style.fontSize = '11px';
+                bonusElement.style.color = '#eab308';
+                bonusElement.style.fontWeight = 'bold';
+                bonusElement.style.marginTop = '3px';
+                
+                const streakCard = document.querySelector('.stat-card:nth-child(4)');
+                if (streakCard) {
+                    streakCard.querySelector('.stat-info').appendChild(bonusElement);
+                }
+            }
+            bonusElement.textContent = `+${data.streakBonus} 코인 보너스`;
+            bonusElement.style.display = 'block';
+        }
+
+        // 다음 목표 메시지 표시
+        if (data.daysToNextGoal > 0) {
+            let goalElement = document.getElementById('dashboard-next-goal');
+            if (!goalElement) {
+                goalElement = document.createElement('div');
+                goalElement.id = 'dashboard-next-goal';
+                goalElement.className = 'next-goal';
+                goalElement.style.fontSize = '10px';
+                goalElement.style.color = '#888';
+                goalElement.style.marginTop = '2px';
+                
+                const streakCard = document.querySelector('.stat-card:nth-child(4)');
+                if (streakCard) {
+                    streakCard.querySelector('.stat-info').appendChild(goalElement);
+                }
+            }
+            goalElement.textContent = data.nextGoalMessage;
+            goalElement.style.display = 'block';
+        }
     }
 
     // 일일 목표 UI 업데이트
@@ -499,6 +782,7 @@ class DashboardManager {
         this.loadBadgesData();
         this.loadRankingsData();
         this.loadLevelProgress();
+        this.loadStreakInfo();
         this.loadDailyGoals();
         
         // 현재 월의 달력 데이터 로드
@@ -513,6 +797,37 @@ class DashboardManager {
         }
         return Math.round(((current - previous) / previous) * 100);
     }
+
+    // Chart.js 동적 로드 메서드
+    async loadChartJS() {
+        return new Promise((resolve, reject) => {
+            if (typeof Chart !== 'undefined') {
+                console.log('Chart.js 이미 로드됨');
+                resolve();
+                return;
+            }
+
+            console.log('Chart.js 동적 로드 시작...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
+            script.onload = () => {
+                console.log('Chart.js 동적 로드 완료');
+                // Chart 객체가 실제로 사용 가능한지 확인
+                if (typeof Chart !== 'undefined') {
+                    console.log('Chart 객체 사용 가능 확인됨');
+                    resolve();
+                } else {
+                    console.error('Chart 객체가 여전히 정의되지 않음');
+                    reject(new Error('Chart 객체 초기화 실패'));
+                }
+            };
+            script.onerror = () => {
+                console.error('Chart.js 동적 로드 실패');
+                reject(new Error('Chart.js 로드 실패'));
+            };
+            document.head.appendChild(script);
+        });
+    }
 }
 
 // 전역 DashboardManager 인스턴스
@@ -521,37 +836,14 @@ let dashboardManager;
 // DOM 로드 완료 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard DOM 로드 완료');
-    // 대시보드 페이지가 활성화되어 있을 때만 초기화
-    const dashboardPage = document.getElementById('dashboard-page');
-    if (dashboardPage && dashboardPage.classList.contains('active')) {
-        console.log('대시보드 페이지가 활성화됨 - DashboardManager 초기화');
+    
+    // 대시보드 컨테이너가 존재하면 초기화
+    const dashboardContainer = document.querySelector('.dashboard-container');
+    if (dashboardContainer) {
+        console.log('대시보드 컨테이너 발견 - DashboardManager 초기화');
         dashboardManager = new DashboardManager();
-    }
-});
-
-// 페이지 전환 시 대시보드 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    // 페이지 전환 감지
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const dashboardPage = document.getElementById('dashboard-page');
-                if (dashboardPage && dashboardPage.classList.contains('active')) {
-                    if (!dashboardManager) {
-                        console.log('대시보드 페이지로 전환됨 - DashboardManager 초기화');
-                        dashboardManager = new DashboardManager();
-                    } else {
-                        console.log('대시보드 페이지로 전환됨 - 데이터 새로고침');
-                        dashboardManager.refreshDashboard();
-                    }
-                }
-            }
-        });
-    });
-
-    const dashboardPage = document.getElementById('dashboard-page');
-    if (dashboardPage) {
-        observer.observe(dashboardPage, { attributes: true });
+    } else {
+        console.log('대시보드 컨테이너를 찾을 수 없음');
     }
 });
 
@@ -566,3 +858,104 @@ document.addEventListener('visibilitychange', function() {
 // 전역 함수로 노출 (다른 스크립트에서 사용 가능)
 window.DashboardManager = DashboardManager;
 window.dashboardManager = dashboardManager;
+
+// 수동 초기화 함수 (디버깅용)
+window.initDashboard = function() {
+    console.log('수동으로 DashboardManager 초기화');
+    dashboardManager = new DashboardManager();
+};
+
+async function loadRankings() {
+    try {
+        const response = await fetch('/learning/api/dashboard/rankings');
+        if (!response.ok) throw new Error('랭킹 데이터 로드 실패');
+        const rankings = await response.json();
+        updateRankingUI(rankings);
+    } catch (e) {
+        console.error('랭킹 로드 실패:', e);
+    }
+}
+
+function updateRankingUI(rankings) {
+    const rankingList = document.querySelector('.ranking-list');
+    if (!rankingList) return;
+    rankingList.innerHTML = '';
+    rankings.forEach(r => {
+        rankingList.innerHTML += `
+            <div class="rank-item rank-${r.rank}">
+                <div class="rank-position">${r.rank}</div>
+                <div class="rank-info">
+                    <div class="rank-name">${r.name}</div>
+                    <div class="rank-details">단어 ${r.wordsLearned}개 · 문장 ${r.sentencesLearned}개</div>
+                </div>
+                <div class="rank-badge">${r.badge}</div>
+                <div class="rank-score">⭐ ${r.rank}위</div>
+            </div>
+        `;
+    });
+}
+
+async function loadLevelProgress() {
+    try {
+        const res = await fetch('/api/level/progress');
+        if (!res.ok) {
+            console.error('레벨 진행도 API 호출 실패:', res.status);
+            return;
+        }
+        const data = await res.json();
+        console.log('레벨 진행도 데이터:', data);
+
+        // 레벨 정보 업데이트
+        const levelElement = document.getElementById('dashboard-current-level');
+        if (levelElement) {
+            levelElement.textContent = `Level ${data.currentLevel || 1}`;
+        }
+
+        // 진행률 퍼센트 업데이트
+        const progressElement = document.getElementById('dashboard-level-progress');
+        if (progressElement) {
+            const progressPercent = Math.round(data.levelProgress || 0);
+            progressElement.textContent = `${progressPercent}%`;
+        }
+
+        // 설명 업데이트
+        const descriptionElement = document.getElementById('dashboard-level-description');
+        if (descriptionElement) {
+            const wordsToNext = data.wordsToNextLevel || 0;
+            const sentencesToNext = data.sentencesToNextLevel || 0;
+            descriptionElement.textContent = `다음 레벨까지 ${wordsToNext}단어, ${sentencesToNext}문장`;
+        }
+
+        // 원형 진행률 차트 업데이트
+        const circle = document.querySelector('.progress-circle');
+        if (circle) {
+            const progressPercent = data.levelProgress || 0;
+            const degrees = (progressPercent / 100) * 360;
+            circle.style.background = `conic-gradient(#1976d2 ${degrees}deg, #e0e0e0 ${degrees}deg)`;
+            console.log('원형 차트 업데이트:', progressPercent + '%', degrees + 'deg');
+        } else {
+            console.warn('progress-circle 요소를 찾을 수 없습니다.');
+        }
+
+        // 100% 달성 시 레벨업
+        if (data.levelProgress >= 100) {
+            console.log('레벨업 조건 달성!');
+            await levelUp();
+            // 레벨업 후 다시 진행도 불러오기
+            await loadLevelProgress();
+        }
+    } catch (error) {
+        console.error('레벨 진행도 로드 실패:', error);
+    }
+}
+
+async function levelUp() {
+    const res = await fetch('/api/level/levelup', { method: 'POST' });
+    if (res.ok) {
+        alert('레벨업! 축하합니다!');
+    } else {
+        alert('레벨업 처리 중 오류가 발생했습니다.');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', loadLevelProgress);

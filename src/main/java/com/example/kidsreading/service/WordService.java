@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +24,7 @@ public class WordService {
 
     private final WordRepository wordRepository;
     private final UserWordProgressRepository userWordProgressRepository;
+    private final StreakService streakService;
 
     /**
      * 특정 레벨과 날짜의 단어 목록 조회
@@ -40,7 +43,7 @@ public class WordService {
             words = wordRepository.findByLevelAndIsActiveTrueOrderByDayAsc(level);
         } else {
             // 특정 레벨, 특정 Day
-            words = wordRepository.findByLevelAndDayAndIsActiveTrue(level, day);
+            words = wordRepository.findByLevelAndDayAndIsActiveTrueOrderByDisplayOrderAscIdAsc(level, day);
         }
 
         List<WordDto> wordDtos = words.stream()
@@ -124,6 +127,11 @@ public class WordService {
             progress.setFirstLearnedAt(java.time.LocalDateTime.now());
         }
         userWordProgressRepository.save(progress);
+
+        // 학습 완료 시 연속 학습일 업데이트
+        if (isCompleted != null && isCompleted) {
+            streakService.updateStreak(userId);
+        }
     }
 
     /**
@@ -165,6 +173,41 @@ public class WordService {
         userWordProgressRepository.save(progress);
 
         return progress.getIsFavorite();
+    }
+
+    /**
+     * 오늘 완료된 단어 수 조회
+     */
+    public int getTodayCompletedWordsCount(Long userId) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(23, 59, 59);
+        
+        return userWordProgressRepository.countCompletedWordsByUserAndDateRange(
+            userId, startOfDay, endOfDay);
+    }
+
+    /**
+     * 어제 완료된 단어 수 조회
+     */
+    public int getYesterdayCompletedWordsCount(Long userId) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDateTime startOfDay = yesterday.atStartOfDay();
+        LocalDateTime endOfDay = yesterday.atTime(23, 59, 59);
+        
+        return userWordProgressRepository.countCompletedWordsByUserAndDateRange(
+            userId, startOfDay, endOfDay);
+    }
+
+    /**
+     * 특정 날짜에 완료된 단어 수 조회
+     */
+    public int getCompletedWordsCountByDate(Long userId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+        
+        return userWordProgressRepository.countCompletedWordsByUserAndDateRange(
+            userId, startOfDay, endOfDay);
     }
 
     /**

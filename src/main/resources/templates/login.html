@@ -179,16 +179,8 @@
     </div>
 
     <!-- Alert Messages -->
-    <div th:if="${param.error}" class="alert alert-error">
-        이메일 또는 비밀번호가 올바르지 않습니다.
-    </div>
-
-    <div th:if="${param.logout}" class="alert alert-success">
-        로그아웃되었습니다.
-    </div>
-
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${session.loginError}" class="alert alert-error" th:text="${session.loginError}"></div>
+    <div th:if="${signupSuccess}" style="display:none;" id="signupSuccessMsg" th:text="${signupSuccess}"></div>
 
     <!-- Login Form -->
     <form th:action="@{/login}" method="post" id="loginForm">
@@ -252,6 +244,14 @@
 
         loginBtn.disabled = false;
         loginText.textContent = '로그인';
+    });
+
+    // 회원가입 성공 메시지 alert로 표시
+    document.addEventListener('DOMContentLoaded', function() {
+        var signupMsg = document.getElementById('signupSuccessMsg');
+        if (signupMsg && signupMsg.textContent.trim().length > 0) {
+            alert(signupMsg.textContent.trim());
+        }
     });
 </script>
 </body>

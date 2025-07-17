@@ -303,7 +303,7 @@
 <div class="register-container">
     <!-- Header -->
     <div class="header">
-        <h1>학부모 회원가입</h1>
+        <h1>회원가입</h1>
     </div>
 
     <!-- Alert Messages -->
@@ -335,7 +335,7 @@
                    th:classappend="${#fields.hasErrors('password')} ? 'error' : ''"
                    placeholder="비밀번호를 입력해 주세요."
                    required>
-            <div class="password-hint">*영문 대, 소문자, 숫자, 특수문자 3개 이상 조합하여 8~16자리로 설정</div>
+            <div class="password-hint">*영문, 숫자, 특수문자(@$!%*?&) 포함 8~16자리로 설정</div>
             <span th:if="${#fields.hasErrors('password')}"
                   th:errors="*{password}"
                   class="error-message"></span>
@@ -356,27 +356,27 @@
         <div class="form-group">
             <label class="form-label">학부모 이름</label>
             <input type="text"
-                   th:field="*{name}"
-                   class="input-field"
-                   th:classappend="${#fields.hasErrors('name')} ? 'error' : ''"
-                   placeholder="이름을 입력해 주세요."
-                   required>
-            <span th:if="${#fields.hasErrors('name')}"
-                  th:errors="*{name}"
-                  class="error-message"></span>
-        </div>
-
-        <!-- 부모 이름 (실제 DB 필드) -->
-        <div class="form-group">
-            <label class="form-label">보호자 이름</label>
-            <input type="text"
                    th:field="*{parentName}"
                    class="input-field"
                    th:classappend="${#fields.hasErrors('parentName')} ? 'error' : ''"
-                   placeholder="보호자 이름을 입력해 주세요."
+                   placeholder="학부모 이름을 입력해 주세요."
                    required>
             <span th:if="${#fields.hasErrors('parentName')}"
                   th:errors="*{parentName}"
+                  class="error-message"></span>
+        </div>
+
+        <!-- 보호자 이름 (실제 DB 필드) -->
+        <div class="form-group">
+            <label class="form-label">학습자 이름</label>
+            <input type="text"
+                   th:field="*{name}"
+                   class="input-field"
+                   th:classappend="${#fields.hasErrors('name')} ? 'error' : ''"
+                   placeholder="보호자 이름을 입력해 주세요."
+                   required>
+            <span th:if="${#fields.hasErrors('name')}"
+                  th:errors="*{name}"
                   class="error-message"></span>
         </div>
 
@@ -407,112 +407,77 @@
                   class="error-message"></span>
         </div>
 
-        <!-- 그룹 -->
+        <!-- 그룹(분원) 선택 -->
         <div class="form-group">
-            <label class="form-label">그룹</label>
-            <select th:field="*{groupName}"
-                    class="select-field"
-                    th:classappend="${#fields.hasErrors('groupName')} ? 'error' : ''"
-                    required>
-                <option value="">소속된 그룹을 선택해 주세요.</option>
-                <option value="group1">그룹 1</option>
-                <option value="group2">그룹 2</option>
-                <option value="group3">그룹 3</option>
+            <label class="form-label" for="groupName">분원 선택 *</label>
+            <select th:field="*{groupName}" class="select-field" id="groupName" required>
+                <option value="">분원을 선택하세요</option>
+                <option th:each="group : ${groupList}" th:value="${group.code}" th:text="${group.name}"></option>
             </select>
-            <span th:if="${#fields.hasErrors('groupName')}"
-                  th:errors="*{groupName}"
-                  class="error-message"></span>
         </div>
 
+        <!-- 역할 선택 (영문)
+        <div class="form-group">
+            <label class="form-label" for="role">Role *</label>
+            <select th:field="*{role}" class="select-field" id="role" required>
+                <option value="">역할을 선택하세요</option>
+                <option value="SANGAM">SANGAM</option>
+                <option value="YONGIN">YONGIN</option>
+            </select>
+        </div>
+ -->
+        
         <!-- Hidden fields for defaults -->
-        <input type="hidden" th:field="*{role}" value="PARENT">
         <input type="hidden" th:field="*{isActive}" value="true">
         <input type="hidden" th:field="*{emailVerified}" value="false">
-    </form>
 
-    <!-- Agreement Section -->
-    <div class="agreement-section">
-        <div class="agreement-item" onclick="toggleAllAgreement()">
-            <div class="checkbox" id="agreeAll"></div>
-            <div class="agreement-text bold">전체 동의</div>
+        <!-- 동의 항목 영역 (동적, Spring Form/Thymeleaf 방식) -->
+        <div class="agreement-section" style="margin-top: 32px;">
+            <!-- 전체 동의 -->
+            <div class="agreement-item">
+                <label>
+                    <input type="checkbox" id="agreeAll">
+                    <span class="agreement-text bold">전체 동의</span>
+                </label>
+            </div>
+            <div class="agreement-item">
+                <label>
+                    <input type="checkbox" name="agreeTerms" th:field="*{agreeTerms}" th:checked="${registerRequest.agreeTerms}" th:required="${registrationSettings.termsRequired}" class="agreement-check">
+                    <span class="agreement-text">이용 약관 동의 <span th:if="${registrationSettings.termsRequired}" style="color:red;">(필수)</span></span>
+                </label>
+                <div class="agreement-content" style="max-height: 180px; overflow-y: auto; border:1px solid #eee; background:#fafbfc; padding:12px; margin-top:8px; font-size:13px;">
+                    <pre th:text="${registrationSettings.termsContent}" style="white-space: pre-wrap; background: none; border: none; margin: 0; font-family: inherit;"></pre>
+                </div>
+            </div>
+            <div class="agreement-item" style="margin-top: 18px;">
+                <label>
+                    <input type="checkbox" name="agreePrivacy" th:field="*{agreePrivacy}" th:checked="${registerRequest.agreePrivacy}" th:required="${registrationSettings.privacyRequired}" class="agreement-check">
+                    <span class="agreement-text">개인정보 수집 및 이용 동의 <span th:if="${registrationSettings.privacyRequired}" style="color:red;">(필수)</span></span>
+                </label>
+                <div class="agreement-content" style="max-height: 180px; overflow-y: auto; border:1px solid #eee; background:#fafbfc; padding:12px; margin-top:8px; font-size:13px;">
+                    <pre th:text="${registrationSettings.privacyContent}" style="white-space: pre-wrap; background: none; border: none; margin: 0; font-family: inherit;"></pre>
+                </div>
+            </div>
+            <div class="agreement-item" style="margin-top: 18px;">
+                <label>
+                    <input type="checkbox" name="agreeMarketing" th:field="*{agreeMarketing}" th:checked="${registerRequest.agreeMarketing}" th:required="${registrationSettings.marketingRequired}" class="agreement-check">
+                    <span class="agreement-text">마케팅 정보 수신 동의 <span th:if="${registrationSettings.marketingRequired}" style="color:red;">(필수)</span><span th:unless="${registrationSettings.marketingRequired}" style="color:gray;">(선택)</span></span>
+                </label>
+                <div class="agreement-content" style="max-height: 120px; overflow-y: auto; border:1px solid #eee; background:#fafbfc; padding:12px; margin-top:8px; font-size:13px;">
+                    <pre th:text="${registrationSettings.marketingContent}" style="white-space: pre-wrap; background: none; border: none; margin: 0; font-family: inherit;"></pre>
+                </div>
+            </div>
         </div>
 
-        <div class="agreement-item" onclick="toggleAgreement('agreeTerms')">
-            <div class="checkbox" id="agreeTerms"></div>
-            <div class="agreement-text underline">이용 약관 동의(필수)</div>
-        </div>
-
-        <div class="agreement-item" onclick="toggleAgreement('agreePrivacy')">
-            <div class="checkbox" id="agreePrivacy"></div>
-            <div class="agreement-text underline">개인정보 수집 및 이용 동의(필수)</div>
-        </div>
-
-        <div class="agreement-item" onclick="toggleAgreement('agreeMarketing')">
-            <div class="checkbox" id="agreeMarketing"></div>
-            <div class="agreement-text underline">마케팅 정보 수신 동의(선택)</div>
-        </div>
-
-        <button type="submit" form="registerForm" class="submit-button" id="submitBtn" disabled>
+        <button type="submit" class="submit-button" id="submitBtn">
             <span class="loading" id="loadingSpinner" style="display: none;"></span>
             <span id="submitText">회원가입 신청</span>
         </button>
-    </div>
+    </form>
+    <!-- registrationSettings: [[${registrationSettings}]] -->
 </div>
 
 <script>
-    // 체크박스 상태 관리
-    const checkboxes = {
-        agreeAll: false,
-        agreeTerms: false,
-        agreePrivacy: false,
-        agreeMarketing: false
-    };
-
-    function toggleAgreement(id) {
-        checkboxes[id] = !checkboxes[id];
-        updateCheckboxUI(id);
-        updateAllCheckbox();
-        updateSubmitButton();
-    }
-
-    function toggleAllAgreement() {
-        const newState = !checkboxes.agreeAll;
-        Object.keys(checkboxes).forEach(key => {
-            checkboxes[key] = newState;
-            updateCheckboxUI(key);
-        });
-        updateSubmitButton();
-    }
-
-    function updateCheckboxUI(id) {
-        const element = document.getElementById(id);
-        if (element) {
-            if (checkboxes[id]) {
-                element.classList.add('checked');
-            } else {
-                element.classList.remove('checked');
-            }
-        }
-    }
-
-    function updateAllCheckbox() {
-        const individualCheckboxes = ['agreeTerms', 'agreePrivacy', 'agreeMarketing'];
-        const allChecked = individualCheckboxes.every(id => checkboxes[id]);
-
-        checkboxes.agreeAll = allChecked;
-        updateCheckboxUI('agreeAll');
-    }
-
-    function updateSubmitButton() {
-        const submitBtn = document.getElementById('submitBtn');
-        const requiredAgreements = ['agreeTerms', 'agreePrivacy'];
-        const canSubmit = requiredAgreements.every(id => checkboxes[id]);
-
-        if (submitBtn) {
-            submitBtn.disabled = !canSubmit;
-        }
-    }
-
     // 비밀번호 실시간 확인
     function setupPasswordValidation() {
         const passwordField = document.querySelector('input[name="password"]');
@@ -549,7 +514,7 @@
 
         form.addEventListener('submit', function(e) {
             // 필수 약관 동의 확인
-            if (!checkboxes.agreeTerms || !checkboxes.agreePrivacy) {
+            if (!form.agreeTerms || !form.agreePrivacy) {
                 e.preventDefault();
                 alert('필수 약관에 동의해주세요.');
                 return false;
@@ -578,12 +543,32 @@
         // 이메일을 사용자명으로 사용하므로 별도 처리 불필요
     }
 
-    // 초기화
+    // 전체 동의 기능 추가
     document.addEventListener('DOMContentLoaded', function() {
         const checkPasswordMatch = setupPasswordValidation();
         setupFormSubmission();
         setupUsernameSync();
-        updateSubmitButton();
+
+        // 전체 동의 체크박스 기능
+        const agreeAll = document.getElementById('agreeAll');
+        const agreementChecks = document.querySelectorAll('.agreement-check');
+        agreeAll.addEventListener('change', function() {
+            agreementChecks.forEach(function(chk) {
+                chk.checked = agreeAll.checked;
+            });
+        });
+        // 개별 체크 해제 시 전체 동의도 해제
+        agreementChecks.forEach(function(chk) {
+            chk.addEventListener('change', function() {
+                if (!chk.checked) {
+                    agreeAll.checked = false;
+                } else {
+                    // 모두 체크되면 전체 동의도 체크
+                    const allChecked = Array.from(agreementChecks).every(c => c.checked);
+                    agreeAll.checked = allChecked;
+                }
+            });
+        });
     });
 </script>
 </body>

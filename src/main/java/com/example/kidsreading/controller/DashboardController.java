@@ -2,6 +2,8 @@ package com.example.kidsreading.controller;
 
 import com.example.kidsreading.dto.DashboardDto;
 import com.example.kidsreading.dto.TodayProgressDto;
+import com.example.kidsreading.dto.RankingDto;
+import com.example.kidsreading.dto.LevelProgressDto;
 import com.example.kidsreading.service.DashboardService;
 import com.example.kidsreading.service.MainContentService;
 import com.example.kidsreading.service.CustomUserDetailsService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -132,21 +135,23 @@ public class DashboardController {
     }
 
     /**
+     * 노력왕 전체 랭킹 리스트 조회
+     */
+    @GetMapping("/top-rankings")
+    public ResponseEntity<List<RankingDto>> getTopRankings(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
+        List<RankingDto> rankings = dashboardService.getTopRankings();
+        return ResponseEntity.ok(rankings);
+    }
+
+    /**
      * 레벨 진행도 조회
      */
     @GetMapping("/level-progress")
-    public ResponseEntity<Map<String, Object>> getLevelProgress(
+    public ResponseEntity<LevelProgressDto> getLevelProgress(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
-        try {
-            Map<String, Object> levelData = dashboardService.getLevelProgress(user.getId());
-            return ResponseEntity.ok(levelData);
-        } catch (Exception e) {
-            Map<String, Object> defaultLevel = new HashMap<>();
-            defaultLevel.put("currentLevel", 1);
-            defaultLevel.put("levelProgress", 0);
-            defaultLevel.put("wordsToNextLevel", 100);
-            return ResponseEntity.ok(defaultLevel);
-        }
+        LevelProgressDto progress = dashboardService.getLevelProgress(user.getId());
+        return ResponseEntity.ok(progress);
     }
 
     /**
