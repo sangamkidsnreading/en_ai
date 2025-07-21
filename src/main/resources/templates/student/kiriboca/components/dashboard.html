@@ -8,7 +8,7 @@
         <p>당신의 학습 여정을 한눈에 확인하세요</p>
     </div>
 
-    <!-- 통계 카드 섹션 -->
+    <!-- 통계 카드 섹션
     <div class="stats-section">
         <div class="stat-card">
             <div class="stat-icon books">
@@ -24,6 +24,7 @@
             </div>
         </div>
 
+        
         <div class="stat-card">
             <div class="stat-icon target">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,7 +84,7 @@
                 <div class="stat-duration" id="dashboard-total-coins-duration">전체 보유</div>
             </div>
         </div>
-    </div>
+    </div>-->
 
     <!-- 월간 학습 달력 -->
     <div class="calendar-section">
@@ -117,6 +118,7 @@
             </div>
         </div>
 
+        <!--
         <div class="calendar-legend">
             <div class="legend-title">달력 범례</div>
             <div class="legend-items">
@@ -142,6 +144,7 @@
                 </div>
             </div>
         </div>
+        -->
     </div>
 
     <!-- 학습량 그래프 섹션 -->
@@ -174,64 +177,48 @@
     </div>
 
     <!-- 하단 섹션 -->
-    <div class="bottom-section">
-        <!-- 레벨 진행도 -->
-        <div class="level-progress-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    레벨 진행도
-                </div>
+    <div class="badge-collection-section">
+        <div class="section-header">
+            <div class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                뱃지 컬렉션
             </div>
-            <div class="level-card">
-                <div class="level-info">
-                                    <div class="level-number" id="dashboard-current-level">Level 1</div>
+            <div class="badge-subtitle">획득한 뱃지를 확인하세요</div>
+            <div class="badge-stats">
+                <span id="badge-total-count">0</span>개 획득
+            </div>
+        </div>
+        <div class="badge-grid" id="badge-collection-grid">
+            <!-- JavaScript로 동적 생성됨 -->
+        </div>
+        <div class="badge-empty-state" id="badge-empty-state" style="display: none;">
+            <div class="empty-icon">🏆</div>
+            <div class="empty-title">아직 획득한 뱃지가 없어요</div>
+            <div class="empty-description">학습을 계속하면 멋진 뱃지를 획득할 수 있습니다!</div>
+            <button id="badge-refresh-btn" class="badge-refresh-btn" style="margin-top:16px;">🔄 새로고침</button>
+        </div>
+    </div>
+
+    <div class="level-progress-section">
+        <div class="section-header">
+            <div class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                레벨 진행도
+            </div>
+        </div>
+        <div class="level-card">
+            <div class="level-info">
+                <div class="level-number" id="dashboard-current-level">Level 1</div>
                 <div class="level-progress">
                     <div class="progress-circle">
                         <div class="progress-value" id="dashboard-level-progress">0%</div>
                     </div>
                 </div>
                 <div class="level-description" id="dashboard-level-description">다음 레벨까지 100단어</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 뱃지 컬렉션 -->
-        <div class="badge-collection-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
-                        <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    뱃지 컬렉션
-                </div>
-                <div class="badge-count" id="dashboard-badge-count">3/5</div>
-                <div class="badges-earned">획득한 뱃지</div>
-            </div>
-            <div class="badge-grid">
-                <div class="badge-item earned">
-                    <div class="badge-icon">🎯</div>
-                    <div class="badge-name">첫 걸음</div>
-                </div>
-                <div class="badge-item earned">
-                    <div class="badge-icon">🔥</div>
-                    <div class="badge-name">열정 학습자</div>
-                </div>
-                <div class="badge-item earned">
-                    <div class="badge-icon">📚</div>
-                    <div class="badge-name">단어 마스터</div>
-                </div>
-                <div class="badge-item">
-                    <div class="badge-icon">🏆</div>
-                    <div class="badge-name">골드 마스터</div>
-                </div>
-                <div class="badge-item">
-                    <div class="badge-icon">⭐</div>
-                    <div class="badge-name">전설 수집가</div>
-                </div>
             </div>
         </div>
     </div>
@@ -250,34 +237,39 @@
                 </svg>
                 노력왕 전체 랭킹
             </div>
+            <div class="ranking-subtitle">일주일간 학습량 기준</div>
         </div>
 
-        <div class="ranking-list">
-            <div class="rank-item rank-1">
-                <div class="rank-position">1</div>
-                <div class="rank-info">
-                    <div class="rank-name">김학습자</div>
-                    <div class="rank-details">단어 10개 · 문장 8개</div>
-                </div>
-                <div class="rank-badge">오늘</div>
-                <div class="rank-score">⭐ 1위</div>
-            </div>
+        <div class="ranking-list" id="top-rankings-list">
+            <!-- JavaScript로 동적 생성됨 -->
+        </div>
+    </div>
 
-            <div class="rank-item rank-2">
-                <div class="rank-position">2</div>
-                <div class="rank-info">
-                    <div class="rank-name">관리자</div>
-                    <div class="rank-details">단어 10개 · 문장 8개</div>
-                </div>
-                <div class="rank-badge">오늘</div>
-                <div class="rank-score">⭐ 2위</div>
+    <!-- 복습왕 랭킹 -->
+    <div class="ranking-section">
+        <div class="section-header">
+            <div class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.02L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                복습왕 랭킹
             </div>
+            <div class="ranking-subtitle">총 복습 횟수 기준</div>
+        </div>
+
+        <div class="ranking-list" id="review-rankings-list">
+            <!-- JavaScript로 동적 생성됨 -->
         </div>
     </div>
 </div>
 
+<style>
+
+</style>
+
 <!-- Dashboard JavaScript -->
 <script src="/js/dashboard.js"></script>
+<script src="/js/badge-collection.js"></script>
 
 </body>
 </html>

@@ -22,6 +22,7 @@ public class StreakService {
 
     private final UserStreakRepository userStreakRepository;
     private final UserRepository userRepository;
+    private final BadgeEarningService badgeEarningService;
 
     /**
      * 사용자의 연속 학습일 정보 조회
@@ -42,6 +43,9 @@ public class StreakService {
 
         userStreak.updateStreak();
         userStreakRepository.save(userStreak);
+
+        // 뱃지 체크
+        badgeEarningService.checkBadgesOnStreakUpdate(userId);
 
         log.info("사용자 {}의 연속 학습일 업데이트: {}일", userId, userStreak.getCurrentStreak());
         return convertToDto(userStreak);

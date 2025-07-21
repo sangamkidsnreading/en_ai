@@ -493,6 +493,7 @@ public class AdminService {
             }
 
             // 데이터 읽기
+            int displayOrder = 1;
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 try {
@@ -527,12 +528,16 @@ public class AdminService {
                         .day(day)
                         .pronunciation(null)
                         .isActive(true)
+                        .displayOrder(displayOrder)
                         .build();
 
                     // audio_file 컬럼 데이터는 무시하고 항상 폴더 경로만 저장 (word/ 접두사 추가)
                     String audioUrl = String.format("word/level%d/day%d/", level, day);
-                    newWord.setAudioUrl(audioUrl);
+                    if (newWord.getAudioUrl() == null || newWord.getAudioUrl().isEmpty() || !newWord.getAudioUrl().startsWith("http")) {
+                        newWord.setAudioUrl(audioUrl);
+                    }
                     this.wordRepository.save(newWord);
+                    displayOrder++;
                     successCount++;
                 } catch (Exception e) {
                     errorRows.add("행 " + (row.getRowNum() + 1) + " 오류: " + e.getMessage());
@@ -634,7 +639,9 @@ public class AdminService {
                         LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM-dd")),
                         generatedAudioFile
                     );
-                    newSentence.setAudioUrl(finalAudioFile);
+                    if (newSentence.getAudioUrl() == null || newSentence.getAudioUrl().isEmpty() || !newSentence.getAudioUrl().startsWith("http")) {
+                        newSentence.setAudioUrl(finalAudioFile);
+                    }
                     this.sentenceRepository.save(newSentence);
                     successCount++;
                 } catch (Exception e) {
@@ -664,8 +671,11 @@ public class AdminService {
         //1. ZIP 내 모든 파일을 한 번에 읽어서 메모리에 저장
         Map<String, byte[]> fileContents = new HashMap<>();
         Map<String, List<String>> folderFiles = new HashMap<>();
+        List<ZipEntry> entries = new ArrayList<>();
         boolean zipParsed = false;
         Exception lastException = null;
+        Set<String> processedFiles = new HashSet<>(); // 이미 처리된 파일 추적
+        Set<Long> processedWordIds = new HashSet<>(); // 이미 처리된 문장 ID 추적
         
         for (java.nio.charset.Charset charset : new java.nio.charset.Charset[]{java.nio.charset.StandardCharsets.UTF_8, java.nio.charset.Charset.forName("CP437")}) {
             try (ZipInputStream zis = new ZipInputStream(file.getInputStream(), charset)) {
@@ -711,8 +721,6 @@ public class AdminService {
         }
 
         // 2. 폴더별로 파일/단어 매칭 (순서 보장)
-        Set<String> processedFiles = new HashSet<>(); // 이미 처리된 파일 추적
-        Set<Long> processedWordIds = new HashSet<>(); // 이미 처리된 단어 ID 추적
         
         for (String folder : folderFiles.keySet()) {
             List<String> fileList = folderFiles.get(folder);
@@ -743,9 +751,9 @@ public class AdminService {
             
             log.info("폴더 {} 파일 정렬 후:{}", folder, fileList);
             
-            // audioUrl이 해당 폴더로 시작하는 단어만 추출하고 ID 오름차순 정렬(엑셀 업로드 순서)
+            // audioUrl이 해당 폴더로 시작하는 단어만 추출하고 displayOrder 오름차순 정렬(엑셀 업로드 순서)
             List<Word> wordList = wordRepository.findByAudioUrlStartingWith(folder);
-            wordList.sort(Comparator.comparing(Word::getId));
+            wordList.sort(Comparator.comparing(Word::getDisplayOrder, Comparator.nullsLast(Integer::compareTo)));
             
             log.info("폴더 {} 매칭된 단어 개수: {}", folder, wordList.size());
             for (Word word : wordList) {
@@ -830,23 +838,32 @@ public class AdminService {
         List<String> successFiles = new ArrayList<>();
         List<String> errorFiles = new ArrayList<>();
 
+        //1. ZIP 내 모든 파일을 한 번에 읽어서 메모리에 저장
+        Map<String, byte[]> fileContents = new HashMap<>();
+        Map<String, List<String>> folderFiles = new HashMap<>();
         boolean zipParsed = false;
         Exception lastException = null;
-        List<ZipEntry> entries = new ArrayList<>();
-        List<byte[]> fileContents = new ArrayList<>();
+        Set<String> processedFiles = new HashSet<>(); // 이미 처리된 파일 추적
+        Set<Long> processedWordIds = new HashSet<>(); // 이미 처리된 문장 ID 추적
+
         for (java.nio.charset.Charset charset : new java.nio.charset.Charset[]{java.nio.charset.StandardCharsets.UTF_8, java.nio.charset.Charset.forName("CP437")}) {
             try (ZipInputStream zis = new ZipInputStream(file.getInputStream(), charset)) {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
                     if (!entry.isDirectory()) {
-                        entries.add(entry);
+                        String filePath = entry.getName().replace("\\", "/");
+                        // 파일 내용을 메모리에 저장
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         byte[] buffer = new byte[4096];
                         int len;
                         while ((len = zis.read(buffer)) > 0) {
                             baos.write(buffer, 0, len);
                         }
-                        fileContents.add(baos.toByteArray());
+                        fileContents.put(filePath, baos.toByteArray());
+                        // 폴더별로 파일 분류
+                        int lastSlash = filePath.lastIndexOf('/');
+                        String folder = (lastSlash > 0) ? filePath.substring(0, lastSlash + 1) : "";
+                        folderFiles.computeIfAbsent(folder, k -> new ArrayList<>()).add(filePath);
                     }
                 }
                 zipParsed = true;
@@ -865,57 +882,82 @@ public class AdminService {
             result.put("errorFiles", errorFiles);
             return result;
         }
-        // 문장 ID 오름차순(엑셀 업로드 순서)으로 정렬
-        List<Sentence> allSentences = sentenceRepository.findByIsActiveTrue();
-        allSentences.sort(Comparator.comparing(Sentence::getId));
-        int fileIdx = 0;
-        for (int i = 0; i < entries.size(); i++) {
-            String fileName = entries.get(i).getName();
+        // 폴더별로 파일/문장 매칭 (조건: 레벨, 데이, 활성)
+        for (String folder : folderFiles.keySet()) {
+            List<String> fileList = folderFiles.get(folder);
+            Collections.sort(fileList);
+            // 폴더명에서 레벨, 데이 추출 (예: sentence/level1/day1/)
+            int level = 1, day = 1;
             try {
-                File tempFile = File.createTempFile("audio_", null);
-                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                    fos.write(fileContents.get(i));
+                String[] parts = folder.replace("sentence/level", "").replace("/day", "/").split("/");
+                if (parts.length >= 2) {
+                    level = Integer.parseInt(parts[0]);
+                    day = Integer.parseInt(parts[1]);
                 }
-                if (fileIdx >= allSentences.size()) {
-                    errorCount++;
-                    errorFiles.add(fileName + " (문장 개수보다 파일이 많음)");
-                    tempFile.delete();
+            } catch (Exception ignore) {}
+            // 해당 레벨/데이/활성 문장만 추출
+            List<Sentence> sentenceList = sentenceRepository.findByDifficultyLevelAndDayNumberAndIsActiveTrue(level, day);
+            sentenceList.sort(Comparator.comparing(Sentence::getDisplayOrder, Comparator.nullsLast(Integer::compareTo)));
+            int matchCount = Math.min(fileList.size(), sentenceList.size());
+            for (int i = 0; i < matchCount; i++) {
+                String filePath = fileList.get(i);
+                Sentence matchingSentence = sentenceList.get(i);
+                
+                // 이미 처리된 파일이나 문장인지 확인
+                if (processedFiles.contains(filePath)) {
+                    log.warn("이미 처리된 파일 건너뛰기: {}", filePath);
                     continue;
                 }
-                Sentence matchingSentence = allSentences.get(fileIdx);
-                int level = matchingSentence.getDifficultyLevel();
-                int day = matchingSentence.getDayNumber();
-                String audioFileBase = matchingSentence.getAudioUrl();
-                // 확장자 제거 (혹시라도 남아있을 경우)
-                int dotIdx = audioFileBase.lastIndexOf('.');
-                if (dotIdx > 0) {
-                    audioFileBase = audioFileBase.substring(0, dotIdx);
+                if (processedWordIds.contains(matchingSentence.getId())) { // Sentence ID를 사용
+                    log.warn("이미 처리된 문장 건너뛰기: ID={}, 텍스트={}", matchingSentence.getId(), matchingSentence.getEnglishText());
+                    continue;
                 }
-                // 폴더 경로가 없으면 전체 S3 경로로 보정
-                if (!audioFileBase.startsWith("vocabulary/")) {
-                    audioFileBase = String.format("vocabulary/%s/sentences/%s",
-                        java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM-dd")),
-                        audioFileBase
-                    );
+                
+                log.info("매칭 {}: 파일 {} -> 문장{} (ID: {})", i+1, filePath, matchingSentence.getEnglishText(), matchingSentence.getId());
+                
+                try {
+                    // 메모리에서 파일 내용 가져오기
+                    byte[] fileContent = fileContents.get(filePath);
+                    if (fileContent == null) {
+                        errorCount++;
+                        errorFiles.add(filePath + ":파일 내용을 찾을 수 없음");
+                        log.error("실패: 파일 {} 내용을 찾을 수 없음", filePath);
+                        continue;
+                    }
+                    
+                    // 임시 파일 생성
+                    File tempFile = File.createTempFile("audio_", null);
+                    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                        fos.write(fileContent);
+                    }
+                    
+                    // S3 업로드 (sentence/ 접두사 추가)
+                    String s3Key = "sentence/" + filePath;
+                    String uploadedKey = s3Service.uploadFileWithKey(tempFile, s3Key);
+                    String s3Url = s3Service.getS3Url(uploadedKey);
+                    
+                    // audioUrl에 S3 URL 저장
+                    matchingSentence.setAudioUrl(s3Url);
+                    sentenceRepository.save(matchingSentence);
+                    
+                    tempFile.delete();
+                    successCount++;
+                    successFiles.add(filePath);
+                    
+                    // 처리 완료 표시
+                    processedFiles.add(filePath);
+                    processedWordIds.add(matchingSentence.getId()); // Sentence ID를 사용
+                    
+                    log.info("성공: 파일 {} -> S3 {} -> 문장 {}", filePath, s3Key, matchingSentence.getEnglishText());
+                    
+                } catch (Exception e) {
+                    errorCount++;
+                    errorFiles.add(filePath + ": " + e.getMessage());
+                    log.error("실패:파일 {} 처리 실패", filePath, e);
                 }
-                String ext = fileName.substring(fileName.lastIndexOf('.'));
-                String s3ey = "sentence/" + audioFileBase + ext;
-                String uploadedKey = s3Service.uploadFileWithKey(tempFile, s3ey);
-                String s3Url = s3Service.getS3Url(uploadedKey);
-                log.info("DB 업데이트: sentenceId={}, oldUrl={}, newUrl={}", matchingSentence.getId(), matchingSentence.getAudioUrl(), s3Url);
-                matchingSentence.setAudioUrl(s3Url);
-                sentenceRepository.save(matchingSentence);
-                successCount++;
-                successFiles.add(audioFileBase + ext);
-                log.info("문장 음원 업로드 성공: {} -> {}", fileName, s3Url);
-                tempFile.delete();
-                fileIdx++;
-            } catch (Exception e) {
-                errorFiles.add(fileName + ": " + e.getMessage());
-                errorCount++;
-                log.error("파일 처리 중 예외 발생: {}", fileName, e);
             }
         }
+        
         result.put("successCount", successCount);
         result.put("errorCount", errorCount);
         result.put("successFiles", successFiles);

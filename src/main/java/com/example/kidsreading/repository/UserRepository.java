@@ -368,4 +368,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COALESCE(u.wordsToNextLevel, 100) FROM User u WHERE u.id = :userId")
     int getWordsToNextLevel(@Param("userId") Long userId);
+
+    /**
+     * 역할과 그룹명으로 사용자 조회 (교사용)
+     */
+    List<User> findByRoleAndGroupName(User.Role role, String groupName);
 }

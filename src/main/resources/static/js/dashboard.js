@@ -11,7 +11,7 @@ class DashboardManager {
         this.loadDashboardData();
         this.loadLearningGraph();
        // this.loadTodayProgress();
-        this.loadBadgesData();
+        //this.loadBadgesData();
         this.loadRankingsData();
         this.loadLevelProgress();
         this.loadStreakInfo();
@@ -44,10 +44,14 @@ class DashboardManager {
         try {
             console.log('대시보드 통계 데이터 로드 시작...');
             
-            // 대시보드 통계와 코인 정보를 병렬로 로드
-            const [statsResponse, coinsResponse] = await Promise.all([
+            // 대시보드 통계, 코인 정보, 랭킹 데이터를 병렬로 로드
+            const [statsResponse, coinsResponse, topRankingsResponse, reviewRankingsResponse, myEffortRankingResponse, myReviewRankingResponse] = await Promise.all([
                 fetch('/learning/api/dashboard/stats'),
-                fetch('/api/coins/user')
+                fetch('/api/coins/user'),
+                fetch('/api/dashboard/top-rankings'),
+                fetch('/api/dashboard/review-rankings'),
+                fetch('/api/dashboard/my-effort-ranking'),
+                fetch('/api/dashboard/my-review-ranking')
             ]);
             
             if (!statsResponse.ok) {
@@ -60,9 +64,27 @@ class DashboardManager {
             
             const stats = await statsResponse.json();
             const coins = await coinsResponse.json();
+            const topRankings = await topRankingsResponse.json();
+            const reviewRankings = await reviewRankingsResponse.json();
+            
+            // 나의 순위는 실패해도 랭킹은 정상 표시
+            let myEffortRanking = null;
+            let myReviewRanking = null;
+            try {
+                myEffortRanking = await myEffortRankingResponse.json();
+            } catch (e) {
+                console.log('나의 노력왕 순위 조회 실패:', e);
+            }
+            try {
+                myReviewRanking = await myReviewRankingResponse.json();
+            } catch (e) {
+                console.log('나의 복습왕 순위 조회 실패:', e);
+            }
             
             console.log('대시보드 통계 데이터 로드 완료:', stats);
             console.log('코인 정보 로드 완료:', coins);
+            console.log('노력왕 랭킹 로드 완료:', topRankings);
+            console.log('복습왕 랭킹 로드 완료:', reviewRankings);
             console.log('📊 상세 통계:', {
                 todayWordsLearned: stats.todayWordsLearned,
                 todaySentencesLearned: stats.todaySentencesLearned,
@@ -77,7 +99,12 @@ class DashboardManager {
             // 오늘 학습한 단어/문장/코인
             this.updateElement('dashboard-words-learned', stats.todayWordsLearned ?? 0);
             this.updateElement('dashboard-sentences-learned', stats.todaySentencesLearned ?? 0);
-            this.updateElement('dashboard-total-coins', coins.dailyCoins ?? 0);
+            // 코인 정보는 totalDailyCoins 우선 사용
+            this.updateElement('dashboard-total-coins', coins.totalDailyCoins ?? coins.dailyCoins ?? coins.coinsEarned ?? 0);
+
+            // 랭킹 데이터 표시
+            this.displayTopRankings(topRankings, myEffortRanking);
+            this.displayReviewRankings(reviewRankings, myReviewRanking);
             this.updateElement('dashboard-streak-days', stats.streakDays ?? 1);
             this.updateElement('dashboard-streak-duration', (stats.streakDays ?? 1) + ' 일');
             this.updateElement('dashboard-total-coins-all', coins.totalCoins ?? 0);
@@ -152,7 +179,7 @@ class DashboardManager {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            this.updateBadgesUI(data);
+            //this.updateBadgesUI(data);
             console.log('뱃지 데이터 로드 완료:', data);
         } catch (error) {
             console.error('뱃지 데이터 로드 실패:', error);
@@ -186,8 +213,65 @@ class DashboardManager {
             const data = await response.json();
             this.updateLevelProgressUI(data);
             console.log('레벨 진행도 로드 완료:', data);
+            
+            // 100% 달성 시 자동 레벨업 (한 번만 시도)
+            if (data.levelProgress >= 100) {
+                console.log('레벨업 조건 달성! 진행도:', data.levelProgress + '%');
+                const levelUpResult = await this.levelUp();
+                
+                // 레벨업 성공 시에만 다시 진행도 불러오기
+                if (levelUpResult && levelUpResult.success) {
+                    console.log('레벨업 성공 후 진행도 재로드');
+                    await this.loadLevelProgress();
+                }
+            }
         } catch (error) {
             console.error('레벨 진행도 로드 실패:', error);
+        }
+    }
+
+    // 레벨업 처리
+    async levelUp() {
+        try {
+            console.log('레벨업 요청 중...');
+            const response = await fetch('/api/level/levelup', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('레벨업 성공:', result);
+                
+                // 성공 메시지 표시
+                this.showToast('🎉 레벨업 성공!', 
+                    `Level ${result.oldLevel}에서 Level ${result.newLevel}로 승급했습니다!`);
+                
+                // 대시보드 새로고침
+                this.refreshDashboard();
+                
+                return result;
+                
+            } else {
+                const errorData = await response.json();
+                console.error('레벨업 실패:', errorData);
+                
+                // 에러 메시지 표시 (조건 불만족인 경우는 조용히 처리)
+                if (errorData.currentProgress < 100) {
+                    console.log('레벨업 조건 불만족:', errorData.currentProgress + '%');
+                    // 조건 불만족은 정상적인 상황이므로 에러 메시지 표시하지 않음
+                } else {
+                    this.showToast('레벨업 실패', errorData.message || '레벨업 처리 중 오류가 발생했습니다.');
+                }
+                
+                return null;
+            }
+        } catch (error) {
+            console.error('레벨업 요청 실패:', error);
+            this.showToast('레벨업 실패', '레벨업 처리 중 오류가 발생했습니다.');
+            return null;
         }
     }
 
@@ -289,14 +373,21 @@ class DashboardManager {
                 sentencesData: data.sentencesData
             });
 
-            // 테스트용: 모든 데이터가 0이면 샘플 데이터 사용
             let wordsData = data.wordsData;
             let sentencesData = data.sentencesData;
             
+            // 데이터가 모두 0이면 그래프 대신 메시지 표시
             if (wordsData.every(val => val === 0) && sentencesData.every(val => val === 0)) {
-                console.log('모든 데이터가 0이므로 테스트 데이터 사용');
-                wordsData = [2, 3, 1, 4, 2, 3, 1];
-                sentencesData = [1, 2, 1, 3, 1, 2, 1];
+                const graphContainer = document.querySelector('.graph-container');
+                if (graphContainer) {
+                    graphContainer.innerHTML = '<div class="no-graph-data" style="text-align:center;padding:40px 0;color:#888;font-size:1.1em;">데이터가 없습니다</div>';
+                }
+                // 기존 차트가 있으면 제거
+                if (window.learningChart && typeof window.learningChart.destroy === 'function') {
+                    window.learningChart.destroy();
+                    window.learningChart = null;
+                }
+                return;
             }
 
             // Chart 객체가 제대로 로드되었는지 한 번 더 확인
@@ -395,9 +486,36 @@ class DashboardManager {
             const dayNumber = dayCell.querySelector('.day-number');
             if (dayNumber) {
                 const day = parseInt(dayNumber.textContent);
-                if (day && calendarData[`${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`]) {
-                    const dayData = calendarData[`${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`];
-                    this.updateCalendarDayStatus(dayCell, dayData.status);
+                const dateKey = `${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (day && calendarData[dateKey]) {
+                    const dayData = calendarData[dateKey];
+
+                    // 30코인 이상이면 숫자 위에만 분홍색 동그라미
+                    if ((dayData.coinsEarned ?? 0) >= 30) {
+                        dayNumber.classList.add('circle-highlight');
+                    } else {
+                        dayNumber.classList.remove('circle-highlight');
+                    }
+
+                    // 기존 상세 정보(.day-detail) 제거
+                    const oldDetail = dayCell.querySelector('.day-detail');
+                    if (oldDetail) oldDetail.remove();
+
+                    // 기존 코인 표시 제거
+                    let oldCoin = dayCell.querySelector('.coin-amount');
+                    if (oldCoin) oldCoin.remove();
+                    // 코인 표시 추가 (날짜 아래)
+                    const coinDiv = document.createElement('div');
+                    coinDiv.className = 'coin-amount';
+                    coinDiv.textContent = dayData.coinsEarned ?? 0;
+                    dayCell.appendChild(coinDiv);
+                } else {
+                    // 데이터 없으면 모두 제거
+                    const oldDetail = dayCell.querySelector('.day-detail');
+                    if (oldDetail) oldDetail.remove();
+                    if (dayNumber) dayNumber.classList.remove('circle-highlight');
+                    let oldCoin = dayCell.querySelector('.coin-amount');
+                    if (oldCoin) oldCoin.remove();
                 }
             }
         });
@@ -530,14 +648,36 @@ class DashboardManager {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const dayData = await response.json();
-            
-            if (dayData.completedWords > 0 || dayData.completedSentences > 0 || dayData.coinsEarned > 0) {
-                this.showToast('학습 기록', 
-                    `${date}: 단어 ${dayData.completedWords}개, 문장 ${dayData.completedSentences}개, 코인 ${dayData.coinsEarned}개`);
-            } else {
-                this.showToast('학습 기록', `${date}: 아직 학습 기록이 없습니다.`);
+
+            // 추가: 해당 날짜의 코인 정보도 별도 API로 가져오기
+            let coins =
+                dayData.totalDailyCoins ??
+                dayData.coinsEarned ??
+                dayData.todayCoinsEarned ??
+                dayData.coin ??
+                dayData.coins ??
+                0;
+
+            try {
+                // /api/coins/user 호출
+                const coinsResponse = await fetch('/api/coins/user');
+                if (coinsResponse.ok) {
+                    const coinsData = await coinsResponse.json();
+                    // coinsData.date와 date가 일치하면 totalDailyCoins 사용
+                    if (coinsData && coinsData.date === date && coinsData.totalDailyCoins !== undefined) {
+                        coins = coinsData.totalDailyCoins;
+                    }
+                }
+            } catch (coinApiError) {
+                console.warn('코인 정보 별도 API 호출 실패:', coinApiError);
             }
             
+            /*
+            this.showToast(
+                '학습 기록',
+                `${date}: 단어 ${dayData.completedWords ?? 0}개, 문장 ${dayData.completedSentences ?? 0}개, 코인 ${coins}개`
+            );*/
+
             console.log('날짜별 통계 데이터:', dayData);
         } catch (error) {
             console.error('날짜별 통계 조회 실패:', error);
@@ -623,10 +763,28 @@ class DashboardManager {
 
     // 레벨 진행도 UI 업데이트
     updateLevelProgressUI(data) {
+        // 레벨 번호 업데이트
         document.getElementById('dashboard-current-level').textContent = `Level ${data.currentLevel}`;
-        document.getElementById('dashboard-level-progress').textContent = `${data.levelProgress}%`;
+        
+        // 진행률 퍼센트 업데이트
+        const progressPercent = Math.round(data.levelProgress || 0);
+        document.getElementById('dashboard-level-progress').textContent = `${progressPercent}%`;
+        
+        // 설명 업데이트 - 레벨 설정에 따른 단어/문장 개수 표시
+        const wordsToNext = data.wordsToNextLevel || 0;
+        const sentencesToNext = data.sentencesToNextLevel || 0;
         document.getElementById('dashboard-level-description').textContent =
-            `다음 레벨까지 ${data.wordsToNextLevel}단어, ${data.sentencesToNextLevel}문장`;
+            `다음 레벨까지 ${wordsToNext}단어, ${sentencesToNext}문장`;
+        
+        // 원형 진행률 차트 업데이트
+        const circle = document.querySelector('.progress-circle');
+        if (circle) {
+            const degrees = (progressPercent / 100) * 360;
+            circle.style.background = `conic-gradient(#1976d2 ${degrees}deg, #e0e0e0 ${degrees}deg)`;
+            console.log('원형 차트 업데이트:', progressPercent + '%', degrees + 'deg');
+        } else {
+            console.warn('progress-circle 요소를 찾을 수 없습니다.');
+        }
     }
 
     // 연속 학습일 정보 UI 업데이트
@@ -725,6 +883,108 @@ class DashboardManager {
         if (element) {
             element.textContent = value;
         }
+    }
+
+    // 노력왕 랭킹 표시
+    async displayTopRankings(rankings, myRanking = null) {
+        const container = document.getElementById('top-rankings-list');
+        if (!container) return;
+
+        if (!rankings || rankings.length === 0) {
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">📊</div>
+                    <div class="no-data-text">아직 랭킹 데이터가 없습니다</div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = rankings.map((ranking, index) => {
+            const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+            const totalCount = ranking.wordsLearned + ranking.sentencesLearned;
+            
+            return `
+                <div class="rank-item ${rankClass}">
+                    <div class="rank-position">${ranking.rank}</div>
+                    <div class="rank-info">
+                        <div class="rank-name">${ranking.name}</div>
+                        <div class="rank-details">단어 ${ranking.wordsLearned}개 · 문장 ${ranking.sentencesLearned}개</div>
+                    </div>
+                    <div class="rank-badge">${ranking.badge}</div>
+                    <div class="rank-score">⭐ ${totalCount}회</div>
+                </div>
+            `;
+        }).join('');
+
+        // 나의 순위가 1~3위 안에 없으면 표시
+        if (myRanking && myRanking.rank > 3 && !rankings.some(r => r.name === myRanking.name)) {
+            const totalCount = myRanking.wordsLearned + myRanking.sentencesLearned;
+            html += `
+                <div class="rank-item my-rank">
+                    <div class="rank-position">${myRanking.rank}</div>
+                    <div class="rank-info">
+                        <div class="rank-name">${myRanking.name} (나)</div>
+                        <div class="rank-details">단어 ${myRanking.wordsLearned}개 · 문장 ${myRanking.sentencesLearned}개</div>
+                    </div>
+                    <div class="rank-badge">${myRanking.badge}</div>
+                    <div class="rank-score">⭐ ${totalCount}회</div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    // 복습왕 랭킹 표시
+    async displayReviewRankings(rankings, myRanking = null) {
+        const container = document.getElementById('review-rankings-list');
+        if (!container) return;
+
+        if (!rankings || rankings.length === 0) {
+            container.innerHTML = `
+                <div class="no-data">
+                    <div class="no-data-icon">🔄</div>
+                    <div class="no-data-text">아직 복습 데이터가 없습니다</div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = rankings.map((ranking, index) => {
+            const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+            const totalCount = ranking.wordsLearned + ranking.sentencesLearned;
+            
+            return `
+                <div class="rank-item ${rankClass}">
+                    <div class="rank-position">${ranking.rank}</div>
+                    <div class="rank-info">
+                        <div class="rank-name">${ranking.name}</div>
+                        <div class="rank-details">단어 ${ranking.wordsLearned}회 · 문장 ${ranking.sentencesLearned}회</div>
+                    </div>
+                    <div class="rank-badge">${ranking.badge}</div>
+                    <div class="rank-score">🔄 ${totalCount}회</div>
+                </div>
+            `;
+        }).join('');
+
+        // 나의 순위가 1~3위 안에 없으면 표시
+        if (myRanking && myRanking.rank > 3 && !rankings.some(r => r.name === myRanking.name)) {
+            const totalCount = myRanking.wordsLearned + myRanking.sentencesLearned;
+            html += `
+                <div class="rank-item my-rank">
+                    <div class="rank-position">${myRanking.rank}</div>
+                    <div class="rank-info">
+                        <div class="rank-name">${myRanking.name} (나)</div>
+                        <div class="rank-details">단어 ${myRanking.wordsLearned}회 · 문장 ${myRanking.sentencesLearned}회</div>
+                    </div>
+                    <div class="rank-badge">${myRanking.badge}</div>
+                    <div class="rank-score">🔄 ${totalCount}회</div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
     }
 
     // 애니메이션 효과 추가
@@ -937,12 +1197,16 @@ async function loadLevelProgress() {
             console.warn('progress-circle 요소를 찾을 수 없습니다.');
         }
 
-        // 100% 달성 시 레벨업
+        // 100% 달성 시 레벨업 (한 번만 시도)
         if (data.levelProgress >= 100) {
-            console.log('레벨업 조건 달성!');
-            await levelUp();
-            // 레벨업 후 다시 진행도 불러오기
-            await loadLevelProgress();
+            console.log('레벨업 조건 달성! 진행도:', data.levelProgress + '%');
+            const levelUpResult = await levelUp();
+            
+            // 레벨업 성공 시에만 다시 진행도 불러오기
+            if (levelUpResult && levelUpResult.success) {
+                console.log('레벨업 성공 후 진행도 재로드');
+                await loadLevelProgress();
+            }
         }
     } catch (error) {
         console.error('레벨 진행도 로드 실패:', error);
@@ -950,12 +1214,55 @@ async function loadLevelProgress() {
 }
 
 async function levelUp() {
-    const res = await fetch('/api/level/levelup', { method: 'POST' });
-    if (res.ok) {
-        alert('레벨업! 축하합니다!');
-    } else {
-        alert('레벨업 처리 중 오류가 발생했습니다.');
+    try {
+        console.log('레벨업 요청 중...');
+        const response = await fetch('/api/level/levelup', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('레벨업 성공:', result);
+            
+            // 성공 메시지 표시
+            showToast('🎉 레벨업 성공!', 
+                `Level ${result.oldLevel}에서 Level ${result.newLevel}로 승급했습니다!`);
+            
+            // 페이지 새로고침 (간단한 방법)
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
+            return result;
+            
+        } else {
+            const errorData = await response.json();
+            console.error('레벨업 실패:', errorData);
+            
+            // 에러 메시지 표시 (조건 불만족인 경우는 조용히 처리)
+            if (errorData.currentProgress < 100) {
+                console.log('레벨업 조건 불만족:', errorData.currentProgress + '%');
+                // 조건 불만족은 정상적인 상황이므로 에러 메시지 표시하지 않음
+            } else {
+                showToast('레벨업 실패', errorData.message || '레벨업 처리 중 오류가 발생했습니다.');
+            }
+            
+            return null;
+        }
+    } catch (error) {
+        console.error('레벨업 요청 실패:', error);
+        showToast('레벨업 실패', '레벨업 처리 중 오류가 발생했습니다.');
+        return null;
     }
+}
+
+// 간단한 토스트 메시지 함수 (DashboardManager가 없는 경우용)
+function showToast(title, description) {
+    // 간단한 alert로 대체 (실제로는 더 나은 UI 컴포넌트 사용 권장)
+    alert(`${title}\n${description}`);
 }
 
 window.addEventListener('DOMContentLoaded', loadLevelProgress);

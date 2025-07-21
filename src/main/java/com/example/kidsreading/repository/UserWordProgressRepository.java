@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 @Repository
 public interface UserWordProgressRepository extends JpaRepository<UserWordProgress, Long> {
@@ -100,4 +101,63 @@ public interface UserWordProgressRepository extends JpaRepository<UserWordProgre
     int countCompletedWordsByUserAndDateRange(@Param("userId") Long userId,
                                               @Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * 사용자의 특정 기간 학습 완료된 단어 수 조회
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp " +
+            "WHERE uwp.userId = :userId " +
+            "AND uwp.isLearned = true " +
+            "AND uwp.firstLearnedAt BETWEEN :startDate AND :endDate")
+    int countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(@Param("userId") Long userId,
+                                                              @Param("startDate") LocalDateTime startDate,
+                                                              @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * 사용자의 학습한 단어 수 조회 (최적화)
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp WHERE uwp.user.id = :userId AND uwp.isLearned = true")
+    long countLearnedWordsByUserId(@Param("userId") Long userId);
+
+    /**
+     * 사용자의 특정 날짜 학습한 단어 수 조회 (최적화)
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp WHERE uwp.user.id = :userId AND uwp.isLearned = true AND DATE(uwp.createdAt) = :date")
+    long countLearnedWordsByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
+
+    /**
+     * 사용자의 특정 날짜까지 누적 학습한 단어 수 조회 (최적화)
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp WHERE uwp.user.id = :userId AND uwp.isLearned = true AND DATE(uwp.createdAt) <= :date")
+    long countLearnedWordsByUserIdUntilDate(@Param("userId") Long userId, @Param("date") LocalDate date);
+
+    /**
+     * 사용자의 특정 기간 학습한 단어 수 조회 (최적화)
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp WHERE uwp.user.id = :userId AND uwp.isLearned = true AND DATE(uwp.createdAt) BETWEEN :startDate AND :endDate")
+    long countLearnedWordsByUserIdBetweenDates(@Param("userId") Long userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // Day/Level별 학습 진행도 조회
+    @Query("SELECT w.day, w.level, COUNT(uwp) " +
+           "FROM UserWordProgress uwp " +
+           "JOIN uwp.word w " +
+           "WHERE uwp.user.id = :userId " +
+           "GROUP BY w.day, w.level " +
+           "ORDER BY w.day, w.level")
+    List<Object[]> findDayLevelProgressByUserId(@Param("userId") Long userId);
+
+    /**
+     * 사용자의 특정 기간 이후 학습 완료된 단어 수 조회
+     */
+    @Query("SELECT COUNT(uwp) FROM UserWordProgress uwp " +
+            "WHERE uwp.userId = :userId " +
+            "AND uwp.isLearned = true " +
+            "AND (uwp.firstLearnedAt >= :startDate OR (uwp.firstLearnedAt IS NULL AND uwp.createdAt >= :startDate))")
+    long countByUserIdAndIsLearnedTrueAndFirstLearnedAtAfter(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
+
+    /**
+     * 사용자의 단어 복습 횟수 합계 조회 (learn_count)
+     */
+    @Query("SELECT COALESCE(SUM(uwp.learnCount), 0) FROM UserWordProgress uwp WHERE uwp.userId = :userId")
+    long sumLearnCountByUserId(@Param("userId") Long userId);
 }

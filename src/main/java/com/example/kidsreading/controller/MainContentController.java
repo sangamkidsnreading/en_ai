@@ -166,10 +166,14 @@ public class MainContentController {
 
         Long wordId = Long.valueOf(request.get("wordId").toString());
         Boolean isCompleted = (Boolean) request.get("isCompleted");
+        Boolean isFirstTime = (Boolean) request.get("isFirstTime");
         Long userId = user.getId();
         String email = user.getEmail();
 
-        wordService.updateWordProgress(userId, wordId, isCompleted, email);
+        log.info("단어 진행도 업데이트: userId={}, wordId={}, isCompleted={}, isFirstTime={}", 
+                userId, wordId, isCompleted, isFirstTime);
+
+        wordService.updateWordProgress(userId, wordId, isCompleted, isFirstTime, email);
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -191,12 +195,14 @@ public class MainContentController {
 
         Long sentenceId = Long.valueOf(request.get("sentenceId").toString());
         Boolean isCompleted = (Boolean) request.get("isCompleted");
+        Boolean isFirstTime = (Boolean) request.get("isFirstTime");
         Long userId = user.getId();
         String email = user.getEmail();
 
-        log.info("updateSentenceProgress: userId={}, email={}, sentenceId={}, isCompleted={}", userId, email, sentenceId, isCompleted);
+        log.info("문장 진행도 업데이트: userId={}, sentenceId={}, isCompleted={}, isFirstTime={}", 
+                userId, sentenceId, isCompleted, isFirstTime);
 
-        sentenceService.updateSentenceProgress(userId, sentenceId, isCompleted, email);
+        sentenceService.updateSentenceProgress(userId, sentenceId, isCompleted, isFirstTime, email);
 
         return ResponseEntity.ok(Map.of(
                 "success", true,

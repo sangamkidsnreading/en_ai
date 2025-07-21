@@ -469,6 +469,19 @@
             // 페이지 전환
             this.switchPage(page);
 
+            // 학생 관리 페이지인 경우 StudentManagementManager 초기화
+            if (page === 'admin-student-management') {
+                console.log('🔧 학생 관리 페이지 진입 - StudentManagementManager 초기화');
+                setTimeout(() => {
+                    if (typeof window.initStudentManagementManager === 'function') {
+                        window.initStudentManagementManager();
+                        console.log('✅ StudentManagementManager 초기화 완료');
+                    } else {
+                        console.error('❌ admin-student-management.js가 로드되지 않았습니다.');
+                    }
+                }, 100);
+            }
+
             this.currentPage = page;
         }
 
@@ -481,31 +494,44 @@
             });
 
             // 대상 페이지 표시
-            const targetPageElement = document.getElementById(`${targetPage}-page`);
+            let targetPageElement;
+            
+            // 페이지 ID 매핑
+            const pageIdMap = {
+                'learning': 'learning-page',
+                'dashboard': 'dashboard-page',
+                'profile': 'profile-page',
+                'admin': 'admin-page',
+                'admin-student-management': 'admin-student-management-page'
+            };
+            
+            const pageId = pageIdMap[targetPage] || `${targetPage}-page`;
+            targetPageElement = document.getElementById(pageId);
+            
             if (targetPageElement) {
                 targetPageElement.classList.add('active');
                 targetPageElement.classList.add('fade-in');
-
-                // 애니메이션 클래스 제거
-                setTimeout(() => {
-                    targetPageElement.classList.remove('fade-in');
-                }, 300);
+                console.log(`✅ 페이지 전환 완료: ${targetPage} (${pageId})`);
+            } else {
+                console.error(`❌ 페이지를 찾을 수 없습니다: ${pageId}`);
             }
         }
 
         // 네비게이션 상태 업데이트
-        updateNavigationState(activePage) {
-            const navItems = document.querySelectorAll('.nav-item[data-page]');
-
-            navItems.forEach(item => {
-                const page = item.dataset.page;
-
-                if (page === activePage) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
+        updateNavigationState(page) {
+            // 모든 네비게이션 아이템 비활성화
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
             });
+
+            // 새로운 활성 네비게이션 아이템 설정
+            const activeNavItem = document.querySelector(`[data-page="${page}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+                console.log(`🧭 네비게이션 상태 업데이트: ${page}`);
+            } else {
+                console.warn(`⚠️ 네비게이션 아이템을 찾을 수 없습니다: ${page}`);
+            }
         }
 
         // 페이지 제목 반환
@@ -927,6 +953,7 @@
     };
 </script>
 <!-- JavaScript 파일들 (캐시 버스팅) - 한 번만 로드 -->
+    <script th:src="@{/js/badge-collection.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/dragNdrop.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/main-content.js?v=1.0.2}" defer></script>
     <script th:src="@{/js/change-cards.js?v=1.0.2}" defer></script>

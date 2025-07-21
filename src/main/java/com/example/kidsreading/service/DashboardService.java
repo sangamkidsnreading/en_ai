@@ -1,27 +1,38 @@
 package com.example.kidsreading.service;
 
 import com.example.kidsreading.dto.DashboardDto;
-import com.example.kidsreading.entity.User;
-import com.example.kidsreading.entity.UserWordProgress;
-import com.example.kidsreading.entity.UserSentenceProgress;
+import com.example.kidsreading.dto.TodayProgressDto;
+import com.example.kidsreading.dto.RankingDto;
+import com.example.kidsreading.dto.LevelProgressDto;
+import com.example.kidsreading.entity.UserLevels;
+import com.example.kidsreading.repository.UserLevelsRepository;
 import com.example.kidsreading.repository.UserWordProgressRepository;
 import com.example.kidsreading.repository.UserSentenceProgressRepository;
 import com.example.kidsreading.repository.UserRepository;
 import com.example.kidsreading.repository.WordRepository;
 import com.example.kidsreading.repository.SentenceRepository;
+import com.example.kidsreading.entity.UserWordProgress;
+import com.example.kidsreading.entity.UserSentenceProgress;
+import com.example.kidsreading.entity.User;
+import com.example.kidsreading.entity.BadgeSettings;
+import com.example.kidsreading.repository.BadgeSettingsRepository;
+import com.example.kidsreading.entity.UserBadge;
+import com.example.kidsreading.repository.UserBadgeRepository;
+import com.example.kidsreading.dto.BadgeSettingsDto;
+import com.example.kidsreading.service.BadgeSettingsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
-import java.time.LocalDateTime;
-import com.example.kidsreading.dto.RankingDto;
-import com.example.kidsreading.dto.LevelProgressDto;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -42,69 +53,103 @@ public class DashboardService {
     @Autowired
     private SentenceRepository sentenceRepository;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserLevelsRepository userLevelsRepository;
+
+    @Autowired
+    private BadgeSettingsRepository badgeSettingsRepository;
+    @Autowired
+    private UserBadgeRepository userBadgeRepository;
+
+    @Autowired
+    private BadgeSettingsService badgeSettingsService;
+
+    public List<BadgeSettingsDto> getAllBadgeSettings() {
+        return badgeSettingsService.getAllBadgeSettings();
+    }
+
+    public List<BadgeSettingsDto> getActiveBadgeSettings() {
+        return badgeSettingsService.getActiveBadgeSettings();
+    }
+
     /**
      * 대시보드 메인 데이터 조회
      */
     public DashboardDto getDashboardData(Long userId) {
         try {
-            // 실제 학습 데이터 조회
-            List<UserWordProgress> wordProgressList = userWordProgressRepository.findByUserId(userId);
-            List<UserSentenceProgress> sentenceProgressList = userSentenceProgressRepository.findByUserId(userId);
-            User user = userRepository.findById(userId).orElse(null);
-            
-            // 전체 학습한 단어/문장 수 (isCompleted가 true인 것만)
-            long totalWordsLearned = wordProgressList.stream()
-                .filter(wp -> wp.getIsLearned() != null && wp.getIsLearned())
-                .count();
-            long totalSentencesLearned = sentenceProgressList.stream()
-                .filter(sp -> sp.getIsCompleted() != null && sp.getIsCompleted())
-                .count();
-            
-            // 오늘 학습한 단어/문장 수
-            LocalDate today = LocalDate.now();
-            long todayWords = wordProgressList.stream()
-                .filter(wp -> wp.getUpdatedAt() != null && wp.getUpdatedAt().toLocalDate().equals(today))
-                .count();
-            long todaySentences = sentenceProgressList.stream()
-                .filter(sp -> sp.getUpdatedAt() != null && sp.getUpdatedAt().toLocalDate().equals(today))
-                .count();
-            
-            // 총 코인 계산 (CoinService에서 가져오거나 계산)
-            int totalCoins = calculateTotalCoins(userId, totalWordsLearned, totalSentencesLearned);
-            
-            // 연속 학습일 계산
-            int streakDays = calculateStreakDays(userId);
-            
-            // 레벨 계산 (100단어당 1레벨)
-            int currentLevel = (int) (totalWordsLearned / 100) + 1;
-            int levelProgress = (int) ((totalWordsLearned % 100) * 100 / 100);
-            int wordsToNextLevel = 100 - (int) (totalWordsLearned % 100);
-            
-            // 이전 데이터와 비교하여 변화량 계산 (어제 대비)
-            int previousWordsLearned = Math.max(0, (int) totalWordsLearned - (int) todayWords);
-            int previousSentencesLearned = Math.max(0, (int) totalSentencesLearned - (int) todaySentences);
-            int previousTotalCoins = Math.max(0, totalCoins - (int) (todayWords * 5 + todaySentences * 10));
-            
+            // UserLevels에서 사용자 레벨 정보 조회
+            UserLevels userLevels = userLevelsRepository.findByUserId(userId)
+                    .orElseGet(() -> createDefaultUserLevels(userId));
+
+            // 학습 완료된 단어/문장 수 조회
+            long wordsLearned = userWordProgressRepository.countByUserIdAndIsLearnedTrue(userId);
+            long sentencesLearned = userSentenceProgressRepository.countByUserIdAndIsLearnedTrue(userId);
+
+            // 총 코인 (UserLevels에서 조회)
+            int totalCoins = userLevels.getTotalCoins();
+
+            // 연속 학습일 (UserLevels에서 조회)
+            int streakDays = userLevels.getStreakDays();
+
+            // 현재 레벨 (UserLevels에서 조회)
+            int currentLevel = userLevels.getCurrentLevel();
+
+            // 레벨 진행도 계산 (UserService 사용)
+            LevelProgressDto levelProgress = userService.getLevelProgressForUser(userId);
+            int levelProgressPercent = levelProgress.getLevelProgress();
+
+            // 다음 레벨까지 필요한 단어/문장 수
+            int wordsToNextLevel = levelProgress.getWordsToNextLevel();
+            int sentencesToNextLevel = levelProgress.getSentencesToNextLevel();
+
+            // 완료율 계산
+            double completionRate = calculateCompletionRate(wordsLearned, sentencesLearned);
+
+            // 전체 단어/문장 수
+            long totalWords = wordRepository.countByIsActiveTrue();
+            long totalSentences = sentenceRepository.countByIsActiveTrue();
+
+            // 일일 목표 (기본값)
+            int dailyWordGoal = 10;
+            int dailySentenceGoal = 5;
+
+            // 일일 진행도 (오늘 학습한 단어/문장 수)
+            long dailyWordProgress = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId, LocalDateTime.now().withHour(0).withMinute(0).withSecond(0), LocalDateTime.now());
+            long dailySentenceProgress = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId, LocalDateTime.now().withHour(0).withMinute(0).withSecond(0), LocalDateTime.now());
+
+            // 이전 데이터 (어제 학습한 단어/문장 수)
+            long previousWordsLearned = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId, LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0), 
+                    LocalDateTime.now().minusDays(1).withHour(23).withMinute(59).withSecond(59));
+            long previousSentencesLearned = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId, LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0), 
+                    LocalDateTime.now().minusDays(1).withHour(23).withMinute(59).withSecond(59));
+
             return DashboardDto.builder()
-                    .wordsLearned((int) totalWordsLearned)
-                    .sentencesLearned((int) totalSentencesLearned)
+                    .wordsLearned((int) wordsLearned)
+                    .sentencesLearned((int) sentencesLearned)
                     .totalCoins(totalCoins)
                     .streakDays(streakDays)
                     .currentLevel(currentLevel)
-                    .levelProgress(levelProgress)
+                    .levelProgress(levelProgressPercent)
                     .wordsToNextLevel(wordsToNextLevel)
-                    .completionRate(calculateCompletionRate(totalWordsLearned, totalSentencesLearned))
-                    .totalWords((int) totalWordsLearned)
-                    .totalSentences((int) totalSentencesLearned)
-                    .dailyWordGoal(10)
-                    .dailySentenceGoal(5)
-                    .dailyWordProgress((int) todayWords)
-                    .dailySentenceProgress((int) todaySentences)
-                    .previousWordsLearned(previousWordsLearned)
-                    .previousSentencesLearned(previousSentencesLearned)
-                    .previousTotalCoins(previousTotalCoins)
+                    .completionRate(completionRate)
+                    .totalWords((int) totalWords)
+                    .totalSentences((int) totalSentences)
+                    .dailyWordGoal(dailyWordGoal)
+                    .dailySentenceGoal(dailySentenceGoal)
+                    .dailyWordProgress((int) dailyWordProgress)
+                    .dailySentenceProgress((int) dailySentenceProgress)
+                    .previousWordsLearned((int) previousWordsLearned)
+                    .previousSentencesLearned((int) previousSentencesLearned)
+                    .previousTotalCoins(totalCoins) // 간단히 현재 코인으로 설정
                     .build();
-                    
+
         } catch (Exception e) {
             // 에러 발생 시 기본 데이터 반환
             return DashboardDto.builder()
@@ -128,85 +173,20 @@ public class DashboardService {
                     .build();
         }
     }
-    
+
     /**
-     * 총 코인 계산
+     * 기본 UserLevels 생성
      */
-    private int calculateTotalCoins(Long userId, long wordsLearned, long sentencesLearned) {
-        try {
-            // 학습한 단어당 5코인, 문장당 10코인
-            int calculatedCoins = (int) (wordsLearned * 5 + sentencesLearned * 10);
-            
-            // 기본값 100코인 보장
-            return Math.max(100, calculatedCoins);
-        } catch (Exception e) {
-            return 100;
-        }
-    }
-    
-    /**
-     * 연속 학습일 계산
-     */
-    private int calculateStreakDays(Long userId) {
-        try {
-            // 간단한 연속 학습일 계산 (최근 7일 중 학습한 날 수)
-            LocalDate today = LocalDate.now();
-            int streakDays = 0;
-            
-            for (int i = 0; i < 7; i++) {
-                LocalDate checkDate = today.minusDays(i);
-                LocalDateTime startOfDay = checkDate.atStartOfDay();
-                LocalDateTime endOfDay = checkDate.atTime(23, 59, 59);
-                
-                // 해당 날짜에 학습한 데이터가 있는지 확인
-                List<UserWordProgress> allWordProgress = userWordProgressRepository.findByUserId(userId);
-                List<UserSentenceProgress> allSentenceProgress = userSentenceProgressRepository.findByUserId(userId);
-                
-                boolean hasWordActivity = allWordProgress.stream()
-                    .anyMatch(wp -> {
-                        LocalDateTime updatedAt = wp.getUpdatedAt();
-                        return updatedAt != null && 
-                               updatedAt.isAfter(startOfDay) && 
-                               updatedAt.isBefore(endOfDay);
-                    });
-                
-                boolean hasSentenceActivity = allSentenceProgress.stream()
-                    .anyMatch(sp -> {
-                        LocalDateTime updatedAt = sp.getUpdatedAt();
-                        return updatedAt != null && 
-                               updatedAt.isAfter(startOfDay) && 
-                               updatedAt.isBefore(endOfDay);
-                    });
-                
-                if (hasWordActivity || hasSentenceActivity) {
-                    streakDays++;
-                } else {
-                    break; // 연속이 끊어지면 중단
-                }
-            }
-            
-            return Math.max(1, streakDays);
-        } catch (Exception e) {
-            return 1;
-        }
-    }
-    
-    /**
-     * 완료율 계산
-     */
-    private double calculateCompletionRate(long wordsLearned, long sentencesLearned) {
-        // 전체 단어/문장 수 대비 학습 완료율
-        long totalWords = wordRepository.count();
-        long totalSentences = sentenceRepository.count();
-        
-        if (totalWords == 0 && totalSentences == 0) {
-            return 0.0;
-        }
-        
-        double wordRate = totalWords > 0 ? (double) wordsLearned / totalWords : 0.0;
-        double sentenceRate = totalSentences > 0 ? (double) sentencesLearned / totalSentences : 0.0;
-        
-        return Math.round((wordRate + sentenceRate) / 2 * 100 * 10) / 10.0;
+    private UserLevels createDefaultUserLevels(Long userId) {
+        UserLevels userLevels = UserLevels.builder()
+                .userId(userId)
+                .currentLevel(1)
+                .currentDay(1)
+                .totalCoins(0)
+                .experiencePoints(0)
+                .streakDays(0)
+                .build();
+        return userLevelsRepository.save(userLevels);
     }
 
     /**
@@ -216,22 +196,39 @@ public class DashboardService {
         try {
             Map<String, Object> calendarData = new HashMap<>();
             Map<String, Object> daysData = new HashMap<>();
-            
-            YearMonth yearMonth = YearMonth.of(year, month);
-            int daysInMonth = yearMonth.lengthOfMonth();
-            
-            // 각 날짜별 데이터 생성 (실제로는 DB에서 조회해야 함)
-            for (int day = 1; day <= daysInMonth; day++) {
-                LocalDate date = yearMonth.atDay(day);
+
+            // 해당 월의 첫날과 마지막날 계산
+            LocalDate firstDay = LocalDate.of(year, month, 1);
+            LocalDate lastDay = firstDay.plusMonths(1).minusDays(1);
+
+            // 각 날짜별 학습 데이터 조회
+            for (LocalDate date = firstDay; !date.isAfter(lastDay); date = date.plusDays(1)) {
                 String dateKey = date.toString();
-                
+
+                // 해당 날짜에 학습 완료된 단어 수
+                long completedWords = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                        userId,
+                        date.atStartOfDay(),
+                        date.atTime(23, 59, 59)
+                );
+
+                // 해당 날짜에 학습 완료된 문장 수
+                long completedSentences = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                        userId,
+                        date.atStartOfDay(),
+                        date.atTime(23, 59, 59)
+                );
+
+                // 코인 집계 (단어 10, 문장 20)
+                long coinsEarned = completedWords * 10 + completedSentences * 20;
+
                 Map<String, Object> dayData = new HashMap<>();
                 dayData.put("date", dateKey);
-                dayData.put("status", "not-started"); // 기본값
-                dayData.put("wordsCompleted", 0);
-                dayData.put("sentencesCompleted", 0);
-                dayData.put("coinsEarned", 0);
-                
+                dayData.put("status", (completedWords > 0 || completedSentences > 0) ? "completed" : "not-started");
+                dayData.put("completedWords", completedWords);
+                dayData.put("completedSentences", completedSentences);
+                dayData.put("coinsEarned", coinsEarned);
+
                 daysData.put(dateKey, dayData);
             }
             
@@ -256,33 +253,41 @@ public class DashboardService {
         try {
             Map<String, Object> badgesData = new HashMap<>();
             List<Map<String, Object>> badges = new ArrayList<>();
-            
-            // 기본 뱃지 데이터 (실제로는 DB에서 조회해야 함)
-            String[] badgeNames = {"첫 걸음", "열정 학습자", "단어 마스터", "골드 마스터", "전설 수집가"};
-            String[] badgeIcons = {"🎯", "🔥", "📚", "🏆", "⭐"};
-            boolean[] earned = {true, true, true, false, false};
-            
-            for (int i = 0; i < badgeNames.length; i++) {
-                Map<String, Object> badge = new HashMap<>();
-                badge.put("id", "badge_" + (i + 1));
-                badge.put("name", badgeNames[i]);
-                badge.put("icon", badgeIcons[i]);
-                badge.put("description", badgeNames[i] + " 뱃지입니다.");
-                badge.put("isEarned", earned[i]);
-                badge.put("earnedDate", earned[i] ? LocalDate.now().minusDays(i) : null);
-                badges.add(badge);
+
+            // 실제 DB에서 is_active=true인 뱃지만 조회
+            List<BadgeSettings> activeBadges = badgeSettingsRepository.findByIsActiveTrueOrderByDisplayOrderAsc();
+            List<UserBadge> userBadges = userBadgeRepository.findByUserIdOrderByEarnedAtDesc(userId);
+            Set<Long> earnedBadgeIds = userBadges.stream().map(ub -> ub.getBadge().getId()).collect(Collectors.toSet());
+            Map<Long, LocalDateTime> earnedDates = userBadges.stream().collect(Collectors.toMap(ub -> ub.getBadge().getId(), UserBadge::getEarnedAt, (a, b) -> a));
+
+            for (BadgeSettings badge : activeBadges) {
+                Map<String, Object> badgeMap = new HashMap<>();
+                badgeMap.put("id", badge.getId());
+                badgeMap.put("name", badge.getBadgeName());
+                badgeMap.put("icon", badge.getBadgeIcon());
+                badgeMap.put("description", badge.getBadgeDescription());
+                badgeMap.put("attendanceCount", badge.getAttendanceCount());
+                badgeMap.put("streakCount", badge.getStreakCount());
+                badgeMap.put("wordsCount", badge.getWordsCount());
+                badgeMap.put("sentencesCount", badge.getSentencesCount());
+                badgeMap.put("wordReviewCount", badge.getWordReviewCount());
+                badgeMap.put("sentenceReviewCount", badge.getSentenceReviewCount());
+                boolean isEarned = earnedBadgeIds.contains(badge.getId());
+                badgeMap.put("isEarned", isEarned);
+                badgeMap.put("earnedDate", isEarned ? earnedDates.get(badge.getId()) : null);
+                badges.add(badgeMap);
             }
-            
+
             badgesData.put("badges", badges);
-            badgesData.put("totalBadges", 5);
-            badgesData.put("earnedBadges", 3);
-            
+            badgesData.put("totalBadges", badges.size());
+            badgesData.put("earnedBadges", earnedBadgeIds.size());
+
             return badgesData;
         } catch (Exception e) {
             Map<String, Object> defaultBadges = new HashMap<>();
             defaultBadges.put("badges", new ArrayList<>());
-            defaultBadges.put("totalBadges", 5);
-            defaultBadges.put("earnedBadges", 3);
+            defaultBadges.put("totalBadges", 0);
+            defaultBadges.put("earnedBadges", 0);
             return defaultBadges;
         }
     }
@@ -329,16 +334,19 @@ public class DashboardService {
      * 레벨 진행도 조회
      */
     public LevelProgressDto getLevelProgress(Long userId) {
-        // 예시: 현재 레벨, 진행률, 다음 레벨까지 남은 단어 수 계산
-        int currentLevel = userRepository.getCurrentLevel(userId);
-        int levelProgress = userRepository.getLevelProgressPercent(userId); // 0~100
-        int wordsToNextLevel = userRepository.getWordsToNextLevel(userId);
-
-        return LevelProgressDto.builder()
-            .currentLevel(currentLevel)
-            .levelProgress(levelProgress)
-            .wordsToNextLevel(wordsToNextLevel)
-            .build();
+        try {
+            // UserService의 메서드를 사용하여 레벨 설정을 고려한 진행도 계산
+            LevelProgressDto levelProgress = userService.getLevelProgressForUser(userId);
+            return levelProgress;
+        } catch (Exception e) {
+            // 에러 발생 시 기본값 반환
+            return LevelProgressDto.builder()
+                .currentLevel(1)
+                .levelProgress(0)
+                .wordsToNextLevel(100)
+                .sentencesToNextLevel(50)
+                .build();
+        }
     }
 
     /**
@@ -362,24 +370,22 @@ public class DashboardService {
         try {
             LocalDate targetDate = LocalDate.parse(date);
             
-            // 해당 날짜에 완료된 단어 수 조회 (기존 메서드 사용)
-            List<UserWordProgress> wordProgressList = userWordProgressRepository.findByUserId(userId);
-            long completedWords = wordProgressList.stream()
-                .filter(wp -> wp.getIsLearned() != null && wp.getIsLearned() && 
-                        wp.getCreatedAt() != null && 
-                        wp.getCreatedAt().toLocalDate().equals(targetDate))
-                .count();
+            // 해당 날짜에 완료된 단어 수 조회
+            long completedWords = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId,
+                    targetDate.atStartOfDay(),
+                    targetDate.atTime(23, 59, 59)
+            );
             
-            // 해당 날짜에 완료된 문장 수 조회 (기존 메서드 사용)
-            List<UserSentenceProgress> sentenceProgressList = userSentenceProgressRepository.findByUserId(userId);
-            long completedSentences = sentenceProgressList.stream()
-                .filter(sp -> sp.getIsCompleted() != null && sp.getIsCompleted() && 
-                        sp.getCreatedAt() != null && 
-                        sp.getCreatedAt().toLocalDate().equals(targetDate))
-                .count();
+            // 해당 날짜에 완료된 문장 수 조회
+            long completedSentences = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtBetween(
+                    userId,
+                    targetDate.atStartOfDay(),
+                    targetDate.atTime(23, 59, 59)
+            );
             
             // 해당 날짜에 획득한 코인 수 조회 (기본값 사용)
-            long coinsEarned = 0; // TODO: 코인 히스토리 테이블이 있으면 구현
+            long coinsEarned = completedWords * 10 + completedSentences * 20;
             
             stats.put("date", date);
             stats.put("completedWords", completedWords);
@@ -397,26 +403,179 @@ public class DashboardService {
         return stats;
     }
 
+    /**
+     * 노력왕 전체 랭킹 (일주일간 학습량 기준)
+     */
     public List<RankingDto> getTopRankings() {
-        // 예시: 최근 1일 기준, 단어+문장 학습량 합산으로 랭킹
         List<User> users = userRepository.findAll();
         List<RankingDto> rankings = new ArrayList<>();
+        
+        LocalDateTime weekAgo = LocalDateTime.now().minusWeeks(1);
+        
         for (User user : users) {
-            int words = wordRepository.getTodayCompletedWordsCount(user.getId());
-            int sentences = sentenceRepository.getTodayCompletedSentencesCount(user.getId());
-            rankings.add(RankingDto.builder()
-                .rank(0) // 나중에 정렬 후 순위 부여
-                .name(user.getName())
-                .wordsLearned(words)
-                .sentencesLearned(sentences)
-                .badge("오늘")
-                .build());
+            // 일주일간 학습한 단어 수
+            long wordsLearned = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtAfter(
+                    user.getId(), weekAgo);
+            
+            // 일주일간 학습한 문장 수
+            long sentencesLearned = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtAfter(
+                    user.getId(), weekAgo);
+            
+            // 디버깅 로그 추가
+            System.out.println("랭킹 계산 - 사용자: " + user.getName() + 
+                              ", 단어: " + wordsLearned + 
+                              ", 문장: " + sentencesLearned + 
+                              ", 일주일 전: " + weekAgo);
+            
+            // 총 학습량이 0보다 큰 경우만 랭킹에 포함
+            if (wordsLearned > 0 || sentencesLearned > 0) {
+                rankings.add(RankingDto.builder()
+                    .rank(0) // 나중에 정렬 후 순위 부여
+                    .name(user.getName())
+                    .wordsLearned((int) wordsLearned)
+                    .sentencesLearned((int) sentencesLearned)
+                    .badge("일주일")
+                    .build());
+            }
         }
-        // 정렬 및 순위 부여
+        
+        // 총 학습량(단어+문장) 기준으로 정렬 및 순위 부여
         rankings.sort((a, b) -> (b.getWordsLearned() + b.getSentencesLearned()) - (a.getWordsLearned() + a.getSentencesLearned()));
         for (int i = 0; i < rankings.size(); i++) {
             rankings.get(i).setRank(i + 1);
         }
+        
         return rankings.subList(0, Math.min(10, rankings.size())); // 상위 10명만
+    }
+
+    /**
+     * 복습왕 랭킹 (learn_count 기준)
+     */
+    public List<RankingDto> getReviewRankings() {
+        List<User> users = userRepository.findAll();
+        List<RankingDto> rankings = new ArrayList<>();
+        
+        for (User user : users) {
+            // 단어 복습 횟수 (learn_count 합계)
+            long wordReviewCount = userWordProgressRepository.sumLearnCountByUserId(user.getId());
+            
+            // 문장 복습 횟수 (learn_count 합계)
+            long sentenceReviewCount = userSentenceProgressRepository.sumLearnCountByUserId(user.getId());
+            
+            // 총 복습 횟수가 0보다 큰 경우만 랭킹에 포함
+            if (wordReviewCount > 0 || sentenceReviewCount > 0) {
+                rankings.add(RankingDto.builder()
+                    .rank(0) // 나중에 정렬 후 순위 부여
+                    .name(user.getName())
+                    .wordsLearned((int) wordReviewCount)
+                    .sentencesLearned((int) sentenceReviewCount)
+                    .badge("복습")
+                    .build());
+            }
+        }
+        
+        // 총 복습 횟수 기준으로 정렬 및 순위 부여
+        rankings.sort((a, b) -> (b.getWordsLearned() + b.getSentencesLearned()) - (a.getWordsLearned() + a.getSentencesLearned()));
+        for (int i = 0; i < rankings.size(); i++) {
+            rankings.get(i).setRank(i + 1);
+        }
+        
+        return rankings.subList(0, Math.min(10, rankings.size())); // 상위 10명만
+    }
+
+    /**
+     * 특정 사용자의 노력왕 랭킹 순위 조회
+     */
+    public RankingDto getMyEffortRanking(Long userId) {
+        List<User> users = userRepository.findAll();
+        List<RankingDto> allRankings = new ArrayList<>();
+        
+        LocalDateTime weekAgo = LocalDateTime.now().minusWeeks(1);
+        
+        for (User user : users) {
+            // 일주일간 학습한 단어 수
+            long wordsLearned = userWordProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtAfter(
+                    user.getId(), weekAgo);
+            
+            // 일주일간 학습한 문장 수
+            long sentencesLearned = userSentenceProgressRepository.countByUserIdAndIsLearnedTrueAndFirstLearnedAtAfter(
+                    user.getId(), weekAgo);
+            
+            // 총 학습량이 0보다 큰 경우만 랭킹에 포함
+            if (wordsLearned > 0 || sentencesLearned > 0) {
+                allRankings.add(RankingDto.builder()
+                    .rank(0) // 나중에 정렬 후 순위 부여
+                    .name(user.getName())
+                    .wordsLearned((int) wordsLearned)
+                    .sentencesLearned((int) sentencesLearned)
+                    .badge("일주일")
+                    .build());
+            }
+        }
+        
+        // 총 학습량(단어+문장) 기준으로 정렬 및 순위 부여
+        allRankings.sort((a, b) -> (b.getWordsLearned() + b.getSentencesLearned()) - (a.getWordsLearned() + a.getSentencesLearned()));
+        for (int i = 0; i < allRankings.size(); i++) {
+            allRankings.get(i).setRank(i + 1);
+        }
+        
+        // 해당 사용자의 순위 찾기
+        return allRankings.stream()
+                .filter(ranking -> ranking.getName().equals(userRepository.findById(userId).map(User::getName).orElse("")))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 특정 사용자의 복습왕 랭킹 순위 조회
+     */
+    public RankingDto getMyReviewRanking(Long userId) {
+        List<User> users = userRepository.findAll();
+        List<RankingDto> allRankings = new ArrayList<>();
+        
+        for (User user : users) {
+            // 단어 복습 횟수 합계
+            long wordReviewCount = userWordProgressRepository.sumLearnCountByUserId(user.getId());
+            
+            // 문장 복습 횟수 합계
+            long sentenceReviewCount = userSentenceProgressRepository.sumLearnCountByUserId(user.getId());
+            
+            // 총 복습 횟수가 0보다 큰 경우만 랭킹에 포함
+            if (wordReviewCount > 0 || sentenceReviewCount > 0) {
+                allRankings.add(RankingDto.builder()
+                    .rank(0) // 나중에 정렬 후 순위 부여
+                    .name(user.getName())
+                    .wordsLearned((int) wordReviewCount)
+                    .sentencesLearned((int) sentenceReviewCount)
+                    .badge("복습")
+                    .build());
+            }
+        }
+        
+        // 총 복습 횟수 기준으로 정렬 및 순위 부여
+        allRankings.sort((a, b) -> (b.getWordsLearned() + b.getSentencesLearned()) - (a.getWordsLearned() + a.getSentencesLearned()));
+        for (int i = 0; i < allRankings.size(); i++) {
+            allRankings.get(i).setRank(i + 1);
+        }
+        
+        // 해당 사용자의 순위 찾기
+        return allRankings.stream()
+                .filter(ranking -> ranking.getName().equals(userRepository.findById(userId).map(User::getName).orElse("")))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private double calculateCompletionRate(long wordsLearned, long sentencesLearned) {
+        long totalWords = wordRepository.countByIsActiveTrue();
+        long totalSentences = sentenceRepository.countByIsActiveTrue();
+        
+        if (totalWords == 0 && totalSentences == 0) {
+            return 0.0;
+        }
+        
+        double wordCompletionRate = totalWords > 0 ? (double) wordsLearned / totalWords : 0;
+        double sentenceCompletionRate = totalSentences > 0 ? (double) sentencesLearned / totalSentences : 0;
+        
+        return Math.round((wordCompletionRate + sentenceCompletionRate) / 2 * 100.0) / 100.0;
     }
 } 

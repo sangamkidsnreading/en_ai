@@ -481,12 +481,14 @@ class EnhancedIntegratedLearningManager {
             await this.playWordAudio(card);
 
             // 2. 중복 없이 카운트/코인 지급/진행도 업데이트
-            if (!this.completedWords.has(wordId)) {
+            const isFirstTime = !this.completedWords.has(wordId);
+            
+            if (isFirstTime) {
                 this.completedWords.add(wordId);
                 this.highlightCard(card);
 
                 await this.addWordCoins();
-                await this.updateWordProgress(wordId, true);
+                await this.updateWordProgress(wordId, true, true);
 
                 // 오늘의 개수 실시간 업데이트
                 await this.loadTodayCounts();
@@ -504,9 +506,10 @@ class EnhancedIntegratedLearningManager {
                 this.updateTodayLearnedCounts(); // 추가
                 console.log('✅ 단어 학습 완료:', this.completedWords.size);
             } else {
-                // 이미 학습한 카드도 시각적 효과만
+                // 이미 학습한 카드도 복습으로 진행도 업데이트
                 this.highlightCard(card);
-                console.log('✅ 이미 완료된 단어, 음성만 재생');
+                await this.updateWordProgress(wordId, true, false);
+                console.log('✅ 이미 완료된 단어, 복습으로 진행도 업데이트');
             }
         } catch (error) {
             console.error('❌ 단어 카드 클릭 처리 실패:', error);
@@ -518,43 +521,45 @@ class EnhancedIntegratedLearningManager {
         try {
             console.log('🎯 문장 카드 클릭:', card);
             
-            // 이미 완료된 카드인지 확인
-            if (this.completedSentences.has(card.dataset.sentenceId)) {
-                console.log('✅ 이미 완료된 문장입니다.');
-                // 완료된 문장이어도 음성 재생은 가능하도록 return 제거
-            }
+            const sentenceId = card.dataset.sentenceId;
 
             // 오디오 재생
             await this.playSentenceAudio(card);
             
-            // 카드 완료 처리
-            this.completedSentences.add(card.dataset.sentenceId);
-            this.highlightCard(card);
+            // 중복 없이 카운트/코인 지급/진행도 업데이트
+            const isFirstTime = !this.completedSentences.has(sentenceId);
             
-            // 오늘 학습한 문장 수 증가
-            // this.updateTodayStats(); // 카드 클릭 시에는 호출하지 않음
-            
-            // 코인 추가
-            await this.addSentenceCoins();
-            
-            // 진행도 업데이트
-            await this.updateSentenceProgress(card.dataset.sentenceId, true);
-            
-            // 오늘의 개수 실시간 업데이트
-            await this.loadTodayCounts();
-            
-            // 대시보드 통계 업데이트 (대시보드가 활성화된 경우)
-            if (window.dashboardManager) {
-                try {
-                    await window.dashboardManager.loadDashboardData();
-                    console.log('📊 대시보드 통계 업데이트 완료');
-                } catch (error) {
-                    console.warn('⚠️ 대시보드 통계 업데이트 실패:', error);
+            if (isFirstTime) {
+                this.completedSentences.add(sentenceId);
+                this.highlightCard(card);
+                
+                // 코인 추가
+                await this.addSentenceCoins();
+                
+                // 진행도 업데이트
+                await this.updateSentenceProgress(sentenceId, true, true);
+                
+                // 오늘의 개수 실시간 업데이트
+                await this.loadTodayCounts();
+                
+                // 대시보드 통계 업데이트 (대시보드가 활성화된 경우)
+                if (window.dashboardManager) {
+                    try {
+                        await window.dashboardManager.loadDashboardData();
+                        console.log('📊 대시보드 통계 업데이트 완료');
+                    } catch (error) {
+                        console.warn('⚠️ 대시보드 통계 업데이트 실패:', error);
+                    }
                 }
+                
+                this.updateTodayLearnedCounts(); // 추가
+                console.log('✅ 문장 학습 완료:', this.completedSentences.size);
+            } else {
+                // 이미 학습한 카드도 복습으로 진행도 업데이트
+                this.highlightCard(card);
+                await this.updateSentenceProgress(sentenceId, true, false);
+                console.log('✅ 이미 완료된 문장, 복습으로 진행도 업데이트');
             }
-            
-            this.updateTodayLearnedCounts(); // 추가
-            console.log('✅ 문장 학습 완료:', this.completedSentences.size);
             
         } catch (error) {
             console.error('❌ 문장 카드 클릭 처리 실패:', error);
@@ -867,9 +872,13 @@ class EnhancedIntegratedLearningManager {
         this.isPlayingAudio = true;
         this.setAllCardsDisabledExcept(card);
         // 기존 오디오 정리
-        if (this.currentAudio) {
-            this.currentAudio.pause();
-            this.currentAudio = null;
+        if (this.currentPlayback) {
+            this.currentPlayback.pause();
+            this.currentPlayback = null;
+        }
+        if (this.currentPlaybook) {
+            this.currentPlaybook.pause();
+            this.currentPlaybook = null;
         }
         
         const wordText = card.querySelector('.word-english')?.textContent;
@@ -912,7 +921,8 @@ class EnhancedIntegratedLearningManager {
             if (audioUrl) {
                 return new Promise((resolve, reject) => {
                     const audio = new Audio(audioUrl);
-                    this.currentPlaybook = audio;
+                    this.currentPlayback = audio; // <-- 여기서 currentPlayback에 저장
+                    this.currentPlaybook = audio; // 혹시 다른 곳에서 참조할 수도 있으니 같이 저장
                     
                     audio.onended = () => {
                         if (soundBtn) {
@@ -1177,6 +1187,10 @@ class EnhancedIntegratedLearningManager {
             this.currentPlayback.pause();
             this.currentPlayback = null;
         }
+        if (this.currentPlaybook) {
+            this.currentPlaybook.pause();
+            this.currentPlaybook = null;
+        }
 
         // 음성 합성 중지
         if ('speechSynthesis' in window) {
@@ -1212,11 +1226,10 @@ class EnhancedIntegratedLearningManager {
             await this.playWordAudio(card);
 
             // 학습 완료 처리 (Start 버튼으로도 학습 완료)
-            if (!this.completedWords.has(wordId)) {
+            const isFirstTime = !this.completedWords.has(wordId);
+            
+            if (isFirstTime) {
                 this.completedWords.add(wordId);
-                
-                // 학습한 단어 목록에 추가 (주석 처리)
-                // this.addToLearnedWordsList(wordId, wordText, wordMeaning);
                 
                 // 카드 스타일 변경
                 card.classList.add('learned');
@@ -1227,8 +1240,11 @@ class EnhancedIntegratedLearningManager {
                 this.updateTodayLearnedCounts();
             }
 
-            // 코인 지급도 반드시 호출
-            if (wordText) {
+            // 데이터베이스에 진행도 저장 (첫 학습이든 복습이든)
+            await this.updateWordProgress(wordId, true, isFirstTime);
+
+            // 코인 지급 (첫 학습 시에만)
+            if (isFirstTime && wordText) {
                 await this.addCoinAfterAudio('word', wordText);
             }
             
@@ -1262,16 +1278,25 @@ class EnhancedIntegratedLearningManager {
             card.style.background = 'linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%)';
             card.style.borderColor = '#ff9800';
             await this.playSentenceAudio(card);
-            if (!this.completedSentences.has(sentenceId)) {
+            
+            const isFirstTime = !this.completedSentences.has(sentenceId);
+            
+            if (isFirstTime) {
                 this.completedSentences.add(sentenceId);
                 card.classList.add('learned');
                 card.style.background = 'linear-gradient(135deg, #f6ffed 0%, #f0fff0 100%)';
                 card.style.borderColor = '#b7eb8f';
                 this.updateTodayLearnedCounts();
             }
-            if (sentenceText) {
+            
+            // 데이터베이스에 진행도 저장 (첫 학습이든 복습이든)
+            await this.updateSentenceProgress(sentenceId, true, isFirstTime);
+            
+            // 코인 지급 (첫 학습 시에만)
+            if (isFirstTime && sentenceText) {
                 await this.addCoinAfterAudio('sentence', sentenceText.substring(0, 20) + '...');
             }
+            
             // Stop으로 중단된 경우 currentSentenceIndex를 현재 위치로 유지, 끝까지 갔으면 0으로 리셋
             if (this.isPlaying) {
                 this.currentSentenceIndex = i + 1;
@@ -1297,17 +1322,23 @@ class EnhancedIntegratedLearningManager {
     }
 
     // 백엔드 API 호출 메서드들
-    async updateWordProgress(wordId, isCompleted) {
+    async updateWordProgress(wordId, isCompleted, isFirstTime = true) {
         try {
             const response = await fetch('/learning/api/progress/word', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ wordId, isCompleted })
+                body: JSON.stringify({ 
+                    wordId, 
+                    isCompleted, 
+                    isFirstTime 
+                })
             });
 
             if (!response.ok) throw new Error('진행상황 업데이트 실패');
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`📝 단어 진행도 업데이트: ${wordId}, 첫 학습: ${isFirstTime}, 결과:`, result);
+            return result;
 
         } catch (error) {
             console.error('단어 진행상황 업데이트 실패:', error);
@@ -1315,17 +1346,23 @@ class EnhancedIntegratedLearningManager {
         }
     }
 
-    async updateSentenceProgress(sentenceId, isCompleted) {
+    async updateSentenceProgress(sentenceId, isCompleted, isFirstTime = true) {
         try {
             const response = await fetch('/learning/api/progress/sentence', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sentenceId, isCompleted })
+                body: JSON.stringify({ 
+                    sentenceId, 
+                    isCompleted, 
+                    isFirstTime 
+                })
             });
 
             if (!response.ok) throw new Error('진행상황 업데이트 실패');
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`📝 문장 진행도 업데이트: ${sentenceId}, 첫 학습: ${isFirstTime}, 결과:`, result);
+            return result;
 
         } catch (error) {
             console.error('문장 진행상황 업데이트 실패:', error);

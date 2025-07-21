@@ -98,6 +98,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/teacher/**").hasAnyRole("TEACHER", "ADMIN")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/admin/badge-settings", "/api/admin/badge-settings/active").permitAll()
 
                         // 학부모 전용 API (필요시)
                         .requestMatchers("/api/parent/**").hasRole("PARENT")

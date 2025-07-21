@@ -4,6 +4,8 @@ package com.example.kidsreading.controller;
 import com.example.kidsreading.dto.RegisterRequest;
 import com.example.kidsreading.service.UserService;
 import com.example.kidsreading.service.RegistrationService;
+import com.example.kidsreading.service.UserAttendanceService;
+import com.example.kidsreading.util.IpAddressUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ public class AuthController {
 
     private final UserService userService;
     private final RegistrationService registrationService;
+    private final UserAttendanceService userAttendanceService;
+    private final IpAddressUtil ipAddressUtil;
 
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error,
@@ -77,7 +81,7 @@ public class AuthController {
     }
 
     @GetMapping("/student/kiriboca/index")
-    public String kiribocaIndex(Model model, Authentication authentication) {
+    public String kiribocaIndex(Model model, Authentication authentication, HttpServletRequest request) {
         if (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser")) {
             return "redirect:/login";
         }
@@ -91,6 +95,22 @@ public class AuthController {
         }
         com.example.kidsreading.entity.User user = userService.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+        
+        // 로그인 시 출석체크 수행
+        try {
+            String ipAddress = ipAddressUtil.getClientIpAddress(request);
+            String userAgent = request.getHeader("User-Agent");
+            boolean isNewAttendance = userAttendanceService.checkAttendance(user.getId(), user.getEmail(), ipAddress, userAgent);
+            
+            if (isNewAttendance) {
+                log.info("사용자 {} (ID: {})의 오늘 첫 출석체크가 완료되었습니다.", user.getEmail(), user.getId());
+            } else {
+                log.info("사용자 {} (ID: {})는 오늘 이미 출석했습니다.", user.getEmail(), user.getId());
+            }
+        } catch (Exception e) {
+            log.error("출석체크 중 오류 발생: {}", e.getMessage(), e);
+        }
+        
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("currentLevel", 1);
         model.addAttribute("currentDay", 1);

@@ -89,6 +89,7 @@
             <div class="tab-item" data-tab="audio">음원 관리</div>
             <div class="tab-item" data-tab="settings">학습 설정</div>
             <div class="tab-item" data-tab="registration">회원가입 설정</div>
+            <div class="tab-item" data-tab="badge-settings">뱃지 컬렉션</div>
         </div>
 
         <!-- 사용자 관리 탭 -->
@@ -477,6 +478,38 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 뱃지 컬렉션 탭 -->
+        <div class="tab-content" id="badge-settings-tab">
+            <div class="content-header">
+                <h3>뱃지 컬렉션 관리</h3>
+                <button class="add-btn" id="add-badge-btn">+ 뱃지 추가</button>
+                <button class="add-btn" id="initialize-badges-btn">기본 뱃지 초기화</button>
+            </div>
+            <div class="badge-settings-table-container">
+                <table class="badge-settings-table">
+                    <thead>
+                        <tr>
+                            <th>아이콘</th>
+                            <th>이름</th>
+                            <th>설명</th>
+                            <th>출석</th>
+                            <th>연속출석</th>
+                            <th>단어</th>
+                            <th>문장</th>
+                            <th>복습단어</th>
+                            <th>복습문장</th>
+                            <th>활성</th>
+                            <th>순서</th>
+                            <th>저장</th>
+                        </tr>
+                    </thead>
+                    <tbody id="badge-settings-list">
+                        <!-- JS로 동적 렌더링 -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1641,3 +1674,7 @@
         </div>
     </div>
 </div>
+
+<style>
+
+</style>

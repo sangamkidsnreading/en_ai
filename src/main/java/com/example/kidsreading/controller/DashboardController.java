@@ -4,6 +4,7 @@ import com.example.kidsreading.dto.DashboardDto;
 import com.example.kidsreading.dto.TodayProgressDto;
 import com.example.kidsreading.dto.RankingDto;
 import com.example.kidsreading.dto.LevelProgressDto;
+import com.example.kidsreading.dto.BadgeSettingsDto;
 import com.example.kidsreading.service.DashboardService;
 import com.example.kidsreading.service.MainContentService;
 import com.example.kidsreading.service.CustomUserDetailsService;
@@ -118,6 +119,24 @@ public class DashboardController {
     }
 
     /**
+     * 모든 뱃지 설정 조회 (관리자/교사 권한 없이)
+     */
+    @GetMapping("/badge-settings")
+    public ResponseEntity<List<BadgeSettingsDto>> getAllBadgeSettings() {
+        List<BadgeSettingsDto> settings = dashboardService.getAllBadgeSettings();
+        return ResponseEntity.ok(settings);
+    }
+
+    /**
+     * 활성화된 뱃지 설정 조회 (대시보드 컬렉션용)
+     */
+    @GetMapping("/badge-settings/active")
+    public ResponseEntity<List<BadgeSettingsDto>> getActiveBadgeSettings() {
+        List<BadgeSettingsDto> settings = dashboardService.getActiveBadgeSettings();
+        return ResponseEntity.ok(settings);
+    }
+
+    /**
      * 랭킹 정보 조회
      */
     @GetMapping("/rankings")
@@ -141,6 +160,16 @@ public class DashboardController {
     public ResponseEntity<List<RankingDto>> getTopRankings(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
         List<RankingDto> rankings = dashboardService.getTopRankings();
+        return ResponseEntity.ok(rankings);
+    }
+
+    /**
+     * 복습왕 랭킹 리스트 조회
+     */
+    @GetMapping("/review-rankings")
+    public ResponseEntity<List<RankingDto>> getReviewRankings(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
+        List<RankingDto> rankings = dashboardService.getReviewRankings();
         return ResponseEntity.ok(rankings);
     }
 
@@ -191,5 +220,29 @@ public class DashboardController {
             defaultDateStats.put("coinsEarned", 0);
             return ResponseEntity.ok(defaultDateStats);
         }
+    }
+
+    /**
+     * 나의 노력왕 랭킹 순위 조회
+     */
+    @GetMapping("/my-effort-ranking")
+    public ResponseEntity<RankingDto> getMyEffortRanking(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+        RankingDto myRanking = dashboardService.getMyEffortRanking(user.getId());
+        return ResponseEntity.ok(myRanking);
+    }
+
+    /**
+     * 나의 복습왕 랭킹 순위 조회
+     */
+    @GetMapping("/my-review-ranking")
+    public ResponseEntity<RankingDto> getMyReviewRanking(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal user) {
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+        RankingDto myRanking = dashboardService.getMyReviewRanking(user.getId());
+        return ResponseEntity.ok(myRanking);
     }
 }

@@ -11,7 +11,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "groups")
+//@Table(name = "groups")
+@Table(name = "user_groups") // 실제 데이터가 있는 테이블명으로 변경!
 @Data
 @Builder
 @NoArgsConstructor

@@ -25,6 +25,7 @@ public class WordService {
     private final WordRepository wordRepository;
     private final UserWordProgressRepository userWordProgressRepository;
     private final StreakService streakService;
+    private final BadgeEarningService badgeEarningService;
 
     /**
      * 특정 레벨과 날짜의 단어 목록 조회
@@ -101,7 +102,7 @@ public class WordService {
      * 단어 학습 진행상황 업데이트 (Upsert: insert or update)
      */
     @Transactional
-    public void updateWordProgress(Long userId, Long wordId, Boolean isCompleted, String email) {
+    public void updateWordProgress(Long userId, Long wordId, Boolean isCompleted, Boolean isFirstTime, String email) {
         UserWordProgress progress = userWordProgressRepository
                 .findByUserIdAndWordId(userId, wordId)
                 .orElseGet(() -> {
@@ -109,6 +110,7 @@ public class WordService {
                             .userId(userId)
                             .wordId(wordId)
                             .isCompleted(false)
+                            .learnCount(0)
                             .createdAt(java.time.LocalDateTime.now())
                             .email(email)
                             .build();
@@ -123,14 +125,23 @@ public class WordService {
         progress.setLastLearnedAt(java.time.LocalDateTime.now());
         progress.setUpdatedAt(java.time.LocalDateTime.now());
         progress.setEmail(email);
+        
+        // learn_count 증가 (복습 시에도 증가)
+        if (isCompleted != null && isCompleted) {
+            progress.setLearnCount(progress.getLearnCount() + 1);
+        }
+        
         if (progress.getFirstLearnedAt() == null) {
             progress.setFirstLearnedAt(java.time.LocalDateTime.now());
         }
+        
         userWordProgressRepository.save(progress);
 
         // 학습 완료 시 연속 학습일 업데이트
         if (isCompleted != null && isCompleted) {
             streakService.updateStreak(userId);
+            // 뱃지 체크
+            badgeEarningService.checkBadgesOnWordCompletion(userId);
         }
     }
 

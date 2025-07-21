@@ -31,6 +31,7 @@ public class SentenceService {
     private final UserSentenceProgressRepository userSentenceProgressRepository;
     private final S3Service s3Service;
     private final StreakService streakService;
+    private final BadgeEarningService badgeEarningService;
 
     /**
      * 특정 레벨과 날짜의 문장 목록 조회
@@ -61,7 +62,7 @@ public class SentenceService {
      * 문장 학습 진행상황 업데이트 (Upsert: insert or update)
      */
     @Transactional
-    public void updateSentenceProgress(Long userId, Long sentenceId, Boolean isCompleted, String email) {
+    public void updateSentenceProgress(Long userId, Long sentenceId, Boolean isCompleted, Boolean isFirstTime, String email) {
         UserSentenceProgress progress = userSentenceProgressRepository
                 .findByUserIdAndSentenceId(userId, sentenceId)
                 .orElseGet(() -> {
@@ -71,9 +72,12 @@ public class SentenceService {
                             .isCompleted(false)
                             .hasRecording(false) // ← 기본값 false로 명시!
                             .isLearned(false) // ← 기본값 false로 명시!
+                            .learnCount(0)
                             .createdAt(java.time.LocalDateTime.now())
                             .email(email)
                             .build();
+                    // 최초 학습 시각 기록
+                    newProgress.setFirstLearnedAt(java.time.LocalDateTime.now());
                     return newProgress;
                 });
         progress.setIsCompleted(isCompleted);
@@ -83,6 +87,16 @@ public class SentenceService {
         progress.setLastLearnedAt(java.time.LocalDateTime.now());
         progress.setUpdatedAt(java.time.LocalDateTime.now());
         progress.setEmail(email);
+
+        // learn_count 증가 (복습 시에도 증가)
+        if (isCompleted != null && isCompleted) {
+            progress.setLearnCount(progress.getLearnCount() + 1);
+        }
+
+        // first_learned_at이 null이면 현재 시간으로 설정
+        if (progress.getFirstLearnedAt() == null) {
+            progress.setFirstLearnedAt(java.time.LocalDateTime.now());
+        }
 
         // 기존 progress에도 null일 경우 false로 보정
         if (progress.getHasRecording() == null) {
@@ -97,6 +111,8 @@ public class SentenceService {
         // 학습 완료 시 연속 학습일 업데이트
         if (isCompleted != null && isCompleted) {
             streakService.updateStreak(userId);
+            // 뱃지 체크
+            badgeEarningService.checkBadgesOnSentenceCompletion(userId);
         }
     }
 
@@ -151,6 +167,9 @@ public class SentenceService {
                         .dayNumber(day)
                         .isActive(true)
                         .build();
+                if (sentenceEntity.getAudioUrl() == null || sentenceEntity.getAudioUrl().isEmpty() || !sentenceEntity.getAudioUrl().startsWith("http")) {
+                    sentenceEntity.setAudioUrl(audioUrl);
+                }
                 sentenceRepository.save(sentenceEntity);
                 count++;
             }
@@ -214,17 +233,23 @@ public class SentenceService {
                     errorFiles.add(filePath + " (ZIP 파일에서 추출 실패)");
                     continue;
                 }
-                // S3 업로드 (폴더+파일명 그대로)
-                String s3Key = filePath;
-                log.info("[S3] Uploading file: {} to S3 key: {}", filePath, s3Key);
-                String uploadedKey = s3Service.uploadFileWithKey(tempFile, s3Key);
-                String s3Url = s3Service.getS3Url(uploadedKey);
-                log.info("[S3] Uploaded file: {} to S3 key: {}", filePath, uploadedKey);
-                // audioUrl에 S3 URL 저장
-                String oldAudioUrl = matchingSentence.getAudioUrl();
-                matchingSentence.setAudioUrl(s3Url);
-                sentenceRepository.save(matchingSentence);
-                log.info("[DB] Updated sentenceId={}, oldAudioUrl={}, newAudioUrl={}", matchingSentence.getId(), oldAudioUrl, s3Url);
+                try {
+                    // S3 업로드 (폴더+파일명 그대로)
+                    String s3Key = filePath;
+                    String uploadedKey = s3Service.uploadFileWithKey(tempFile, s3Key);
+                    String s3Url = s3Service.getS3Url(uploadedKey);
+
+                    // audioUrl에 S3 URL 저장
+                    matchingSentence.setAudioUrl(s3Url);
+                    sentenceRepository.save(matchingSentence);
+                    sentenceRepository.flush(); // 즉시 DB 반영
+                    log.info("[DB:후] sentenceId={}, audioUrl={}", matchingSentence.getId(), matchingSentence.getAudioUrl());
+                } catch (Exception e) {
+                    log.error("[ERROR] sentenceId={}, S3 URL 저장 실패: {}", matchingSentence.getId(), e.getMessage(), e);
+                    errorCount++;
+                    errorFiles.add(filePath + " (DB 저장 실패): " + e.getMessage());
+                    continue;
+                }
                 tempFile.delete();
                 successCount++;
                 successFiles.add(filePath);

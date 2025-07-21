@@ -7,11 +7,13 @@
 <body>
 <div class="admin-student-management" th:fragment="adminStudentManagement">
     <h2>학생 관리</h2>
+    
     <!-- 학생 목록 조회/검색 -->
     <div class="student-search-section">
         <input type="text" id="student-search-input" placeholder="학생 이름, 이메일 등으로 검색...">
         <button id="student-search-btn">검색</button>
     </div>
+    
     <div class="student-list-section">
         <table class="student-list-table">
             <thead>
@@ -19,43 +21,173 @@
                     <th>이름</th>
                     <th>이메일</th>
                     <th>학년</th>
+                    <th>그룹</th>
+                    <th>진행도</th>
                     <th>상세보기</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- 예시: 학생 목록 반복 렌더링 -->
-                <tr th:each="student : ${students}">
-                    <td th:text="${student.name}">홍길동</td>
-                    <td th:text="${student.email}">student@email.com</td>
-                    <td th:text="${student.grade}">3학년</td>
-                    <td><button th:attr="data-student-id=${student.id}" class="view-detail-btn">상세</button></td>
-                </tr>
+                <!-- JS로 동적 렌더링 -->
             </tbody>
         </table>
     </div>
 
     <!-- 학생별 학습 데이터 조회/피드백 작성/수정 -->
     <div class="student-detail-section" style="display:none;">
+        <div class="detail-header">
         <h3>학생 학습 데이터</h3>
-        <div class="student-basic-info">
-            <span>이름: </span><span id="detail-student-name"></span><br>
-            <span>이메일: </span><span id="detail-student-email"></span><br>
-            <span>학년: </span><span id="detail-student-grade"></span><br>
+            <button id="close-detail-btn">닫기</button>
         </div>
-        <h4>학습 데이터</h4>
-        <table class="learning-data-table">
-            <thead>
-                <tr>
-                    <th>날짜</th>
-                    <th>학습 단어 수</th>
-                    <th>학습 문장 수</th>
-                    <th>코인 획득</th>
-                </tr>
-            </thead>
-            <tbody id="learning-data-body">
-                <!-- JS로 동적 렌더링 또는 th:each 반복 가능 -->
-            </tbody>
-        </table>
+        
+        <div class="student-basic-info">
+            <div class="info-item">
+                <span class="label">이름:</span>
+                <span id="detail-student-name"></span>
+            </div>
+            <div class="info-item">
+                <span class="label">이메일:</span>
+                <span id="detail-student-email"></span>
+            </div>
+            <div class="info-item">
+                <span class="label">학년:</span>
+                <span id="detail-student-grade"></span>
+            </div>
+            <div class="info-item">
+                <span class="label">그룹:</span>
+                <span id="detail-student-group"></span>
+            </div>
+        </div>
+
+        <!-- 탭 메뉴 -->
+        <div class="detail-tabs">
+            <button class="tab-btn active" data-tab="calendar">달력 보기</button>
+            <button class="tab-btn" data-tab="graph">그래프 보기</button>
+            <button class="tab-btn" data-tab="stats">통계</button>
+            <button class="tab-btn" data-tab="feedback">피드백</button>
+        </div>
+
+        <!-- 달력 탭 -->
+        <div class="tab-content active" id="calendar-tab">
+            <h4>학습 달력</h4>
+            <div class="calendar-controls">
+                <button id="prev-month-btn">◀</button>
+                <span id="current-month">2024년 1월</span>
+                <button id="next-month-btn">▶</button>
+            </div>
+            <div class="calendar-container">
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- JS로 동적 생성 -->
+                </div>
+            </div>
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <span class="legend-color high"></span>
+                    <span>높은 활동 (5개 이상)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color medium"></span>
+                    <span>보통 활동 (2-4개)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color low"></span>
+                    <span>낮은 활동 (1개)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color none"></span>
+                    <span>활동 없음</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 그래프 탭 -->
+        <div class="tab-content" id="graph-tab">
+            <h4>학습 진행도 그래프</h4>
+            <div class="graph-controls">
+                <!-- <button class="graph-btn active" data-graph="daily">일별 진행도</button> -->
+                <!-- <button class="graph-btn" data-graph="weekly">주별 요약</button> -->
+                <button class="graph-btn active" data-graph="day-level">Day/Level별 진행도</button>
+            </div>
+            
+            <!-- Day/Level 필터 -->
+            <div class="day-level-filters" style="display: block;">
+                <div class="filter-group">
+                    <label>Level 선택:</label>
+                    <select id="level-filter">
+                        <option value="all">전체</option>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                        <option value="6">Level 6</option>
+                        <option value="7">Level 7</option>
+                        <option value="8">Level 8</option>
+                        <option value="9">Level 9</option>
+                        <option value="10">Level 10</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Day 선택:</label>
+                    <select id="day-filter">
+                        <option value="all">전체</option>
+                        <!-- JS로 동적 생성 -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="graph-container" style="height: 400px; width: 100%;">
+                <canvas id="progress-chart" width="800" height="400"></canvas>
+            </div>
+        </div>
+
+        <!-- 통계 탭 -->
+        <div class="tab-content" id="stats-tab">
+            <h4>학습 통계</h4>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h5>전체 학습량</h5>
+                    <div class="stat-numbers">
+                        <div class="stat-item">
+                            <span class="stat-label">단어:</span>
+                            <span class="stat-value" id="total-words">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">문장:</span>
+                            <span class="stat-value" id="total-sentences">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h5>오늘 학습량</h5>
+                    <div class="stat-numbers">
+                        <div class="stat-item">
+                            <span class="stat-label">단어:</span>
+                            <span class="stat-value" id="today-words">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">문장:</span>
+                            <span class="stat-value" id="today-sentences">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h5>이번 주 학습량</h5>
+                    <div class="stat-numbers">
+                        <div class="stat-item">
+                            <span class="stat-label">단어:</span>
+                            <span class="stat-value" id="week-words">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">문장:</span>
+                            <span class="stat-value" id="week-sentences">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 피드백 탭 -->
+        <div class="tab-content" id="feedback-tab">
         <h4>피드백 작성/수정</h4>
         <form id="feedback-form">
             <textarea id="feedback-content" rows="4" placeholder="피드백을 입력하세요..."></textarea><br>
@@ -64,18 +196,13 @@
         <div id="feedback-history">
             <h5>이전 피드백</h5>
             <ul>
-                <li th:each="fb : ${feedbacks}">
-                    <span th:text="${fb.content}">예시 피드백</span>
-                    <button type="button" class="edit-feedback-btn" th:attr="data-feedback-id=${fb.id}">수정</button>
-                    <button type="button" class="delete-feedback-btn" th:attr="data-feedback-id=${fb.id}">삭제</button>
-                </li>
+                    <!-- JS로 동적 렌더링 -->
             </ul>
+            </div>
         </div>
-        <button id="close-detail-btn">닫기</button>
     </div>
 </div>
-<script>
-// JS로 상세보기, 피드백 저장/수정/삭제 등 동작 구현 (Ajax 등)
-</script>
+
+<script src="/static/js/admin-student-management.js"></script>
 </body>
 </html>

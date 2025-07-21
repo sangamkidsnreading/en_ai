@@ -123,5 +123,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         public Long getId() {
             return user.getId();
         }
+
+        public String getGroupName() {
+            return user.getGroupName();
+        }
     }
 }

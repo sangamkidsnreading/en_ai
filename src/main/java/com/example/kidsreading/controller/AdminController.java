@@ -43,6 +43,8 @@ import com.example.kidsreading.service.SentenceService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.example.kidsreading.service.BadgeSettingsService;
+import com.example.kidsreading.dto.BadgeSettingsDto;
 
 @RestController
 @RequestMapping({"/api/admin"})
@@ -62,6 +64,9 @@ public class AdminController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private BadgeSettingsService badgeSettingsService;
 
     @GetMapping({"/stats"})
     public ResponseEntity<AdminStatsDto> getAdminStats() {
@@ -464,6 +469,49 @@ public class AdminController {
             return authentication.getName(); // 이메일 또는 username
         }
         return "anonymous"; // 기본값
+    }
+
+    // 뱃지 설정 관련 API
+    @GetMapping("/badge-settings")
+    public ResponseEntity<List<BadgeSettingsDto>> getAllBadgeSettings() {
+        List<BadgeSettingsDto> settings = badgeSettingsService.getAllBadgeSettings();
+        return ResponseEntity.ok(settings);
+    }
+
+    @GetMapping("/badge-settings/active")
+    public ResponseEntity<List<BadgeSettingsDto>> getActiveBadgeSettings() {
+        List<BadgeSettingsDto> settings = badgeSettingsService.getActiveBadgeSettings();
+        return ResponseEntity.ok(settings);
+    }
+
+    @PostMapping("/badge-settings")
+    public ResponseEntity<BadgeSettingsDto> createBadgeSettings(@RequestBody BadgeSettingsDto badgeSettingsDto) {
+        BadgeSettingsDto created = badgeSettingsService.createBadgeSettings(badgeSettingsDto);
+        return ResponseEntity.ok(created);
+    }
+
+    @PutMapping("/badge-settings/{id}")
+    public ResponseEntity<BadgeSettingsDto> updateBadgeSettings(@PathVariable Long id, @RequestBody BadgeSettingsDto badgeSettingsDto) {
+        BadgeSettingsDto updated = badgeSettingsService.updateBadgeSettings(id, badgeSettingsDto);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/badge-settings/{id}")
+    public ResponseEntity<Map<String, String>> deleteBadgeSettings(@PathVariable Long id) {
+        badgeSettingsService.deleteBadgeSettings(id);
+        return ResponseEntity.ok(Map.of("message", "뱃지 설정이 삭제되었습니다."));
+    }
+
+    @PostMapping("/badge-settings/{id}/toggle")
+    public ResponseEntity<BadgeSettingsDto> toggleBadgeSettings(@PathVariable Long id) {
+        BadgeSettingsDto toggled = badgeSettingsService.toggleBadgeSettings(id);
+        return ResponseEntity.ok(toggled);
+    }
+
+    @PostMapping("/badge-settings/initialize")
+    public ResponseEntity<Map<String, String>> initializeDefaultBadgeSettings() {
+        badgeSettingsService.initializeDefaultBadgeSettings();
+        return ResponseEntity.ok(Map.of("message", "기본 뱃지 설정이 초기화되었습니다."));
     }
 
     @Generated

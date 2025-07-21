@@ -5,8 +5,10 @@ import com.example.kidsreading.dto.LevelProgressDto;
 import com.example.kidsreading.dto.RegisterRequest;
 import com.example.kidsreading.entity.LevelSettings;
 import com.example.kidsreading.entity.User;
+import com.example.kidsreading.entity.UserLevels;
 import com.example.kidsreading.repository.UserSentenceProgressRepository;
 import com.example.kidsreading.repository.LevelSettingsRepository;
+import com.example.kidsreading.repository.UserLevelsRepository;
 import com.example.kidsreading.repository.UserRepository;
 import com.example.kidsreading.repository.UserWordProgressRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,19 +40,20 @@ public class UserService {
     private final UserWordProgressRepository userWordProgressRepository;
     private final LevelSettingsRepository levelSettingsRepository;
     private final UserSentenceProgressRepository userSentenceProgressRepository;
-    // private final EmailService emailService; // 나중에 추가
+    private final UserLevelsRepository userLevelsRepository;
 
+    /**
+     * 현재 로그인한 사용자 조회
+     */
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email).orElseThrow();
+        return findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
     /**
-     * 회원가입 처리
+     * 회원가입
      */
     public User registerUser(RegisterRequest request) {
-        log.info("회원가입 처리 시작: {}", request.getEmail());
-
         // 이메일 중복 확인
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
@@ -88,6 +91,19 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+        
+        // UserLevels 엔티티 생성 (기본값: 레벨 1, 코인 0, 경험치 0)
+        UserLevels userLevels = UserLevels.builder()
+                .userId(savedUser.getId())
+                .currentLevel(1)
+                .currentDay(1)
+                .totalCoins(0)
+                .experiencePoints(0)
+                .streakDays(0)
+                .build();
+        
+        userLevelsRepository.save(userLevels);
+        
         log.info("회원가입 완료: {} (ID: {})", savedUser.getEmail(), savedUser.getId());
 
         return savedUser;
@@ -194,31 +210,57 @@ public class UserService {
 
     public LevelProgressDto getLevelProgressForCurrentUser() {
         User user = getCurrentUser();
-        int learnedWords = userWordProgressRepository.countByUserIdAndIsLearnedTrue(user.getId());
-        int learnedSentences = userSentenceProgressRepository.countByUserIdAndIsLearnedTrue(user.getId());
-        int currentLevel = user.getLevel() != null ? user.getLevel() : 1;
+        return getLevelProgressForUser(user.getId());
+    }
 
-        // 레벨별 필요 단어/문장 수
+    public LevelProgressDto getLevelProgressForUser(Long userId) {
+        // UserLevels에서 현재 레벨 정보 조회
+        UserLevels userLevels = userLevelsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultUserLevels(userId));
+        
+        int currentLevel = userLevels.getCurrentLevel();
+        
+        // user_word_progress와 user_sentence_progress에서 학습 완료된 개수 조회
+        int learnedWords = userWordProgressRepository.countByUserIdAndIsLearnedTrue(userId);
+        int learnedSentences = userSentenceProgressRepository.countByUserIdAndIsLearnedTrue(userId);
+
+        log.info("레벨 진행도 계산 시작: userId={}, currentLevel={}, learnedWords={}, learnedSentences={}", 
+                userId, currentLevel, learnedWords, learnedSentences);
+
+        // 레벨별 필요 단어/문장 수 (level_settings 테이블에서 조회)
         LevelSettings settings = levelSettingsRepository.findByLevel(currentLevel).orElse(null);
         int wordsToNextLevel = (settings != null && settings.getWordsToNextLevel() > 0) ? settings.getWordsToNextLevel() : 100;
         int sentencesToNextLevel = (settings != null && settings.getSentencesToNextLevel() > 0) ? settings.getSentencesToNextLevel() : 50;
 
-        // 누적 필요 단어/문장 수
+        log.info("레벨 설정: level={}, wordsToNextLevel={}, sentencesToNextLevel={}", 
+                currentLevel, wordsToNextLevel, sentencesToNextLevel);
+
+        // 누적 필요 단어/문장 수 (이전 레벨들의 요구사항 합계)
         int prevWordsTotal = getTotalWordsForPreviousLevels(currentLevel);
         int prevSentencesTotal = getTotalSentencesForPreviousLevels(currentLevel);
 
+        log.info("이전 레벨 누적: prevWordsTotal={}, prevSentencesTotal={}", prevWordsTotal, prevSentencesTotal);
+
+        // 현재 레벨에서 학습한 단어/문장 수
         int currentLevelLearnedWords = learnedWords - prevWordsTotal;
         int currentLevelLearnedSentences = learnedSentences - prevSentencesTotal;
         if (currentLevelLearnedWords < 0) currentLevelLearnedWords = 0;
         if (currentLevelLearnedSentences < 0) currentLevelLearnedSentences = 0;
 
-        // 단어/문장 각각의 진행률
-        double wordProgress = (currentLevelLearnedWords * 1.0) / wordsToNextLevel;
-        double sentenceProgress = (currentLevelLearnedSentences * 1.0) / sentencesToNextLevel;
+        log.info("현재 레벨 학습량: currentLevelLearnedWords={}, currentLevelLearnedSentences={}", 
+                currentLevelLearnedWords, currentLevelLearnedSentences);
 
-        // 평균 진행률(혹은 가중치 부여 가능)
-        int levelProgress = (int) ( (wordProgress + sentenceProgress) / 2 * 100 );
+        // 단어/문장 각각의 진행률 계산
+        double wordProgress = wordsToNextLevel > 0 ? (currentLevelLearnedWords * 1.0) / wordsToNextLevel : 0;
+        double sentenceProgress = sentencesToNextLevel > 0 ? (currentLevelLearnedSentences * 1.0) / sentencesToNextLevel : 0;
+
+        log.info("개별 진행률: wordProgress={}, sentenceProgress={}", wordProgress, sentenceProgress);
+
+        // 평균 진행률 (단어와 문장의 가중 평균)
+        int levelProgress = (int) ((wordProgress + sentenceProgress) / 2 * 100);
         levelProgress = Math.min(levelProgress, 100);
+
+        log.info("최종 레벨 진행도: {}%", levelProgress);
 
         LevelProgressDto dto = new LevelProgressDto();
         dto.setCurrentLevel(currentLevel);
@@ -226,6 +268,21 @@ public class UserService {
         dto.setWordsToNextLevel(Math.max(wordsToNextLevel - currentLevelLearnedWords, 0));
         dto.setSentencesToNextLevel(Math.max(sentencesToNextLevel - currentLevelLearnedSentences, 0));
         return dto;
+    }
+
+    /**
+     * 기본 UserLevels 생성
+     */
+    private UserLevels createDefaultUserLevels(Long userId) {
+        UserLevels userLevels = UserLevels.builder()
+                .userId(userId)
+                .currentLevel(1)
+                .currentDay(1)
+                .totalCoins(0)
+                .experiencePoints(0)
+                .streakDays(0)
+                .build();
+        return userLevelsRepository.save(userLevels);
     }
 
     private int getWordsToNextLevel(int currentLevel) {
@@ -246,9 +303,30 @@ public class UserService {
     @Transactional
     public void levelUpCurrentUser() {
         User user = getCurrentUser();
-        int currentLevel = user.getLevel() != null ? user.getLevel() : 1;
+        levelUpUser(user.getId());
+    }
+
+    @Transactional
+    public void levelUpUser(Long userId) {
+        // UserLevels에서 현재 레벨 정보 조회
+        UserLevels userLevels = userLevelsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultUserLevels(userId));
+        
+        int currentLevel = userLevels.getCurrentLevel();
+        
+        // 최대 레벨 확인 (기본값 10, 설정에서 가져올 수도 있음)
+        int maxLevel = 10;
+        
+        if (currentLevel >= maxLevel) {
+            throw new IllegalStateException("이미 최고 레벨에 도달했습니다.");
+        }
+        
         int nextLevel = currentLevel + 1;
-        user.setLevel(nextLevel);
-        userRepository.save(user);
+        userLevels.setCurrentLevel(nextLevel);
+        userLevels.setUpdatedAt(LocalDateTime.now());
+        userLevelsRepository.save(userLevels);
+        
+        log.info("레벨업 완료: userId={}, oldLevel={}, newLevel={}", 
+                userId, currentLevel, nextLevel);
     }
 }

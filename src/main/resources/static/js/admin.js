@@ -241,6 +241,33 @@ class AdminDashboard {
             console.warn('❌ 단어 Day 선택 드롭다운을 찾을 수 없습니다.');
         }
 
+        // 뱃지 컬렉션 관련 버튼
+        const initializeBadgesBtn = document.getElementById('initialize-badges-btn');
+        if (initializeBadgesBtn) {
+            console.log('✅ 뱃지 초기화 버튼 찾음');
+            initializeBadgesBtn.addEventListener('click', function(e) {
+                console.log('🎯 뱃지 초기화 버튼 클릭됨');
+                e.preventDefault();
+                if (confirm('기본 뱃지로 초기화하시겠습니까? 기존 뱃지 설정이 변경될 수 있습니다.')) {
+                    self.initializeBadgeSettings();
+                }
+            });
+        } else {
+            console.warn('❌ 뱃지 초기화 버튼을 찾을 수 없습니다.');
+        }
+
+        const addBadgeBtn = document.getElementById('add-badge-btn');
+        if (addBadgeBtn) {
+            console.log('✅ 뱃지 추가 버튼 찾음');
+            addBadgeBtn.addEventListener('click', function(e) {
+                console.log('🎯 뱃지 추가 버튼 클릭됨');
+                e.preventDefault();
+                self.openBadgeModal();
+            });
+        } else {
+            console.warn('❌ 뱃지 추가 버튼을 찾을 수 없습니다.');
+        }
+
         const sentenceDaySelect = document.getElementById('sentence-day-select');
         if (sentenceDaySelect) {
             console.log('✅ 문장 Day 선택 드롭다운 찾음');
@@ -707,6 +734,9 @@ class AdminDashboard {
             case 'registration':
                 this.loadRegistrationSettings();
                 break;
+            case 'badge-settings':
+                this.loadBadgeSettings();
+                break;
         }
     }
 
@@ -1077,7 +1107,14 @@ class AdminDashboard {
             wordList.innerHTML = '<div class="no-data">등록된 단어가 없습니다.</div>';
             return;
         }
-        wordList.innerHTML = words.map(function(word) {
+        // 전체선택 체크박스와 삭제 버튼을 상단에 추가
+        wordList.innerHTML = `
+            <div class="select-all-container">
+                <input type="checkbox" id="select-all-words" class="select-all-checkbox">
+                <span>전체선택</span>
+                <button id="delete-selected-words-btn" class="delete-btn" style="display:none; margin-left:16px;">🗑️ 선택 삭제</button>
+            </div>
+        ` + words.map(function(word) {
             const audioIcon = word.audioUrl ? '' : '🔇';
             const audioClass = word.audioUrl ? 'word-audio' : 'word-audio-missing';
             return '<div class="word-item" data-id="' + word.id + '" data-word-id="' + word.id + '" data-word-day="' + (word.day || 1) + '">' +
@@ -1496,23 +1533,22 @@ class AdminDashboard {
 
     renderSentences(sentences) {
         const sentenceList = document.getElementById('sentence-list');
-
         if (!sentenceList) {
             console.warn('sentence-list 요소를 찾을 수 없습니다.');
             return;
         }
-
         if (sentences.length === 0) {
             sentenceList.innerHTML = '<div class="no-data">등록된 문장이 없습니다.</div>';
             return;
         }
-
-        // 중복 제거를 위해 ID 기준으로 필터링
-        const uniqueSentences = sentences.filter((sentence, index, self) => 
-            index === self.findIndex(s => s.id === sentence.id)
-        );
-
-        sentenceList.innerHTML = uniqueSentences.map(function(sentence) {
+        // 전체선택 체크박스와 삭제 버튼을 상단에 추가
+        sentenceList.innerHTML = `
+            <div class="select-all-container">
+                <input type="checkbox" id="select-all-sentences" class="select-all-checkbox">
+                <span>전체선택</span>
+                <button id="delete-selected-sentences-btn" class="delete-btn" style="display:none; margin-left:16px;">🗑️ 선택 삭제</button>
+            </div>
+        ` + sentences.map(function(sentence) {
             const koreanText = sentence.translation || sentence.korean || '';
             const audioIcon = sentence.audioUrl ? '' : '🔇';
             const audioClass = sentence.audioUrl ? 'sentence-audio' : 'sentence-audio-missing';
@@ -1898,7 +1934,7 @@ class AdminDashboard {
         }
 
         // 파일 크기 검증 (10B)
-        if (zipFile.size > 100 * 1024 * 124) {
+        if (zipFile.size > 100 * 1024 * 1024) {
             this.showError('ZIP 파일 크기는 10니다.');
             return;
         }
@@ -3145,6 +3181,134 @@ class AdminDashboard {
                 console.error('회원가입 설정 저장 실패:', error);
                 self.showError('회원가입 설정 저장에 실패했습니다.');
             });
+    }
+
+    // ========== 뱃지 컬렉션 관리 ==========
+
+    loadBadgeSettings() {
+        const self = this;
+        this.apiCall('/badge-settings')
+            .then(function(badges) {
+                self.renderBadgeSettings(badges);
+            })
+            .catch(function(error) {
+                console.error('뱃지 설정 로드 실패:', error);
+                self.showError('뱃지 설정을 불러올 수 없습니다.');
+                // 테스트용 더미 데이터
+                self.renderBadgeSettings([
+                    { id: 1, badgeName: '첫 걸음', badgeIcon: '🎯', badgeDescription: '첫 번째 학습을 완료했습니다', attendanceCount: 1, isActive: true, displayOrder: 1 },
+                    { id: 2, badgeName: '열정 학습자', badgeIcon: '🔥', badgeDescription: '연속 출석을 달성했습니다', streakCount: 7, isActive: true, displayOrder: 2 },
+                    { id: 3, badgeName: '단어 마스터', badgeIcon: '📚', badgeDescription: '단어 학습을 달성했습니다', wordsCount: 100, isActive: true, displayOrder: 3 },
+                    { id: 4, badgeName: '골드 마스터', badgeIcon: '🏆', badgeDescription: '문장 학습을 달성했습니다', sentencesCount: 50, isActive: true, displayOrder: 4 },
+                    { id: 5, badgeName: '전설 수집가', badgeIcon: '⭐', badgeDescription: '복습을 달성했습니다', wordReviewCount: 200, isActive: true, displayOrder: 5 }
+                ]);
+            });
+    }
+
+    renderBadgeSettings(badges) {
+        const tbody = document.getElementById('badge-settings-list');
+        if (!tbody) {
+            console.warn('badge-settings-list 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        if (badges.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 20px;">등록된 뱃지가 없습니다.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = badges.map(function(badge) {
+            return '<tr data-badge-id="' + badge.id + '">' +
+                '<td style="font-size: 24px;">' + badge.badgeIcon + '</td>' +
+                '<td>' + badge.badgeName + '</td>' +
+                '<td style="text-align: left; max-width: 200px;">' + (badge.badgeDescription || '') + '</td>' +
+                '<td><input type="number" class="badge-input" data-field="attendanceCount" value="' + (badge.attendanceCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="number" class="badge-input" data-field="streakCount" value="' + (badge.streakCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="number" class="badge-input" data-field="wordsCount" value="' + (badge.wordsCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="number" class="badge-input" data-field="sentencesCount" value="' + (badge.sentencesCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="number" class="badge-input" data-field="wordReviewCount" value="' + (badge.wordReviewCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="number" class="badge-input" data-field="sentenceReviewCount" value="' + (badge.sentenceReviewCount || '') + '" min="0" placeholder="0"></td>' +
+                '<td><input type="checkbox" class="badge-checkbox" data-field="isActive" ' + (badge.isActive ? 'checked' : '') + '></td>' +
+                '<td><input type="number" class="badge-input" data-field="displayOrder" value="' + (badge.displayOrder || '') + '" min="0" placeholder="0"></td>' +
+                '<td>' +
+                '<button class="save-btn" onclick="window.adminDashboard.saveBadge(' + badge.id + ')">저장</button> ' +
+                '<button class="delete-btn" onclick="window.adminDashboard.deleteBadge(' + badge.id + ')">삭제</button>' +
+                '</td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    saveBadge(badgeId) {
+        const self = this;
+        const row = document.querySelector('tr[data-badge-id="' + badgeId + '"]');
+        if (!row) {
+            self.showError('뱃지를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 입력 필드에서 값 수집
+        const badgeData = {
+            attendanceCount: this.getInputValue(row, 'attendanceCount'),
+            streakCount: this.getInputValue(row, 'streakCount'),
+            wordsCount: this.getInputValue(row, 'wordsCount'),
+            sentencesCount: this.getInputValue(row, 'sentencesCount'),
+            wordReviewCount: this.getInputValue(row, 'wordReviewCount'),
+            sentenceReviewCount: this.getInputValue(row, 'sentenceReviewCount'),
+            isActive: row.querySelector('input[data-field="isActive"]').checked,
+            displayOrder: this.getInputValue(row, 'displayOrder')
+        };
+
+        // API 호출하여 저장
+        this.apiCall('/badge-settings/' + badgeId, 'PUT', badgeData)
+            .then(function(response) {
+                self.showSuccess('뱃지가 저장되었습니다.');
+                self.loadBadgeSettings(); // 목록 새로고침
+            })
+            .catch(function(error) {
+                console.error('뱃지 저장 실패:', error);
+                self.showError('뱃지 저장에 실패했습니다.');
+            });
+    }
+
+    getInputValue(row, fieldName) {
+        const input = row.querySelector('input[data-field="' + fieldName + '"]');
+        if (!input) return null;
+        
+        const value = input.value.trim();
+        return value === '' ? null : parseInt(value);
+    }
+
+    deleteBadge(badgeId) {
+        const self = this;
+        if (confirm('이 뱃지를 삭제하시겠습니까?')) {
+            this.apiCall('/badge-settings/' + badgeId, 'DELETE')
+                .then(function(response) {
+                    self.showSuccess('뱃지가 삭제되었습니다.');
+                    self.loadBadgeSettings();
+                })
+                .catch(function(error) {
+                    console.error('뱃지 삭제 실패:', error);
+                    self.showError('뱃지 삭제에 실패했습니다.');
+                });
+        }
+    }
+
+    initializeBadgeSettings() {
+        const self = this;
+        this.apiCall('/badge-settings/initialize', 'POST')
+            .then(function(response) {
+                self.showSuccess('기본 뱃지가 초기화되었습니다.');
+                self.loadBadgeSettings();
+            })
+            .catch(function(error) {
+                console.error('뱃지 초기화 실패:', error);
+                self.showError('뱃지 초기화에 실패했습니다.');
+            });
+    }
+
+    openBadgeModal(badge) {
+        // 간단한 구현 - 추후 모달 UI 추가 예정
+        alert('뱃지 추가/수정 모달은 추후 구현 예정입니다.');
     }
 
     // 진행률 모달 생성
